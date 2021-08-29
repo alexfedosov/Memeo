@@ -79,9 +79,6 @@ class TrackersEditorUIView: UIView {
 
       movingTracker = tracker
       touchLocationInMovingTracker = tracker.convert(location, from: layer) - CGPoint(x: tracker.bounds.width / 2, y: tracker.bounds.height / 2)
-      if let model = getTrackerModel(for: tracker) {
-        print(model.tracker.text)
-      }
     case .changed:
       guard let movingTracker = movingTracker else {
         break

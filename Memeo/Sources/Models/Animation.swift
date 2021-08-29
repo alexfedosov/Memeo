@@ -26,7 +26,6 @@ extension Animation {
     animation.values = keys.map {
       keyframes[$0]?.toAnimated() as Any
     }
-    print(keyframes)
     animation.keyTimes = keys.map {
       Double($0) / Double(numberOfKeyframes) as NSNumber
     }
