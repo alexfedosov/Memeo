@@ -29,8 +29,6 @@ class TrackerLayer: CALayer {
     textLabel.font = .boldSystemFont(ofSize: 24)
     
     addSublayer(textLabel.layer)
-    borderColor = UIColor.red.cgColor
-    borderWidth = 2
   }
 
   override init(layer: Any) {
