@@ -111,7 +111,8 @@ class TrackersEditorUIView: UIView {
   func updateTrackers(modelTrackers: [Tracker],
                       numberOfKeyframes: Int,
                       currentKeyframe: Int,
-                      isPlaying: Bool) {
+                      isPlaying: Bool,
+                      duration: CFTimeInterval) {
     let oldTrackers = trackerLayers.map { $0.tracker }
     let diff = modelTrackers.difference(from: oldTrackers, by: { $0.id == $1.id })
     for change in diff {
@@ -124,7 +125,7 @@ class TrackersEditorUIView: UIView {
         layer.insertSublayer(createdTrackerLayer, at: UInt32(offset))
         let animation = element.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
                                                          currentKeyframe: currentKeyframe,
-                                                         duration: 5,
+                                                         duration: duration,
                                                          speed: isPlaying ? 1 : 0)
         layer.add(animation, forKey: animation.keyPath)
       case .remove(offset: let offset, element: _, associatedWith: _):
@@ -150,7 +151,7 @@ class TrackersEditorUIView: UIView {
         trackerLayers[index].updateCALayer(layer)
         let animation = newTracker.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
                                                             currentKeyframe: currentKeyframe,
-                                                            duration: 12,
+                                                            duration: duration,
                                                             speed: isPlaying ? 1 : 0)
         layer.add(animation, forKey: animation.keyPath)
       }

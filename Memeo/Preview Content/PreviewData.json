@@ -1,6 +1,18 @@
 {
+  "duration": 12.8,
   "numberOfKeyframes": 120,
   "trackers": [
-
+    {
+      "id": "15723554-bbbe-45bf-9eae-ad4fe8c03cc4",
+      "text": "Tracker 1",
+      "position": {
+        "id": "15723554-bbbe-45bf-9eae-ad4fe8c03cc5",
+        "key": "position",
+        "keyframes": {
+          "0": { "x": 20, "y": 20 },
+          "100": { "x": 200, "y": 200 }
+        }
+      }
+    },
   ]
 }

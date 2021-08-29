@@ -8,6 +8,7 @@
 import Foundation
 
 struct Document: Codable {
+  var duration: CFTimeInterval
   var numberOfKeyframes: Int
   var trackers: [Tracker]
 }

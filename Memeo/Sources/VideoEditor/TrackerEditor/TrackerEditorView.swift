@@ -12,6 +12,7 @@ struct TrackerEditorView: UIViewRepresentable {
   let numberOfKeyframes: Int
   let currentKeyframe: Int
   let isPlaying: Bool
+  let duration: CFTimeInterval
   var trackerTapped: ((Tracker) -> Void)? = nil
   var trackerPositionChanged: ((CGPoint, Tracker) -> Void)? = nil
   
@@ -27,7 +28,8 @@ struct TrackerEditorView: UIViewRepresentable {
     uiView.updateTrackers(modelTrackers: trackers,
                           numberOfKeyframes: numberOfKeyframes,
                           currentKeyframe: currentKeyframe,
-                          isPlaying: isPlaying)
+                          isPlaying: isPlaying,
+                          duration: duration)
   }
   
   func makeCoordinator() -> Coordinator {
@@ -54,7 +56,8 @@ struct TrackerEditorView_Previews: PreviewProvider {
     TrackerEditorView(trackers: model.document.trackers,
                       numberOfKeyframes: model.document.numberOfKeyframes,
                       currentKeyframe: model.currentKeyframe,
-                      isPlaying: model.isPlaying)
+                      isPlaying: model.isPlaying,
+                      duration: model.document.duration)
       .background(Color.black)
   }
 }

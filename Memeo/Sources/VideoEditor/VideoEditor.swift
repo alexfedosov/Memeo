@@ -37,7 +37,8 @@ struct VideoEditor: View {
         TrackerEditorView(trackers: viewModel.document.trackers,
                           numberOfKeyframes: viewModel.document.numberOfKeyframes,
                           currentKeyframe: viewModel.currentKeyframe,
-                          isPlaying: viewModel.isPlaying)
+                          isPlaying: viewModel.isPlaying,
+                          duration: viewModel.document.duration)
           .onTrackerTapped({ tracker in
             viewModel.selectTracker(tracker: tracker)
             viewModel.isEditingText = true
