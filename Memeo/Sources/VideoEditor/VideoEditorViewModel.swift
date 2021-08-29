@@ -12,6 +12,7 @@ class VideoEditorViewModel: ObservableObject {
   @Published var document: Document
   @Published var currentKeyframe: Int = 0
   @Published var isPlaying: Bool = false
+  @Published var isEditingText: Bool = false
   @Published var selectedTrackerIndex: Int?
   
   init(document: Document) {

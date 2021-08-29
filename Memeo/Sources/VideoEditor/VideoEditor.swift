@@ -31,6 +31,44 @@ struct VideoEditor: View {
   }
   
   var body: some View {
+    ZStack {
+      VStack {
+        topToolbar()
+        TrackerEditorView(trackers: viewModel.document.trackers,
+                          numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                          currentKeyframe: viewModel.currentKeyframe,
+                          isPlaying: viewModel.isPlaying)
+          .onTrackerTapped({ tracker in
+            viewModel.selectTracker(tracker: tracker)
+            viewModel.isEditingText = true
+          })
+          .onTrackerPositionChanged({ point, tracker in
+            viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
+          })
+          .background(Color.black)
+        Timeline(currentKeyframe: $viewModel.currentKeyframe,
+                 isPlaying: $viewModel.isPlaying,
+                 numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                 higlightedKeyframes: highlightedKeyframes)
+      }.ignoresSafeArea(.keyboard, edges: .bottom)
+      trackerTextEditor()
+    }
+  }
+  
+  func trackerTextEditor() -> some View {
+    VStack {
+      if let index = viewModel.selectedTrackerIndex,
+         let text = viewModel.document.trackers[index].text,
+         viewModel.isEditingText {
+        TrackerTextEditor(text: text) { newText in
+          viewModel.document.trackers[index].text = newText
+          viewModel.isEditingText = false
+        }.transition(.opacity)
+      }
+    }
+  }
+  
+  func topToolbar() -> some View {
     VStack {
       Text("selected tracker index \(viewModel.selectedTrackerIndex ?? -1)")
       Text("\(viewModel.currentKeyframe)")
@@ -63,21 +101,6 @@ struct VideoEditor: View {
           Text("Play/Pause")
         })
       }
-      TrackerEditorView(trackers: viewModel.document.trackers,
-                        numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                        currentKeyframe: viewModel.currentKeyframe,
-                        isPlaying: viewModel.isPlaying)
-        .onTrackerTapped({ tracker in
-          viewModel.selectTracker(tracker: tracker)
-        })
-        .onTrackerPositionChanged({ point, tracker in
-          viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
-        })
-        .background(Color.black)
-      Timeline(currentKeyframe: $viewModel.currentKeyframe,
-               isPlaying: $viewModel.isPlaying,
-               numberOfKeyframes: viewModel.document.numberOfKeyframes,
-               higlightedKeyframes: highlightedKeyframes)
     }
   }
 }
@@ -86,5 +109,7 @@ struct ContentView_Previews: PreviewProvider {
   static var model = VideoEditorViewModel(document: Document.loadPreviewDocument())
   static var previews: some View {
     VideoEditor(viewModel: model)
+      .background(Color.black)
+      .colorScheme(.dark)
   }
 }
