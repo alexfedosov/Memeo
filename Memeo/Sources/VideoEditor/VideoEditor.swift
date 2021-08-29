@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct VideoEditor: View {
   @ObservedObject var viewModel: VideoEditorViewModel
   var selectedTracker: Tracker? {
     get {
@@ -85,6 +85,6 @@ struct HomeView: View {
 struct ContentView_Previews: PreviewProvider {
   static var model = VideoEditorViewModel(document: Document.loadPreviewDocument())
   static var previews: some View {
-    HomeView(viewModel: model)
+    VideoEditor(viewModel: model)
   }
 }

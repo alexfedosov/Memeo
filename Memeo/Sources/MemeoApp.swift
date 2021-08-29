@@ -13,7 +13,7 @@ struct MemeoApp: App {
   
   var body: some Scene {
     WindowGroup {
-      HomeView(viewModel: videoEditoViewModel)
+      VideoEditor(viewModel: videoEditoViewModel)
     }
   }
 }

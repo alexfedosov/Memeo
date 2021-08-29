@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */; };
-		FA97AD6B26DB7C5800BD8B83 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6A26DB7C5800BD8B83 /* HomeView.swift */; };
+		FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */; };
 		FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */; };
 		FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA97AD6F26DB7C5900BD8B83 /* Preview Assets.xcassets */; };
 		FA97AD7E26DB7D3C00BD8B83 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD7D26DB7D3C00BD8B83 /* Document.swift */; };
@@ -27,7 +27,7 @@
 /* Begin PBXFileReference section */
 		FA97AD6526DB7C5800BD8B83 /* Memeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeoApp.swift; sourceTree = "<group>"; };
-		FA97AD6A26DB7C5800BD8B83 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 		FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA97AD6F26DB7C5900BD8B83 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		FA97AD7126DB7C5900BD8B83 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,7 +107,6 @@
 		FA97AD7826DB7CB200BD8B83 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				FA97AD6A26DB7C5800BD8B83 /* HomeView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -118,6 +117,7 @@
 				FA97AD9026DBBECE00BD8B83 /* Timeline */,
 				FA97AD8726DB83A700BD8B83 /* TrackerEditor */,
 				FA97AD8126DB7F8100BD8B83 /* VideoEditorViewModel.swift */,
+				FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */,
 			);
 			path = VideoEditor;
 			sourceTree = "<group>";
@@ -243,7 +243,7 @@
 				FA97AD8026DB7F2100BD8B83 /* Tracker.swift in Sources */,
 				FA97AD8926DB83B500BD8B83 /* TrackerLayerRepresentable.swift in Sources */,
 				FA97AD8226DB7F8100BD8B83 /* VideoEditorViewModel.swift in Sources */,
-				FA97AD6B26DB7C5800BD8B83 /* HomeView.swift in Sources */,
+				FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */,
 				FA97AD7E26DB7D3C00BD8B83 /* Document.swift in Sources */,
 				FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */,
 				FA97AD9626DBF7A800BD8B83 /* Animation.swift in Sources */,
