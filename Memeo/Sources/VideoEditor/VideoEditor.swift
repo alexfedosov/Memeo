@@ -101,16 +101,6 @@ struct VideoEditor: View {
             )
         })
         Button(action: {
-          viewModel.removeTracker()
-        }, label: {
-          Image(systemName: "trash")
-            .font(.subheadline)
-            .foregroundColor(.white)
-            .padding()
-            .background(Circle().fill(Color.white.opacity(0.1))
-            )
-        })
-        Button(action: {
           withAnimation {
             viewModel.isPlaying.toggle()
           }
