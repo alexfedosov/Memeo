@@ -39,14 +39,16 @@ struct UploadVideoView: View {
 }
 
 struct GradientBorderButton: View {
+  @State var animationValue: Double = 0
+  
   let text: String
   let action: () -> ()
   
-  let gradient = Gradient(colors: [
-    Color(red: 247 / 255, green: 181 / 255, blue: 0),
+  let gradientColors = [
+    Color(red: 50 / 255, green: 197 / 255, blue: 1),
     Color(red: 182 / 255, green: 32 / 255, blue: 224 / 255),
-    Color(red: 50 / 255, green: 197 / 255, blue: 1)
-  ])
+    Color(red: 247 / 255, green: 181 / 255, blue: 0),
+  ]
   
   var body: some View {
     Button(action: action, label: {
@@ -55,19 +57,28 @@ struct GradientBorderButton: View {
         .font(Font.system(size: 14, weight: .bold))
         .padding(EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48))
         .cornerRadius(30)
-        .background(
-          Rectangle()
-            .fill(LinearGradient(gradient: gradient,
-                                 startPoint: .bottomLeading,
-                                 endPoint: .topTrailing))
-            .clipShape(RoundedRectangle(cornerRadius: .infinity))
-            .overlay(
-              RoundedRectangle(cornerRadius: .infinity)
-                .fill(Color.black)
-                .padding(1)
-            )
-        )
-    })
+    }).background(
+      ZStack {
+        RoundedRectangle(cornerRadius: .infinity)
+          .fill(LinearGradient(gradient: Gradient(colors: gradientColors),
+                               startPoint: .bottomLeading,
+                               endPoint: .topTrailing))
+        RoundedRectangle(cornerRadius: .infinity)
+          .fill(LinearGradient(gradient: Gradient(colors: gradientColors.shuffled()),
+                               startPoint: .topTrailing,
+                               endPoint: .bottomLeading))
+          .opacity(animationValue)
+      }
+      .overlay(
+        RoundedRectangle(cornerRadius: .infinity)
+          .fill(Color.black)
+          .padding(1)
+      )
+    ).onAppear() {
+      withAnimation(SwiftUI.Animation.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+        animationValue = 1
+      }
+    }
   }
 }
 
