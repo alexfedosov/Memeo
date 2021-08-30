@@ -15,7 +15,7 @@ enum DocumentCreatorServiceError: Error {
 }
 
 class DocumentCreatorService {
-  func createDocument(from mediaUrl: URL) -> Future<Document, Error> {
+  func createDocument(from mediaUrl: URL) -> Future<(Document, AVAsset), Error> {
     Future { promise in
       let asset = AVAsset(url: mediaUrl)
       
@@ -29,10 +29,11 @@ class DocumentCreatorService {
         DispatchQueue.main.async {
           let duration = asset.duration.seconds
           let numberOfKeyframes = Int(asset.duration.convertScale(Int32(10), method: .default).value)
-          promise(.success(Document(duration: duration,
-                                    numberOfKeyframes: numberOfKeyframes,
-                                    trackers: [],
-                                    frameSize: frameSize)))
+          let document = Document(duration: duration,
+                                  numberOfKeyframes: numberOfKeyframes,
+                                  trackers: [],
+                                  frameSize: frameSize)
+          promise(.success((document, asset)))
         }
       }
     }

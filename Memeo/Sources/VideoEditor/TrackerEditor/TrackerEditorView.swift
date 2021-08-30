@@ -51,7 +51,7 @@ struct TrackerEditorView: UIViewRepresentable {
 }
 
 struct TrackerEditorView_Previews: PreviewProvider {
-  static var model = VideoEditorViewModel(document: Document.loadPreviewDocument())
+  static var model = VideoEditorViewModel.preview
   static var previews: some View {
     TrackerEditorView(trackers: model.document.trackers,
                       numberOfKeyframes: model.document.numberOfKeyframes,

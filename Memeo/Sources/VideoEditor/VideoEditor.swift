@@ -49,6 +49,7 @@ struct VideoEditor: View {
             viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
           })
           .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
+          .background(VideoPlayerView(videoPlayer: viewModel.videoPlayer))
         Spacer()
         ZStack {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
@@ -144,7 +145,7 @@ struct VideoEditor: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
-  static var model = VideoEditorViewModel(document: Document.loadPreviewDocument())
+  static var model = VideoEditorViewModel.preview
   static var previews: some View {
     VideoEditor(viewModel: model)
       .background(Color.black)

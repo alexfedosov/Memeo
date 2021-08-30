@@ -6,20 +6,45 @@
 //
 
 import Foundation
+import AVFoundation
 import SwiftUI
+import Combine
 
 class VideoEditorViewModel: ObservableObject {
   @Published var document: Document
+  @Published var asset: AVAsset
   @Published var currentKeyframe: Int = 0
   @Published var isPlaying: Bool = false
   @Published var isEditingText: Bool = false
   @Published var selectedTrackerIndex: Int?
+  var videoPlayer: VideoPlayer
   
-  init(document: Document) {
+  var cancellables = Set<AnyCancellable>()
+  
+  init(document: Document, asset: AVAsset) {
     self.document = document
     if document.trackers.count > 0 {
       selectedTrackerIndex = 0
     }
+    self.asset = asset
+    self.videoPlayer = VideoPlayer()
+    self.videoPlayer.delegate = self
+    videoPlayer.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+    $isPlaying.sink { [videoPlayer] isPlaying in
+      if isPlaying {
+        videoPlayer.play()
+      } else {
+        videoPlayer.pause()
+      }
+    }.store(in: &cancellables)
+    
+    
+    Publishers.CombineLatest($currentKeyframe, $isPlaying)
+      .sink { [videoPlayer] keyframe, isPlaying in
+        if !isPlaying {
+          videoPlayer.seek(to: keyframe, fps: 10)
+        }
+      }.store(in: &cancellables)
   }
   
   func addTracker() {
@@ -70,5 +95,29 @@ class VideoEditorViewModel: ObservableObject {
       document.trackers[index].position.keyframes[currentKeyframe + 1] = value
       currentKeyframe += 1
     }
+  }
+}
+
+extension VideoEditorViewModel {
+  static var preview: VideoEditorViewModel {
+    let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
+    let asset = AVAsset(url: url)
+    return VideoEditorViewModel(document: Document.loadPreviewDocument(), asset: asset)
+  }
+}
+
+extension VideoEditorViewModel: MediaPlayerDelegate {
+  func mediaPlayerDidPlayToTime(time: CMTime, duration: CMTime) {
+    guard time.isNumeric && time.isValid else {
+      return
+    }
+    let notRoundedFrameIndex = Double(time.value) / (Double(time.timescale) / Double(10))
+    if notRoundedFrameIndex.isFinite {
+      currentKeyframe = Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero))
+    }
+  }
+  
+  func mediaPlayerDidPlayToEnd() {
+    isPlaying = false
   }
 }

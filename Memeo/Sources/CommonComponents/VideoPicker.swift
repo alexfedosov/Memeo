@@ -46,7 +46,7 @@ struct VideoPicker: UIViewControllerRepresentable {
 
   func makeUIViewController(context: UIViewControllerRepresentableContext<VideoPicker>) -> UIImagePickerController {
     let picker = UIImagePickerController()
-    picker.allowsEditing = false
+    picker.allowsEditing = true
     picker.mediaTypes = ["public.movie"]
     picker.delegate = context.coordinator
     return picker

@@ -142,8 +142,12 @@ class TrackersEditorUIView: UIView {
     }
     
     let needUpdate = self.isPlaying != isPlaying
-      || self.currentKeyframe != currentKeyframe
+      || (self.currentKeyframe != currentKeyframe && !self.isPlaying)
       || self.numberOfKeyframes != numberOfKeyframes
+    
+    self.isPlaying = isPlaying
+    self.currentKeyframe = currentKeyframe
+    self.numberOfKeyframes = numberOfKeyframes
     
     for (index, newTracker) in newTrackers.enumerated() {
       if newTracker != trackerLayers[index].tracker || needUpdate {

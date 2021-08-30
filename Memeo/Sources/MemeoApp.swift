@@ -11,7 +11,10 @@ import SwiftUI
 struct MemeoApp: App {
   var body: some Scene {
     WindowGroup {
-      Home()
+      ZStack {
+        Rectangle().fill(Color.black).ignoresSafeArea()
+        Home().colorScheme(.dark)
+      }
     }
   }
 }

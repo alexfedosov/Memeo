@@ -1,7 +1,7 @@
 {
   "duration": 12.8,
   "numberOfKeyframes": 120,
-  "frameSize": [1600, 900],
+  "frameSize": [1280, 720],
   "trackers": [
     {
       "id": "15723554-bbbe-45bf-9eae-ad4fe8c03cc4",

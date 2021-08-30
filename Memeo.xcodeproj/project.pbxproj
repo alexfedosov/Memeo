@@ -31,6 +31,9 @@
 		FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */; };
 		FA97ADA826DCDA0500BD8B83 /* DocumentCreatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA726DCDA0500BD8B83 /* DocumentCreatorService.swift */; };
 		FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */; };
+		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
+		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
+		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,6 +63,9 @@
 		FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		FA97ADA726DCDA0500BD8B83 /* DocumentCreatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCreatorService.swift; sourceTree = "<group>"; };
 		FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAssetTrackExtentions.swift; sourceTree = "<group>"; };
+		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
+		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
+		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +109,7 @@
 		FA97AD6E26DB7C5900BD8B83 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
+				FADD407C26DD45AF000D142B /* previewAsset.mp4 */,
 				FA97AD6F26DB7C5900BD8B83 /* Preview Assets.xcassets */,
 				FA97AD8326DB810600BD8B83 /* PreviewData.json */,
 			);
@@ -136,6 +143,7 @@
 		FA97AD7926DB7CBA00BD8B83 /* VideoEditor */ = {
 			isa = PBXGroup;
 			children = (
+				FADD407E26DD46B1000D142B /* VideoView */,
 				FA97AD9D26DC3F2000BD8B83 /* TrackerTextEditor */,
 				FA97AD9026DBBECE00BD8B83 /* Timeline */,
 				FA97AD8726DB83A700BD8B83 /* TrackerEditor */,
@@ -209,6 +217,15 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		FADD407E26DD46B1000D142B /* VideoView */ = {
+			isa = PBXGroup;
+			children = (
+				FADD407F26DD46B1000D142B /* VideoPlayerView.swift */,
+				FADD408026DD46B1000D142B /* VideoPlayer.swift */,
+			);
+			path = VideoView;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -267,6 +284,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
+				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 				FA97AD8426DB810600BD8B83 /* PreviewData.json in Resources */,
 			);
@@ -282,10 +300,12 @@
 				FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */,
 				FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */,
 				FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */,
+				FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */,
 				FA97AD8F26DBAA2900BD8B83 /* CGPointExtentions.swift in Sources */,
 				FA97AD8B26DB966D00BD8B83 /* TrackerEditorUIView.swift in Sources */,
 				FA97ADA326DCD60F00BD8B83 /* Home.swift in Sources */,
 				FA97AD9C26DC3EF000BD8B83 /* VideoPicker.swift in Sources */,
+				FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */,
 				FA97AD9226DBBF1C00BD8B83 /* TimelineView.swift in Sources */,
 				FA97AD8026DB7F2100BD8B83 /* Tracker.swift in Sources */,
 				FA97AD8926DB83B500BD8B83 /* TrackerLayerRepresentable.swift in Sources */,
@@ -428,6 +448,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
@@ -437,7 +458,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.alexfedosov.Memeo;
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -450,6 +472,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
@@ -459,7 +482,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.alexfedosov.Memeo;
+				MARKETING_VERSION = 1.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

@@ -77,7 +77,7 @@ struct Timeline: UIViewRepresentable {
 }
 
 struct Timeline_Previews: PreviewProvider {
-  static var model = VideoEditorViewModel(document: Document.loadPreviewDocument())
+  static var model = VideoEditorViewModel.preview
   static var previews: some View {
     let keyframes = Set(model.document.trackers.first!.position.keyframes.keys)
     return VStack {
