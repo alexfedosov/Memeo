@@ -48,7 +48,8 @@ struct TrackerTextEditor: View {
         }.frame(maxHeight: .infinity, alignment: .center)
         HStack {
           Button(action: {
-            onFinishEditing(text)
+            let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            onFinishEditing(text.count > 0 ? text : "Tap to edit")
           }, label: {
             Text("Done")
               .font(.system(size: 14, weight: .bold, design: .default))
