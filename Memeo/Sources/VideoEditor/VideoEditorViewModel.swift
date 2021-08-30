@@ -23,7 +23,7 @@ class VideoEditorViewModel: ObservableObject {
   }
   
   func addTracker() {
-    let animation = Animation<Point>(id: UUID(), keyframes: [:], key: "position")
+    let animation = Animation<CGPoint>(id: UUID(), keyframes: [:], key: "position")
     let tracker = Tracker(id: UUID(), text: "Tracker \(document.trackers.count + 1)", position: animation)
     document.trackers.append(tracker)
   }
@@ -53,6 +53,6 @@ class VideoEditorViewModel: ObservableObject {
     if selectedTrackerIndex != index {
       selectedTrackerIndex = index
     }
-    document.trackers[index].position.keyframes[currentKeyframe] = Point(x: Float(point.x), y: Float(point.y))
+    document.trackers[index].position.keyframes[currentKeyframe] = point
   }
 }

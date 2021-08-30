@@ -8,14 +8,16 @@
 import Foundation
 import CoreGraphics
 
-struct Point: Codable, Hashable {
-  var x: Float
-  var y: Float
+extension CGPoint: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(x)
+    hasher.combine(y)
+  }
 }
 
-extension Point: AnimatedValue {
+extension CGPoint: AnimatedValue {
   func toAnimated() -> Any {
-    CGPoint(x: CGFloat(x), y: CGFloat(y)) as Any
+    self
   }
 }
 
@@ -23,5 +25,5 @@ struct Tracker: Identifiable, Equatable, Codable, Hashable {
   var id: UUID
   var text: String
   
-  var position: Animation<Point>
+  var position: Animation<CGPoint>
 }

@@ -108,32 +108,32 @@ class TrackersEditorUIView: UIView {
   }
 
   
-  func updateTrackers(modelTrackers: [Tracker],
+  func updateTrackers(newTrackers: [Tracker],
                       numberOfKeyframes: Int,
                       currentKeyframe: Int,
                       isPlaying: Bool,
                       duration: CFTimeInterval) {
     let oldTrackers = trackerLayers.map { $0.tracker }
-    let diff = modelTrackers.difference(from: oldTrackers, by: { $0.id == $1.id })
+    let diff = newTrackers.difference(from: oldTrackers, by: { $0.id == $1.id })
     for change in diff {
       switch change {
       case .insert(offset: let offset, element: let element, associatedWith: _):
         let trackerLayer = TrackerLayerRepresentable(tracker: element)
         trackerLayers.insert(trackerLayer, at: offset)
         let createdTrackerLayer = trackerLayer.makeCALayer()
-        trackerLayer.updateCALayer(createdTrackerLayer)
         layer.insertSublayer(createdTrackerLayer, at: UInt32(offset))
+        trackerLayer.updateCALayer(createdTrackerLayer)
         let animation = element.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
                                                          currentKeyframe: currentKeyframe,
                                                          duration: duration,
                                                          speed: isPlaying ? 1 : 0)
-        layer.add(animation, forKey: animation.keyPath)
+        createdTrackerLayer.add(animation, forKey: animation.keyPath)
       case .remove(offset: let offset, element: _, associatedWith: _):
-        guard let layer = layer.sublayers?[offset] as? TrackerLayer else {
+        guard let trackerLayer = layer.sublayers?[offset] as? TrackerLayer else {
           break
         }
-        TrackerLayerRepresentable.dismantleCALayer(layer)
-        layer.removeFromSuperlayer()
+        TrackerLayerRepresentable.dismantleCALayer(trackerLayer)
+        trackerLayer.removeFromSuperlayer()
         trackerLayers.remove(at: offset)
       }
     }
@@ -142,7 +142,7 @@ class TrackersEditorUIView: UIView {
       || self.currentKeyframe != currentKeyframe
       || self.numberOfKeyframes != numberOfKeyframes
     
-    for (index, newTracker) in modelTrackers.enumerated() {
+    for (index, newTracker) in newTrackers.enumerated() {
       if newTracker != trackerLayers[index].tracker || needUpdate {
         guard let layer = layer.sublayers?[index] as? TrackerLayer else {
           continue

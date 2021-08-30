@@ -16,6 +16,7 @@ class HomeViewModel: ObservableObject {
   var cancellable = Set<AnyCancellable>()
   
   init() {
+    videoEditorViewModel = VideoEditorViewModel(document: Document.loadPreviewDocument())
     $selectedAssetUrl
       .compactMap { $0 }
       .flatMap { DocumentCreatorService().createDocument(from: $0) }

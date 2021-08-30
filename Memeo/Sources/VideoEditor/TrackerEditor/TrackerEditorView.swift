@@ -25,7 +25,7 @@ struct TrackerEditorView: UIViewRepresentable {
   func updateUIView(_ uiView: TrackersEditorUIView, context: Context) {
     context.coordinator.trackerTapped = trackerTapped
     context.coordinator.trackerPositionChanged = trackerPositionChanged
-    uiView.updateTrackers(modelTrackers: trackers,
+    uiView.updateTrackers(newTrackers: trackers,
                           numberOfKeyframes: numberOfKeyframes,
                           currentKeyframe: currentKeyframe,
                           isPlaying: isPlaying,

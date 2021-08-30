@@ -9,11 +9,11 @@ import Foundation
 import AVFoundation
 import UIKit
 
-struct Document: Codable {
+struct Document {
   var duration: CFTimeInterval
   var numberOfKeyframes: Int
   var trackers: [Tracker]
-  var frameSize: CGSize? = .zero
+  var frameSize: CGSize
   
   private func orientation(from transform: CGAffineTransform) -> (orientation: UIImage.Orientation, isPortrait: Bool) {
     var assetOrientation = UIImage.Orientation.up
@@ -34,6 +34,8 @@ struct Document: Codable {
   }
   
 }
+
+extension Document: Codable {}
 
 extension Document {
   static func loadPreviewDocument() -> Document {

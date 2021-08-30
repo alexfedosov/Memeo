@@ -63,7 +63,7 @@ struct VideoEditor: View {
               .offset(x: 0, y: -40)
           }.padding()
         }
-          .padding(.vertical)
+        .padding(.vertical)
         toolbar()
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
