@@ -120,8 +120,8 @@ class ScrollableTimelineView: UIView {
   var highlightedKeyframeView: HighlightedKeyframeView
   let drawingConfig: TimelineViewDrawConfig
   let scrollView = UIScrollView()
-  var previouslyClickedKeyframeIndex: CGFloat = .greatestFiniteMagnitude
-  var isDragging = false
+  var previouslyClickedKeyframeIndex: Int = -1
+  var currentKeyframe = 0
   weak var delegate: ScrollableTimelineViewDelegate?
 
   var numberOfKeyframes: Int = 0
@@ -183,7 +183,7 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
     contentView.setNeedsDisplay()
 
     let width = drawingConfig.size.width + drawingConfig.spacing
-    let keyframeIndex = floor(contentView.offset / width)
+    let keyframeIndex = Int(floor(contentView.offset / width))
 
     if previouslyClickedKeyframeIndex != keyframeIndex {
       previouslyClickedKeyframeIndex = keyframeIndex
@@ -196,12 +196,10 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
   }
 
   public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-    isDragging = true
     delegate?.scrollableTimelineViewWillBeginDragging()
   }
 
   public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-    isDragging = false
     delegate?.scrollableTimelineViewWillEndDragging()
   }
 
@@ -215,13 +213,14 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
     let width = drawingConfig.size.width + drawingConfig.spacing
     let contentViewOffset = scrollView.contentOffset.x + scrollView.contentInset.left
     let keyframe = Int((contentViewOffset / width).rounded(.toNearestOrEven))
-    scrollToKeyframe(keyframe: keyframe, animated: true)
+    scrollToKeyframe(keyframe: keyframe, animated: true, forceUpdate: true)
   }
 
-  func scrollToKeyframe(keyframe: Int, animated: Bool = false) {
-    guard !isDragging else {
+  func scrollToKeyframe(keyframe: Int, animated: Bool = false, forceUpdate: Bool = false) {
+    guard previouslyClickedKeyframeIndex != keyframe || forceUpdate else {
       return
     }
+    previouslyClickedKeyframeIndex = keyframe
     let width = drawingConfig.size.width + drawingConfig.spacing
     let offset = CGFloat(keyframe) * width - scrollView.contentInset.left
     UIView.animateKeyframes(withDuration: 0.1, delay: 0.0, options: .allowUserInteraction) { [weak self] in
