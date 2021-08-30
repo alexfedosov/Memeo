@@ -56,7 +56,9 @@ class VideoEditorViewModel: ObservableObject {
        document.trackers.count > index,
        document.trackers[index].position.keyframes.keys.contains(currentKeyframe) {
       document.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
-      currentKeyframe = min(currentKeyframe + 1, document.numberOfKeyframes - 1)
+      if document.trackers[index].position.keyframes.keys.contains(currentKeyframe + 1) {
+        currentKeyframe = min(currentKeyframe + 1, document.numberOfKeyframes - 1)
+      }
     }
   }
   
