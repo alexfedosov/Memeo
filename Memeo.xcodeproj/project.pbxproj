@@ -26,6 +26,7 @@
 		FA97AD9A26DC3ECF00BD8B83 /* VisualEffectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD9926DC3ECF00BD8B83 /* VisualEffectsView.swift */; };
 		FA97AD9C26DC3EF000BD8B83 /* VideoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD9B26DC3EF000BD8B83 /* VideoPicker.swift */; };
 		FA97AD9F26DC3F3500BD8B83 /* TrackerTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD9E26DC3F3500BD8B83 /* TrackerTextEditor.swift */; };
+		FA97ADA126DCC05600BD8B83 /* UploadVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA026DCC05600BD8B83 /* UploadVideo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		FA97AD9926DC3ECF00BD8B83 /* VisualEffectsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectsView.swift; sourceTree = "<group>"; };
 		FA97AD9B26DC3EF000BD8B83 /* VideoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPicker.swift; sourceTree = "<group>"; };
 		FA97AD9E26DC3F3500BD8B83 /* TrackerTextEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerTextEditor.swift; sourceTree = "<group>"; };
+		FA97ADA026DCC05600BD8B83 /* UploadVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadVideo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +117,7 @@
 		FA97AD7826DB7CB200BD8B83 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				FA97ADA026DCC05600BD8B83 /* UploadVideo.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -256,6 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA97ADA126DCC05600BD8B83 /* UploadVideo.swift in Sources */,
 				FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */,
 				FA97AD8F26DBAA2900BD8B83 /* CGPointExtentions.swift in Sources */,
 				FA97AD8B26DB966D00BD8B83 /* TrackerEditorUIView.swift in Sources */,
@@ -412,7 +416,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexfedosov.Memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -434,7 +438,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.alexfedosov.Memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

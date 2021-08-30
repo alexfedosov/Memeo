@@ -13,7 +13,7 @@ struct MemeoApp: App {
   
   var body: some Scene {
     WindowGroup {
-      VideoEditor(viewModel: videoEditoViewModel)
+      VideoEditor(viewModel: videoEditoViewModel).colorScheme(.dark)
     }
   }
 }
