@@ -19,9 +19,7 @@ struct Timeline: UIViewRepresentable {
     _ uiView: ScrollableTimelineView,
     context: Context
   ) {
-    if isPlaying {
-      uiView.scrollToKeyframe(keyframe: currentKeyframe)
-    }
+    uiView.scrollToKeyframe(keyframe: currentKeyframe)
 
     if numberOfKeyframes != uiView.numberOfKeyframes {
       uiView.numberOfKeyframes = numberOfKeyframes

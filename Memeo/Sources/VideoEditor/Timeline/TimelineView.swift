@@ -121,6 +121,7 @@ class ScrollableTimelineView: UIView {
   let drawingConfig: TimelineViewDrawConfig
   let scrollView = UIScrollView()
   var previouslyClickedKeyframeIndex: CGFloat = .greatestFiniteMagnitude
+  var isDragging = false
   weak var delegate: ScrollableTimelineViewDelegate?
 
   var numberOfKeyframes: Int = 0
@@ -195,10 +196,12 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
   }
 
   public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    isDragging = true
     delegate?.scrollableTimelineViewWillBeginDragging()
   }
 
   public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    isDragging = false
     delegate?.scrollableTimelineViewWillEndDragging()
   }
 
@@ -216,6 +219,9 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
   }
 
   func scrollToKeyframe(keyframe: Int, animated: Bool = false) {
+    guard !isDragging else {
+      return
+    }
     let width = drawingConfig.size.width + drawingConfig.spacing
     let offset = CGFloat(keyframe) * width - scrollView.contentInset.left
     UIView.animateKeyframes(withDuration: 0.1, delay: 0.0, options: .allowUserInteraction) { [weak self] in
