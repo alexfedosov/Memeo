@@ -39,14 +39,6 @@ class VideoEditorViewModel: ObservableObject {
     }
   }
   
-  func swapFirstAndLastTrackers() {
-    document.trackers.swapAt(0, document.trackers.count - 1)
-  }
-  
-  func updateText() {
-    document.trackers[0].text = String(document.trackers[0].text.reversed())
-  }
-  
   func selectTracker(tracker: Tracker) {
     selectedTrackerIndex = document.trackers.firstIndex(of: tracker)
   }
