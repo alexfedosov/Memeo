@@ -48,7 +48,6 @@ struct VideoEditor: View {
           .onTrackerPositionChanged({ point, tracker in
             viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
           })
-          .border(Color.red, width: 2)
           .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
         Spacer()
         ZStack {
