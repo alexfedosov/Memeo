@@ -9,11 +9,9 @@ import SwiftUI
 
 @main
 struct MemeoApp: App {
-  @ObservedObject var videoEditoViewModel = VideoEditorViewModel(document: Document.loadPreviewDocument())
-  
   var body: some Scene {
     WindowGroup {
-      VideoEditor(viewModel: videoEditoViewModel).colorScheme(.dark)
+      Home()
     }
   }
 }
