@@ -26,7 +26,7 @@ class TrackerLayer: CALayer {
 
     textLabel.textColor = .white
     textLabel.textAlignment = .center
-    textLabel.font = .boldSystemFont(ofSize: 24)
+    textLabel.font = .boldSystemFont(ofSize: 14)
     
     addSublayer(textLabel.layer)
   }

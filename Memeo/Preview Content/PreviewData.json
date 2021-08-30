@@ -1,7 +1,7 @@
 {
   "duration": 12.8,
   "numberOfKeyframes": 120,
-  "frameSize": [100, 100],
+  "frameSize": [1600, 900],
   "trackers": [
     {
       "id": "15723554-bbbe-45bf-9eae-ad4fe8c03cc4",
@@ -10,8 +10,7 @@
         "id": "15723554-bbbe-45bf-9eae-ad4fe8c03cc5",
         "key": "position",
         "keyframes": {
-          "0": [20, 20],
-          "100": [200, 200]
+          "0": [0.5, 0.5]
         }
       }
     },

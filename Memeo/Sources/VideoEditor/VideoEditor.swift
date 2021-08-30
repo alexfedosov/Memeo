@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 struct VideoEditor: View {
   @ObservedObject var viewModel: VideoEditorViewModel
@@ -34,6 +35,7 @@ struct VideoEditor: View {
   var body: some View {
     ZStack {
       VStack {
+        Spacer()
         TrackerEditorView(trackers: viewModel.document.trackers,
                           numberOfKeyframes: viewModel.document.numberOfKeyframes,
                           currentKeyframe: viewModel.currentKeyframe,
@@ -46,15 +48,15 @@ struct VideoEditor: View {
           .onTrackerPositionChanged({ point, tracker in
             viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
           })
-          .background(Color.black)
+          .border(Color.red, width: 2)
+          .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
+        Spacer()
         ZStack {
-          
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
                    isPlaying: $viewModel.isPlaying,
                    numberOfKeyframes: viewModel.document.numberOfKeyframes,
                    higlightedKeyframes: highlightedKeyframes)
             .frame(height: 100)
-          
           HStack{
             Spacer()
             Text("\(selectedTracker?.text.appending(": ") ?? "")\(viewModel.currentKeyframe + 1)/\(viewModel.document.numberOfKeyframes)")

@@ -18,15 +18,15 @@ class TrackersEditorUIView: UIView {
       layer.sublayers?.compactMap { $0 as? TrackerLayer } ?? []
     }
   }
-
+  
   var movingTracker: TrackerLayer?
-
+  
   var lastLocation: CGPoint = .zero
   var touchLocationInMovingTracker: CGPoint = .zero
-
+  
   let panGestureRecognizer = UIPanGestureRecognizer()
   let tapGestureRecognizer = UITapGestureRecognizer()
-
+  
   var currentKeyframe: Int = 0
   var numberOfKeyframes: Int = 0
   var isPlaying: Bool = false
@@ -35,7 +35,7 @@ class TrackersEditorUIView: UIView {
     super.init(frame: frame)
     configureView()
   }
-
+  
   required init?(coder: NSCoder) {
     super.init(coder: coder)
     configureView()
@@ -46,10 +46,10 @@ class TrackersEditorUIView: UIView {
     panGestureRecognizer.maximumNumberOfTouches = 1
     panGestureRecognizer.addTarget(self, action: #selector(handlePanGesture))
     addGestureRecognizer(panGestureRecognizer)
-
+    
     tapGestureRecognizer.addTarget(self, action: #selector(handleTap))
     addGestureRecognizer(tapGestureRecognizer)
-
+    
     layer.masksToBounds = true
   }
   
@@ -76,7 +76,7 @@ class TrackersEditorUIView: UIView {
       let tracker = trackerPresentation.model()
       tracker.position = trackerPresentation.position
       tracker.removeAllAnimations()
-
+      
       movingTracker = tracker
       touchLocationInMovingTracker = tracker.convert(location, from: layer) - CGPoint(x: tracker.bounds.width / 2, y: tracker.bounds.height / 2)
     case .changed:
@@ -86,7 +86,9 @@ class TrackersEditorUIView: UIView {
       CATransaction.setDisableActions(true)
       movingTracker.position = location - touchLocationInMovingTracker
       if let tracker = getTrackerModel(for: movingTracker) {
-        delegate?.trackerPositionDidChange(position: movingTracker.position, tracker: tracker.tracker)
+        let position = CGPoint(x: movingTracker.position.x / bounds.size.width,
+                               y: movingTracker.position.y / bounds.size.height)
+        delegate?.trackerPositionDidChange(position: position, tracker: tracker.tracker)
       }
     case .cancelled: fallthrough
     case .ended: fallthrough
@@ -96,17 +98,17 @@ class TrackersEditorUIView: UIView {
     default: break
     }
   }
-
+  
   @objc func handleTap(sender: UITapGestureRecognizer) {
     let location = sender.location(in: self)
     guard let trackerPresentation = getTracker(at: location) else { return }
-
+    
     let tracker = trackerPresentation.model()
     if let model = getTrackerModel(for: tracker) {
       delegate?.didTapOnTrackerLayer(tracker: model.tracker)
     }
   }
-
+  
   
   func updateTrackers(newTrackers: [Tracker],
                       numberOfKeyframes: Int,
@@ -126,7 +128,8 @@ class TrackersEditorUIView: UIView {
         let animation = element.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
                                                          currentKeyframe: currentKeyframe,
                                                          duration: duration,
-                                                         speed: isPlaying ? 1 : 0)
+                                                         speed: isPlaying ? 1 : 0,
+                                                         frameSize: self.bounds.size)
         createdTrackerLayer.add(animation, forKey: animation.keyPath)
       case .remove(offset: let offset, element: _, associatedWith: _):
         guard let trackerLayer = layer.sublayers?[offset] as? TrackerLayer else {
@@ -152,7 +155,8 @@ class TrackersEditorUIView: UIView {
         let animation = newTracker.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
                                                             currentKeyframe: currentKeyframe,
                                                             duration: duration,
-                                                            speed: isPlaying ? 1 : 0)
+                                                            speed: isPlaying ? 1 : 0,
+                                                            frameSize: self.bounds.size)
         layer.add(animation, forKey: animation.keyPath)
       }
     }
