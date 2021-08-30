@@ -123,6 +123,7 @@ struct VideoEditor: View {
             )
         })
         Button(action: {
+          viewModel.deleteCurrentKeyframe()
         }, label: {
           Image(systemName: "minus.circle.fill")
             .font(.subheadline)
@@ -132,6 +133,7 @@ struct VideoEditor: View {
             )
         })
         Button(action: {
+          viewModel.duplicateCurrentKeyframe()
         }, label: {
           ZStack {
             Image(systemName: "circle")

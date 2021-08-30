@@ -50,4 +50,23 @@ class VideoEditorViewModel: ObservableObject {
     }
     document.trackers[index].position.keyframes[currentKeyframe] = point
   }
+  
+  func deleteCurrentKeyframe() {
+    if let index = selectedTrackerIndex,
+       document.trackers.count > index,
+       document.trackers[index].position.keyframes.keys.contains(currentKeyframe) {
+      document.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
+      currentKeyframe = min(currentKeyframe + 1, document.numberOfKeyframes - 1)
+    }
+  }
+  
+  func duplicateCurrentKeyframe() {
+    if let index = selectedTrackerIndex,
+       document.trackers.count > index,
+       currentKeyframe < document.numberOfKeyframes,
+       let value = document.trackers[index].position.keyframes[currentKeyframe] {
+      document.trackers[index].position.keyframes[currentKeyframe + 1] = value
+      currentKeyframe += 1
+    }
+  }
 }
