@@ -81,7 +81,7 @@ struct VideoEditor: View {
           viewModel.isEditingText = false
         } onDeleteTracker: {
           viewModel.isEditingText = false
-          viewModel.removeTracker()
+          viewModel.removeSelectedTracker()
         }.transition(.opacity)
       }
     }

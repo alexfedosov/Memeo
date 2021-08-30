@@ -31,7 +31,7 @@ class VideoEditorViewModel: ObservableObject {
     selectedTrackerIndex = document.trackers.count - 1
   }
   
-  func removeTracker() {
+  func removeSelectedTracker() {
     if let index = selectedTrackerIndex,
        document.trackers.count > index {
       selectedTrackerIndex = nil
