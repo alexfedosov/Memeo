@@ -23,8 +23,9 @@ struct TrackerTextEditor: View {
       VStack {
         HStack {
           Button(action: {
-            isTextFieldFocused = false
-            showRemoveConfirmation = true
+            withAnimation {
+              showRemoveConfirmation = true
+            }
           }, label: {
             Image(systemName: "trash")
               .font(.subheadline)
@@ -47,7 +48,7 @@ struct TrackerTextEditor: View {
         }.frame(maxHeight: .infinity, alignment: .center)
         HStack {
           Button(action: {
-            finishEditing()
+            onFinishEditing(text)
           }, label: {
             Text("Done")
               .font(.system(size: 14, weight: .bold, design: .default))
@@ -60,25 +61,16 @@ struct TrackerTextEditor: View {
         }
       }
       .frame(maxHeight: .greatestFiniteMagnitude)
-      .onTapGesture {
-        finishEditing()
-      }
-    }.alert(isPresented: $showRemoveConfirmation, content: {
+    }
+    .transition(.opacity)
+    .alert(isPresented: $showRemoveConfirmation, content: {
       Alert(title: Text("Delete \"\(text)\"?"),
             message: nil,
             primaryButton: .destructive(Text("Delete"), action: {
               onDeleteTracker()
             }),
-            secondaryButton: .cancel({
-              withAnimation {
-                isTextFieldFocused = true
-              }
-            }))
+            secondaryButton: .cancel())
     })
-  }
-  
-  func finishEditing() {
-    onFinishEditing(text)
   }
 }
 
