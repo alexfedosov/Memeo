@@ -29,8 +29,10 @@ class VideoEditorViewModel: ObservableObject {
   }
   
   func removeTracker() {
-    if !document.trackers.isEmpty {
-      document.trackers.removeLast()
+    if let index = selectedTrackerIndex,
+       document.trackers.count > index {
+      selectedTrackerIndex = nil
+      document.trackers.remove(at: index)
     }
   }
   

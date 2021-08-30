@@ -11,10 +11,10 @@ struct Home: View {
   @ObservedObject var model = HomeViewModel()
   
   var body: some View {
-    if let document = model.document {
-      VideoEditor(viewModel: VideoEditorViewModel(document: document))
+    if let videoEditorViewModel = model.videoEditorViewModel {
+      VideoEditor(viewModel: videoEditorViewModel)
     } else {
-      UploadVideoView(mediaURL: $model.mediaURL)
+      UploadVideoView(mediaURL: $model.selectedAssetUrl)
     }
   }
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct VideoEditor: View {
   @ObservedObject var viewModel: VideoEditorViewModel
+  
   var selectedTracker: Tracker? {
     get {
       if let index = viewModel.selectedTrackerIndex,
@@ -33,7 +34,6 @@ struct VideoEditor: View {
   var body: some View {
     ZStack {
       VStack {
-        topToolbar()
         TrackerEditorView(trackers: viewModel.document.trackers,
                           numberOfKeyframes: viewModel.document.numberOfKeyframes,
                           currentKeyframe: viewModel.currentKeyframe,
@@ -47,10 +47,24 @@ struct VideoEditor: View {
             viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
           })
           .background(Color.black)
-        Timeline(currentKeyframe: $viewModel.currentKeyframe,
-                 isPlaying: $viewModel.isPlaying,
-                 numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                 higlightedKeyframes: highlightedKeyframes)
+        ZStack {
+          
+          Timeline(currentKeyframe: $viewModel.currentKeyframe,
+                   isPlaying: $viewModel.isPlaying,
+                   numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                   higlightedKeyframes: highlightedKeyframes)
+            .frame(height: 100)
+          
+          HStack{
+            Spacer()
+            Text("\(selectedTracker?.text.appending(": ") ?? "")\(viewModel.currentKeyframe + 1)/\(viewModel.document.numberOfKeyframes)")
+              .font(.system(size: 10, weight: .bold))
+              .opacity(0.3)
+              .offset(x: 0, y: -40)
+          }.padding()
+        }
+          .padding(.vertical)
+        toolbar()
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
     }
@@ -64,44 +78,74 @@ struct VideoEditor: View {
         TrackerTextEditor(text: text) { newText in
           viewModel.document.trackers[index].text = newText
           viewModel.isEditingText = false
+        } onDeleteTracker: {
+          viewModel.isEditingText = false
+          viewModel.removeTracker()
         }.transition(.opacity)
       }
     }
   }
   
-  func topToolbar() -> some View {
+  func toolbar() -> some View {
     VStack {
-      Text("selected tracker index \(viewModel.selectedTrackerIndex ?? -1)")
-      Text("\(viewModel.currentKeyframe)")
-      Text("\(viewModel.document.numberOfKeyframes)")
-        .padding()
       HStack {
         Button(action: {
           viewModel.addTracker()
         }, label: {
-          Text("Add")
+          Image(systemName: "plus.viewfinder")
+            .font(.subheadline)
+            .foregroundColor(.white)
+            .padding()
+            .background(Circle().fill(Color.white.opacity(0.1))
+            )
         })
         Button(action: {
           viewModel.removeTracker()
         }, label: {
-          Text("Remove")
+          Image(systemName: "trash")
+            .font(.subheadline)
+            .foregroundColor(.white)
+            .padding()
+            .background(Circle().fill(Color.white.opacity(0.1))
+            )
         })
         Button(action: {
-          viewModel.swapFirstAndLastTrackers()
+          withAnimation {
+            viewModel.isPlaying.toggle()
+          }
         }, label: {
-          Text("Swap")
+          Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
+            .font(.subheadline)
+            .foregroundColor(.white)
+            .padding()
+            .background(Circle().fill(Color.white.opacity(0.1))
+            )
         })
         Button(action: {
-          viewModel.updateText()
         }, label: {
-          Text("Update")
+          Image(systemName: "minus.circle.fill")
+            .font(.subheadline)
+            .foregroundColor(.white)
+            .padding()
+            .background(Circle().fill(Color.white.opacity(0.1))
+            )
         })
         Button(action: {
-          viewModel.isPlaying.toggle()
         }, label: {
-          Text("Play/Pause")
+          ZStack {
+            Image(systemName: "circle")
+              .font(.subheadline)
+              .foregroundColor(.white)
+              .padding()
+              .offset(x: -2.5, y: -2.5)
+            Image(systemName: "circle.fill")
+              .font(.subheadline)
+              .foregroundColor(.white)
+              .padding()
+              .offset(x: 2.5, y: 2.5)
+          }.background(Circle().fill(Color.white.opacity(0.1)))
         })
-      }
+      }.padding()
     }
   }
 }
