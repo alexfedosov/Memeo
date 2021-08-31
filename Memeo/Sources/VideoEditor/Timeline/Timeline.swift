@@ -48,7 +48,6 @@ struct Timeline: UIViewRepresentable {
     @Binding var currentKeyframe: Int
     @Binding var numberOfKeyframes: Int
     @Binding var isPlaying: Bool
-    private var wasPlaying = false
 
     let generator = UIImpactFeedbackGenerator()
 
@@ -60,19 +59,20 @@ struct Timeline: UIViewRepresentable {
     }
     
     func scrollableTimelineViewDidScrollToKeyframe(keyframe: Int) {
-      currentKeyframe = max(0, min(keyframe, numberOfKeyframes - 1))
-      generator.impactOccurred(intensity: 0.5)
-      generator.prepare()
+      if keyframe != currentKeyframe {
+        currentKeyframe = max(0, min(keyframe, numberOfKeyframes - 1))
+      }
+      if !isPlaying {
+        generator.impactOccurred(intensity: 0.5)
+        generator.prepare()
+      }
     }
     
     func scrollableTimelineViewWillBeginDragging() {
-      wasPlaying = isPlaying
       isPlaying = false
     }
     
-    func scrollableTimelineViewWillEndDragging() {
-      isPlaying = wasPlaying
-    }
+    func scrollableTimelineViewWillEndDragging() {}
   }
 }
 
