@@ -69,6 +69,42 @@ struct VideoEditor: View {
         toolbar()
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
+      ZStack {
+        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+          .ignoresSafeArea()
+        VStack {
+          Spacer()
+          VStack {
+            if viewModel.isExportingVideo {
+              HStack {
+                Text("Exporting your video").font(.title3)
+                ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
+              }
+            } else {
+              VStack {
+                Text("Done!").font(.title3).padding()
+                Text("There is no preview yet, but you can find the video in your Photo Library")
+                  .font(.body)
+                  .multilineTextAlignment(.center)
+              }
+            }
+          }
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
+          .padding()
+          .background(Color.black)
+          .cornerRadius(16)
+          Spacer()
+          GradientBorderButton(text: "Done 🏁", action: {
+            withAnimation {
+              viewModel.showExportingVideoModal = false
+            }
+          })
+          .opacity(viewModel.isExportingVideo ? 0 : 1)
+          .padding(.top, 32)
+        }.padding()
+      }
+      .opacity(viewModel.showExportingVideoModal ? 1: 0)
     }
   }
   
@@ -137,6 +173,16 @@ struct VideoEditor: View {
               .foregroundColor(.white)
               .padding()
               .offset(x: 2.5, y: 2.5)
+          }.background(Circle().fill(Color.white.opacity(0.1)))
+        })
+        Button(action: {
+          viewModel.exportVideo()
+        }, label: {
+          ZStack {
+            Image(systemName: "square.and.arrow.up")
+              .font(.subheadline)
+              .foregroundColor(.white)
+              .padding()
           }.background(Circle().fill(Color.white.opacity(0.1)))
         })
       }.padding()

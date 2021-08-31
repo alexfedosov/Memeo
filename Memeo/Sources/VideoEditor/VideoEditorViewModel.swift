@@ -17,7 +17,11 @@ class VideoEditorViewModel: ObservableObject {
   @Published var isPlaying: Bool = false
   @Published var isEditingText: Bool = false
   @Published var selectedTrackerIndex: Int?
+  @Published var isExportingVideo = false
+  @Published var showExportingVideoModal = false
+  
   var videoPlayer: VideoPlayer
+  var videoExporter = VideoExporter()
   
   var cancellables = Set<AnyCancellable>()
   
@@ -96,6 +100,22 @@ class VideoEditorViewModel: ObservableObject {
       currentKeyframe += 1
     }
   }
+  
+  func exportVideo() {
+    isExportingVideo = true
+    withAnimation {
+      showExportingVideoModal = true
+    }
+    videoExporter
+      .export(document: document, asset: asset)
+      .mapError { $0 as Error }
+      .flatMap {[videoExporter] in videoExporter.moveAssetToMemeoAlbum(url: $0) }
+      .receive(on: RunLoop.main)
+      .sink { [weak self] completion in
+        self?.isExportingVideo = false
+      } receiveValue: { _ in
+      }.store(in: &cancellables)
+  }
 }
 
 extension VideoEditorViewModel {
@@ -113,7 +133,7 @@ extension VideoEditorViewModel: MediaPlayerDelegate {
     }
     let notRoundedFrameIndex = Double(time.value) / (Double(time.timescale) / Double(10))
     if notRoundedFrameIndex.isFinite {
-      currentKeyframe = Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero))
+      currentKeyframe = min(Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero)), document.numberOfKeyframes - 1)
     }
   }
   

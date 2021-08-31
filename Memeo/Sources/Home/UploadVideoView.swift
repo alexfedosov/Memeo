@@ -28,6 +28,7 @@ struct UploadVideoView: View {
         }
       })
       .padding(.top, 32)
+      .frame(width: 230)
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -57,24 +58,14 @@ struct GradientBorderButton: View {
         .font(Font.system(size: 14, weight: .bold))
         .padding(EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48))
         .cornerRadius(30)
+        .frame(maxWidth: .infinity)
     }).background(
-      ZStack {
-        RoundedRectangle(cornerRadius: .infinity)
-          .fill(LinearGradient(gradient: Gradient(colors: gradientColors),
-                               startPoint: .bottomLeading,
+      RoundedRectangle(cornerRadius: 16)
+        .stroke(LinearGradient(gradient: Gradient(colors: gradientColors.reversed()),
+                               startPoint: animationValue == 1 ? .bottomLeading : .bottomTrailing,
                                endPoint: .topTrailing))
-        RoundedRectangle(cornerRadius: .infinity)
-          .fill(LinearGradient(gradient: Gradient(colors: gradientColors.shuffled()),
-                               startPoint: .topTrailing,
-                               endPoint: .bottomLeading))
-          .opacity(animationValue)
-      }
-      .overlay(
-        RoundedRectangle(cornerRadius: .infinity)
-          .fill(Color.black)
-          .padding(1)
-      )
-    ).onAppear() {
+    )
+    .onAppear() {
       withAnimation(SwiftUI.Animation.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
         animationValue = 1
       }

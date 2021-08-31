@@ -7,6 +7,7 @@
 
 import Foundation
 import QuartzCore
+import AVKit
 
 protocol AnimatedValue: Codable & Hashable {
   func toAnimated() -> Any
@@ -39,12 +40,10 @@ extension Animation where T == CGPoint {
       animation.values?.append(last)
       animation.keyTimes?.append(NSNumber(value: duration))
     }
-    
     animation.timeOffset = duration / Double(numberOfKeyframes) * Double(currentKeyframe)
     animation.speed = speed
     animation.isRemovedOnCompletion = false
     animation.fillMode = .forwards
     return animation
   }
-  
 }

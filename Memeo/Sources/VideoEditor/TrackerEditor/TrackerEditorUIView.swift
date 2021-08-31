@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import SwiftUI
+import AVKit
 
 class TrackersEditorUIView: UIView {
   weak var delegate: TrackersEditorUIViewDelegate?
@@ -114,7 +115,8 @@ class TrackersEditorUIView: UIView {
                       numberOfKeyframes: Int,
                       currentKeyframe: Int,
                       isPlaying: Bool,
-                      duration: CFTimeInterval) {
+                      duration: CFTimeInterval,
+                      forExportingVideo: Bool = false) {
     let oldTrackers = trackerLayers.map { $0.tracker }
     let diff = newTrackers.difference(from: oldTrackers, by: { $0.id == $1.id })
     for change in diff {
@@ -130,6 +132,9 @@ class TrackersEditorUIView: UIView {
                                                          duration: duration,
                                                          speed: isPlaying ? 1 : 0,
                                                          frameSize: self.bounds.size)
+        if (forExportingVideo) {
+          animation.beginTime = AVCoreAnimationBeginTimeAtZero
+        }
         createdTrackerLayer.add(animation, forKey: animation.keyPath)
       case .remove(offset: let offset, element: _, associatedWith: _):
         guard let trackerLayer = layer.sublayers?[offset] as? TrackerLayer else {
@@ -161,6 +166,9 @@ class TrackersEditorUIView: UIView {
                                                             duration: duration,
                                                             speed: isPlaying ? 1 : 0,
                                                             frameSize: self.bounds.size)
+        if (forExportingVideo) {
+          animation.beginTime = AVCoreAnimationBeginTimeAtZero
+        }
         layer.add(animation, forKey: animation.keyPath)
       }
     }

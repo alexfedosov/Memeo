@@ -1,0 +1,205 @@
+//
+//  VideoExporter.swift
+//  Memeo
+//
+//  Created by Alex on 31.8.2021.
+//
+
+import Foundation
+import AVKit
+import Combine
+import Photos
+
+enum VideoExporterError: Error {
+  case unexpectedError(String)
+  case albumCreatingError
+}
+
+class VideoExporter {
+  let albumName = "Memeo"
+  
+  func export(document: Document, asset: AVAsset) -> Future<URL, VideoExporterError> {
+    Future { promise in
+      let composition = AVMutableComposition()
+      guard
+        let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
+        let videoTrack = asset.tracks(withMediaType: .video).first
+      else {
+        promise(.failure(.unexpectedError("No video tracks found")))
+        return
+      }
+      
+      do {
+        let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
+        try compositionVideoTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
+        for audioTrack in asset.tracks(withMediaType: .audio) {
+          if let compositionAudioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) {
+            try compositionAudioTrack.insertTimeRange(timeRange, of: audioTrack, at: .zero)
+          }
+        }
+      } catch {
+        promise(.failure(.unexpectedError(error.localizedDescription)))
+        return
+      }
+      
+
+//      compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
+      let videoSize: CGSize = videoTrack.frameSize()
+      let frameRect = CGRect(origin: .zero, size: videoSize)
+      
+      let scaling = videoSize.width / UIScreen.main.bounds.width
+
+      let videoLayer = CALayer()
+      videoLayer.frame = frameRect
+      
+      let outputLayer = CALayer()
+      outputLayer.frame = frameRect
+      outputLayer.addSublayer(videoLayer)
+      
+      let view = TrackersEditorUIView(frame: frameRect)
+      view.updateTrackers(newTrackers: document.trackers,
+                          numberOfKeyframes: document.numberOfKeyframes,
+                          currentKeyframe: 0,
+                          isPlaying: true,
+                          duration: composition.duration.seconds,
+                          forExportingVideo: true)
+      view.layer.sublayers?.forEach({ layer in
+        layer.removeFromSuperlayer()
+        layer.shouldRasterize = true
+        layer.rasterizationScale = UIScreen.main.scale
+        layer.isGeometryFlipped = true
+        layer.add(self.makeLayerScalingAnimation(scaleFactor: scaling, duration: composition.duration.seconds), forKey: "scale")
+        outputLayer.addSublayer(layer)
+      })
+      outputLayer.isGeometryFlipped = true
+      outputLayer.addSublayer(view.layer)
+      
+      let videoComposition = AVMutableVideoComposition()
+      videoComposition.renderScale = 1.0
+      videoComposition.renderSize = frameRect.size
+      videoComposition.frameDuration = CMTime(value: 1, timescale: 60)
+      videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: outputLayer)
+      
+      let instruction = AVMutableVideoCompositionInstruction()
+      instruction.timeRange = CMTimeRange(start: .zero, duration: composition.duration)
+      videoComposition.instructions = [instruction]
+      
+      let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: compositionVideoTrack)
+      layerInstruction.setTransform(videoTrack.preferredTransform, at: .zero)
+      instruction.layerInstructions = [layerInstruction]
+      
+      guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
+        promise(.failure(.unexpectedError("Cannot create export session")))
+        return
+      }
+      
+      let videoName = UUID().uuidString
+      let exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent(videoName)
+        .appendingPathExtension("mp4")
+      
+      export.videoComposition = videoComposition
+      export.outputFileType = .mp4
+      export.outputURL = exportURL
+      
+      export.exportAsynchronously {
+        DispatchQueue.main.async {
+          switch export.status {
+          case .completed:
+            promise(.success(exportURL))
+            print(exportURL)
+          default:
+            print("Something went wrong during export.")
+            print(export.error ?? "unknown error")
+            promise(.failure(.unexpectedError(export.error?.localizedDescription ?? "unknown error")))
+            break
+          }
+        }
+      }
+    }
+  }
+  
+  func makeLayerScalingAnimation(scaleFactor: CGFloat, duration: CFTimeInterval) -> CAAnimation {
+    let animation = CAKeyframeAnimation(keyPath: "transform.scale")
+    animation.duration = duration
+    animation.values = [scaleFactor, scaleFactor]
+    animation.keyTimes = [0, NSNumber(value: duration)]
+    animation.isRemovedOnCompletion = false
+    animation.fillMode = .forwards
+    animation.beginTime = AVCoreAnimationBeginTimeAtZero
+    animation.speed = 1
+    return animation
+  }
+  
+  func createMemeoAlbum() -> Future<PHAssetCollection, Error> {
+    Future {[albumName] promise in
+      var placeholder: PHObjectPlaceholder?
+      PHPhotoLibrary.shared().performChanges({
+        let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName)
+        placeholder = createAlbumRequest.placeholderForCreatedAssetCollection
+      }, completionHandler: { created, error in
+        if let error = error {
+          promise(.failure(error as Error))
+          return
+        }
+        if created,
+           let collectionFetchResult = placeholder.map({ PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [$0.localIdentifier], options: nil) }),
+           let album = collectionFetchResult.firstObject {
+          promise(.success(album))
+        } else {
+          promise(.failure(VideoExporterError.albumCreatingError as Error))
+        }
+      })
+    }
+  }
+  
+  func fetchMemeoAlbum() -> Future<PHAssetCollection?, Never> {
+    Future {[albumName] promise in
+      let fetchOptions = PHFetchOptions()
+      fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+      let collections = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .any, options: fetchOptions)
+      promise(.success(collections.firstObject))
+    }
+  }
+  
+  func findOrCreateMemeoAlbum() -> AnyPublisher<PHAssetCollection, Error> {
+    fetchMemeoAlbum()
+      .flatMap {[createMemeoAlbum] (album) -> Future<PHAssetCollection, Error> in
+        if let album = album {
+          return Future<PHAssetCollection, Error> { $0(.success(album))}
+        } else {
+          return createMemeoAlbum()
+        }
+      }.eraseToAnyPublisher()
+  }
+  
+  func moveAssetToMemeoAlbum(url: URL) -> AnyPublisher<Bool, Error> {
+    let requestPermissions = Future<Bool, Error> { promise in
+      PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+        if status == .authorized {
+          promise(.success(true))
+        } else {
+          promise(.failure(VideoExporterError.unexpectedError("Permissions not granted") as Error))
+        }
+      }
+    }.eraseToAnyPublisher()
+    
+    let moveToAlbum = findOrCreateMemeoAlbum().flatMap { album in
+      Future<Bool, Error> { promise in
+        PHPhotoLibrary.shared().performChanges {
+          let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
+          let changeRequest = PHAssetCollectionChangeRequest(for: album)
+          changeRequest?.addAssets(assetRequest?.placeholderForCreatedAsset.map { [$0] as NSArray } ?? [])
+        } completionHandler: { success, error in
+          if let error = error {
+            promise(.failure(error as Error))
+          } else {
+            promise(.success(success))
+          }
+        }
+      }
+    }.eraseToAnyPublisher()
+    
+    return requestPermissions.flatMap { _ in moveToAlbum }.eraseToAnyPublisher()
+  }
+}
