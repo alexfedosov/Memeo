@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import SwiftUI
+import MobileCoreServices
 
 class VideoPickerCoordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
   @Binding var isShown: Bool
@@ -47,7 +48,10 @@ struct VideoPicker: UIViewControllerRepresentable {
   func makeUIViewController(context: UIViewControllerRepresentableContext<VideoPicker>) -> UIImagePickerController {
     let picker = UIImagePickerController()
     picker.allowsEditing = true
-    picker.mediaTypes = ["public.movie"]
+    picker.mediaTypes = [String(kUTTypeMovie)]
+    picker.videoMaximumDuration = 30
+    picker.videoQuality = .typeHigh
+    picker.sourceType = .photoLibrary
     picker.delegate = context.coordinator
     return picker
   }
