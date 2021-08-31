@@ -32,7 +32,7 @@ struct UploadVideoView: View {
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(Color.black)
-    .sheet(isPresented: $showVideoPicker) {
+    .fullScreenCover(isPresented: $showVideoPicker) {
       VideoPicker(isShown: $showVideoPicker, mediaURL: $mediaURL)
     }
   }
