@@ -7,9 +7,11 @@
 
 import SwiftUI
 import AVFoundation
+import AVKit
 
 struct VideoEditor: View {
   @ObservedObject var viewModel: VideoEditorViewModel
+  let onClose: () -> ()
   
   var selectedTracker: Tracker? {
     get {
@@ -35,6 +37,39 @@ struct VideoEditor: View {
   var body: some View {
     ZStack {
       VStack {
+        HStack {
+          Button(action: onClose, label: {
+            ZStack {
+              Image(systemName: "xmark")
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding()
+            }
+          })
+          Spacer()
+          if let text = viewModel.lastActionDescription {
+            Text(text)
+              .font(.system(size: 10, weight: .bold))
+              .foregroundColor(.white)
+              .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+              .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.white.opacity(0.05)))
+              .opacity(0.7)
+              .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.3)))
+          }
+          Spacer()
+          Button(action: {
+            viewModel.exportVideo()
+          }, label: {
+            ZStack {
+              Image(systemName: "square.and.arrow.up")
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding()
+            }
+          })
+        }
+        Spacer()
+        EmptyView()
         Spacer()
         TrackerEditorView(trackers: viewModel.document.trackers,
                           numberOfKeyframes: viewModel.document.numberOfKeyframes,
@@ -42,6 +77,9 @@ struct VideoEditor: View {
                           isPlaying: viewModel.isPlaying,
                           duration: viewModel.document.duration)
           .onTrackerTapped({ tracker in
+            viewModel.selectTracker(tracker: tracker)
+          })
+          .onTrackerDoubleTapped({ tracker in
             viewModel.selectTracker(tracker: tracker)
             viewModel.isEditingText = true
           })
@@ -51,60 +89,57 @@ struct VideoEditor: View {
           .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
           .background(VideoPlayerView(videoPlayer: viewModel.videoPlayer))
         Spacer()
-        ZStack {
-          Timeline(currentKeyframe: $viewModel.currentKeyframe,
-                   isPlaying: $viewModel.isPlaying,
-                   numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                   higlightedKeyframes: highlightedKeyframes)
-            .frame(height: 100)
-          HStack{
-            Spacer()
-            Text("\(selectedTracker?.text.appending(": ") ?? "")\(viewModel.currentKeyframe + 1)/\(viewModel.document.numberOfKeyframes)")
-              .font(.system(size: 10, weight: .bold))
-              .opacity(0.3)
-              .offset(x: 0, y: -40)
-          }.padding()
-        }
-        .padding(.vertical)
-        toolbar()
+        PlaybackControls(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
+        Spacer()
+        timeline()
+        VideoEditorToolbar(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
       ZStack {
         VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
           .ignoresSafeArea()
-        VStack {
-          Spacer()
-          VStack {
-            if viewModel.isExportingVideo {
-              HStack {
-                Text("Exporting your video").font(.title3)
-                ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-              }
-            } else {
-              VStack {
-                Text("Done!").font(.title3).padding()
-                Text("There is no preview yet, but you can find the video in your Photo Library")
-                  .font(.body)
-                  .multilineTextAlignment(.center)
-              }
-            }
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
-          .padding()
-          .background(Color.black)
-          .cornerRadius(16)
-          Spacer()
-          GradientBorderButton(text: "Done 🏁", action: {
-            withAnimation {
-              viewModel.showExportingVideoModal = false
-            }
-          })
-          .opacity(viewModel.isExportingVideo ? 0 : 1)
-          .padding(.top, 32)
+        HStack {
+          Text("Exporting your video").font(.title3)
+          ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
         }.padding()
       }
       .opacity(viewModel.showExportingVideoModal ? 1: 0)
+    }
+  }
+  
+  func timeline() -> some View {
+    ZStack {
+      HStack {
+        ZStack {
+          Timeline(currentKeyframe: $viewModel.currentKeyframe,
+                   isPlaying: $viewModel.isPlaying,
+                   numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                   higlightedKeyframes: highlightedKeyframes)
+          HStack {
+            LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
+                           startPoint: .leading,
+                           endPoint: .trailing)
+              .frame(width: 40)
+            Spacer()
+            LinearGradient(gradient: Gradient(colors: [Color.clear, Color.black]),
+                           startPoint: .leading,
+                           endPoint: .trailing)
+              .frame(width: 40)
+          }
+        }
+        .frame(height: 80)
+      }
+      HStack{
+        Text(selectedTracker?.text ?? "")
+          .font(.system(size: 10, weight: .bold))
+          .opacity(0.3)
+          .offset(x: 0, y: -40)
+        Spacer()
+        Text("\(viewModel.currentKeyframe + 1)/\(viewModel.document.numberOfKeyframes)")
+          .font(.system(size: 10, weight: .bold))
+          .opacity(0.3)
+          .offset(x: 0, y: -40)
+      }.padding()
     }
   }
   
@@ -118,74 +153,9 @@ struct VideoEditor: View {
           viewModel.isEditingText = false
         } onDeleteTracker: {
           viewModel.isEditingText = false
-          viewModel.removeSelectedTracker()
+          viewModel.submit(action: .removeSelectedTracker)
         }.transition(.opacity)
       }
-    }
-  }
-  
-  func toolbar() -> some View {
-    VStack {
-      HStack {
-        Button(action: {
-          viewModel.addTracker()
-        }, label: {
-          Image(systemName: "plus.viewfinder")
-            .font(.subheadline)
-            .foregroundColor(.white)
-            .padding()
-            .background(Circle().fill(Color.white.opacity(0.1))
-            )
-        })
-        Button(action: {
-          withAnimation {
-            viewModel.isPlaying.toggle()
-          }
-        }, label: {
-          Image(systemName: viewModel.isPlaying ? "pause.fill" : "play.fill")
-            .font(.subheadline)
-            .foregroundColor(.white)
-            .padding()
-            .background(Circle().fill(Color.white.opacity(0.1))
-            )
-        })
-        Button(action: {
-          viewModel.deleteCurrentKeyframe()
-        }, label: {
-          Image(systemName: "minus.circle.fill")
-            .font(.subheadline)
-            .foregroundColor(.white)
-            .padding()
-            .background(Circle().fill(Color.white.opacity(0.1))
-            )
-        })
-        Button(action: {
-          viewModel.duplicateCurrentKeyframe()
-        }, label: {
-          ZStack {
-            Image(systemName: "circle")
-              .font(.subheadline)
-              .foregroundColor(.white)
-              .padding()
-              .offset(x: -2.5, y: -2.5)
-            Image(systemName: "circle.fill")
-              .font(.subheadline)
-              .foregroundColor(.white)
-              .padding()
-              .offset(x: 2.5, y: 2.5)
-          }.background(Circle().fill(Color.white.opacity(0.1)))
-        })
-        Button(action: {
-          viewModel.exportVideo()
-        }, label: {
-          ZStack {
-            Image(systemName: "square.and.arrow.up")
-              .font(.subheadline)
-              .foregroundColor(.white)
-              .padding()
-          }.background(Circle().fill(Color.white.opacity(0.1)))
-        })
-      }.padding()
     }
   }
 }
@@ -193,8 +163,14 @@ struct VideoEditor: View {
 struct ContentView_Previews: PreviewProvider {
   static var model = VideoEditorViewModel.preview
   static var previews: some View {
-    VideoEditor(viewModel: model)
-      .background(Color.black)
-      .colorScheme(.dark)
+    Group {
+      VideoEditor(viewModel: model, onClose: {})
+        .background(Color.black)
+        .colorScheme(.dark)
+      VideoEditor(viewModel: model, onClose: {})
+        .previewDevice("iPhone 12 mini")
+        .background(Color.black)
+        .colorScheme(.dark)
+    }
   }
 }

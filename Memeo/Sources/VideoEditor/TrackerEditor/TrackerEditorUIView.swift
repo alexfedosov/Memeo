@@ -26,10 +26,12 @@ class TrackersEditorUIView: UIView {
   var touchLocationInMovingTracker: CGPoint = .zero
   
   let panGestureRecognizer = UIPanGestureRecognizer()
+  let doubleTapGestureRecognizer = UITapGestureRecognizer()
   let tapGestureRecognizer = UITapGestureRecognizer()
   
   var currentKeyframe: Int = 0
   var numberOfKeyframes: Int = 0
+  var duration: Double = 0
   var isPlaying: Bool = false
   
   override init(frame: CGRect) {
@@ -48,10 +50,26 @@ class TrackersEditorUIView: UIView {
     panGestureRecognizer.addTarget(self, action: #selector(handlePanGesture))
     addGestureRecognizer(panGestureRecognizer)
     
+    doubleTapGestureRecognizer.addTarget(self, action: #selector(handleDoubleTap))
+    doubleTapGestureRecognizer.numberOfTapsRequired = 2
+    addGestureRecognizer(doubleTapGestureRecognizer)
+    
     tapGestureRecognizer.addTarget(self, action: #selector(handleTap))
+    tapGestureRecognizer.numberOfTapsRequired = 1
     addGestureRecognizer(tapGestureRecognizer)
     
     layer.masksToBounds = true
+  }
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    updateTrackers(newTrackers: trackerLayers.map { $0.tracker },
+                   numberOfKeyframes: numberOfKeyframes,
+                   currentKeyframe: currentKeyframe,
+                   isPlaying: isPlaying,
+                   duration: duration,
+                   forExportingVideo: false,
+                   forceUpdate: true)
   }
   
   func getTracker(at location: CGPoint) -> TrackerLayer? {
@@ -110,13 +128,23 @@ class TrackersEditorUIView: UIView {
     }
   }
   
+  @objc func handleDoubleTap(sender: UITapGestureRecognizer) {
+    let location = sender.location(in: self)
+    guard let trackerPresentation = getTracker(at: location) else { return }
+    
+    let tracker = trackerPresentation.model()
+    if let model = getTrackerModel(for: tracker) {
+      delegate?.didDoubleTapOnTrackerLayer(tracker: model.tracker)
+    }
+  }
   
   func updateTrackers(newTrackers: [Tracker],
                       numberOfKeyframes: Int,
                       currentKeyframe: Int,
                       isPlaying: Bool,
                       duration: CFTimeInterval,
-                      forExportingVideo: Bool = false) {
+                      forExportingVideo: Bool = false,
+                      forceUpdate: Bool = false) {
     let oldTrackers = trackerLayers.map { $0.tracker }
     let diff = newTrackers.difference(from: oldTrackers, by: { $0.id == $1.id })
     for change in diff {
@@ -149,10 +177,13 @@ class TrackersEditorUIView: UIView {
     let needUpdate = self.isPlaying != isPlaying
       || (self.currentKeyframe != currentKeyframe && !self.isPlaying)
       || self.numberOfKeyframes != numberOfKeyframes
+      || self.duration != duration
+      || forceUpdate
     
     self.isPlaying = isPlaying
     self.currentKeyframe = currentKeyframe
     self.numberOfKeyframes = numberOfKeyframes
+    self.duration = duration
     
     for (index, newTracker) in newTrackers.enumerated() {
       if newTracker != trackerLayers[index].tracker || needUpdate {
@@ -178,4 +209,5 @@ class TrackersEditorUIView: UIView {
 protocol TrackersEditorUIViewDelegate: AnyObject {
   func trackerPositionDidChange(position: CGPoint, tracker: Tracker)
   func didTapOnTrackerLayer(tracker: Tracker)
+  func didDoubleTapOnTrackerLayer(tracker: Tracker)
 }

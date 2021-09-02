@@ -74,10 +74,34 @@ class VideoExporter {
       outputLayer.isGeometryFlipped = true
       outputLayer.addSublayer(view.layer)
       
+      if let image = UIImage(named: "watermark") {
+        let watermark = CALayer()
+        let aspect: CGFloat = image.size.width / image.size.height
+        watermark.contents = image.cgImage
+        watermark.contentsGravity = .resizeAspect
+        let width = frameRect.width / 6
+        let height = width / aspect
+        let padding = height / 2
+        watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
+                                                 y: frameRect.height - height - padding),
+                                 size: CGSize(width: width, height: height))
+//        let animation = CAKeyframeAnimation(keyPath: "opacity")
+//        animation.duration = 3
+//        animation.values = [1, 1, 0]
+//        animation.keyTimes = [0, 0.8, 1]
+//        animation.beginTime = AVCoreAnimationBeginTimeAtZero
+//        animation.speed = 1
+//        animation.isRemovedOnCompletion = false
+//        animation.fillMode = .forwards
+//        watermark.add(animation, forKey: "opacity")
+//        watermark.opacity = 0.7
+        outputLayer.addSublayer(watermark)
+      }
+
       let videoComposition = AVMutableVideoComposition()
       videoComposition.renderScale = 1.0
       videoComposition.renderSize = frameRect.size
-      videoComposition.frameDuration = CMTime(value: 1, timescale: 60)
+      videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
       videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: outputLayer)
       
       let instruction = AVMutableVideoCompositionInstruction()
@@ -93,10 +117,22 @@ class VideoExporter {
         return
       }
       
-      let videoName = UUID().uuidString
-      let exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let videoName = "Meme made with memeo.app"
+      var exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
         .appendingPathComponent(videoName)
         .appendingPathExtension("mp4")
+      
+      if FileManager().fileExists(atPath: exportURL.path) {
+        do {
+          try FileManager().removeItem(at: exportURL)
+          print("file removed")
+        } catch {
+          exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mp4")
+          print("saving under generated url")
+        }
+      }
       
       export.videoComposition = videoComposition
       export.outputFileType = .mp4

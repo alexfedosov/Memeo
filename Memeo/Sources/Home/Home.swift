@@ -12,7 +12,9 @@ struct Home: View {
   
   var body: some View {
     if let videoEditorViewModel = model.videoEditorViewModel {
-      VideoEditor(viewModel: videoEditorViewModel)
+      VideoEditor(viewModel: videoEditorViewModel) {
+        model.videoEditorViewModel = nil
+      }
     } else {
       UploadVideoView(mediaURL: $model.selectedAssetUrl)
     }

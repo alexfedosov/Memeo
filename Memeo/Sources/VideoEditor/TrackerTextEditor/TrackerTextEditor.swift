@@ -27,11 +27,17 @@ struct TrackerTextEditor: View {
               showRemoveConfirmation = true
             }
           }, label: {
-            Image(systemName: "trash")
-              .font(.subheadline)
-              .foregroundColor(.white)
-              .padding()
-              .background(Circle().fill(Color.white.opacity(0.1)))
+            HStack {
+              Image(systemName: "trash")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.white)
+//              Text("Delete")
+//                .font(.system(size: 14, weight: .bold))
+//                .foregroundColor(.white)
+            }
+            .padding()
+//            .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+            .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.red))
           }).padding()
         }
         Spacer()
@@ -60,6 +66,12 @@ struct TrackerTextEditor: View {
               .cornerRadius(12)
           }).padding()
         }
+        Text("Pro tip: after you have added text, double tap to come back to this screen")
+          .font(.system(size: 10, weight: .bold))
+          .multilineTextAlignment(.center)
+          .opacity(0.6)
+          .padding(.horizontal)
+          .padding(.bottom)
       }
       .frame(maxHeight: .greatestFiniteMagnitude)
     }

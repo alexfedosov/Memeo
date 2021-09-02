@@ -15,14 +15,14 @@ struct UploadVideoView: View {
   var body: some View {
     VStack {
       Image("upload-video-icon")
-      Text("UPLOAD VIDEO")
+      Text("Upload video")
         .font(.system(size: 16, weight: .bold, design: .default))
         .foregroundColor(Color.white)
         .padding(EdgeInsets(top: 16, leading: 0, bottom: 8, trailing: 0))
-      Text("Upload video to create new meme template")
+      Text("Open video from your photo library\nto create a new template")
         .multilineTextAlignment(.center)
         .foregroundColor(.white.opacity(0.5))
-      GradientBorderButton(text: "Open Gallery", action: {
+      GradientBorderButton(text: "Open Photo Library", action: {
         withAnimation {
           showVideoPicker = true
         }
@@ -66,7 +66,7 @@ struct GradientBorderButton: View {
                                endPoint: .topTrailing))
     )
     .onAppear() {
-      withAnimation(SwiftUI.Animation.easeInOut(duration: 10).repeatForever(autoreverses: true)) {
+      withAnimation(SwiftUI.Animation.easeInOut(duration: 60).repeatForever(autoreverses: true)) {
         animationValue = 1
       }
     }

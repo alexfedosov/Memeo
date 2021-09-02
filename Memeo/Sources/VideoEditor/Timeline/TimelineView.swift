@@ -191,6 +191,12 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
     }
   }
 
+  func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+    let width = drawingConfig.size.width + drawingConfig.spacing
+    let keyframeIndex = floor(contentView.offset / width)
+    delegate?.scrollableTimelineViewDidScrollToKeyframe(keyframe: Int(keyframeIndex))
+  }
+
   func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     scrollToNearKeyframe()
   }
@@ -225,6 +231,8 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
     let offset = CGFloat(keyframe) * width - scrollView.contentInset.left
     UIView.animateKeyframes(withDuration: 0.1, delay: 0.0, options: .allowUserInteraction) { [weak self] in
       self?.scrollView.contentOffset = CGPoint(x: offset, y: 0)
+    } completion: { _ in
+      self.scrollViewDidEndScrollingAnimation(self.scrollView)
     }
   }
 }

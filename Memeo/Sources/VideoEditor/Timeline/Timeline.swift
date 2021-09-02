@@ -81,7 +81,7 @@ struct Timeline_Previews: PreviewProvider {
   static var previews: some View {
     let keyframes = Set(model.document.trackers.first!.position.keyframes.keys)
     return VStack {
-      Timeline(currentKeyframe: .constant(10),
+      Timeline(currentKeyframe: .constant(model.document.fps),
                isPlaying: .constant(false),
                numberOfKeyframes: model.document.numberOfKeyframes,
                higlightedKeyframes: keyframes)

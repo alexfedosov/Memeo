@@ -1,5 +1,7 @@
 {
+  "version": 1,
   "duration": 12.8,
+  "fps": 10,
   "numberOfKeyframes": 120,
   "frameSize": [1280, 720],
   "trackers": [

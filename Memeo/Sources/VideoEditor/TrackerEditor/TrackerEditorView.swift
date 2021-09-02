@@ -15,7 +15,8 @@ struct TrackerEditorView: UIViewRepresentable {
   let duration: CFTimeInterval
   var trackerTapped: ((Tracker) -> Void)? = nil
   var trackerPositionChanged: ((CGPoint, Tracker) -> Void)? = nil
-  
+  var trackerDoubleTapped: ((Tracker) -> Void)? = nil
+
   func makeUIView(context: Context) -> TrackersEditorUIView {
     let view = TrackersEditorUIView()
     view.delegate = context.coordinator
@@ -24,6 +25,7 @@ struct TrackerEditorView: UIViewRepresentable {
   
   func updateUIView(_ uiView: TrackersEditorUIView, context: Context) {
     context.coordinator.trackerTapped = trackerTapped
+    context.coordinator.trackerDoubleTapped = trackerDoubleTapped
     context.coordinator.trackerPositionChanged = trackerPositionChanged
     uiView.updateTrackers(newTrackers: trackers,
                           numberOfKeyframes: numberOfKeyframes,
@@ -38,6 +40,7 @@ struct TrackerEditorView: UIViewRepresentable {
   
   class Coordinator: TrackersEditorUIViewDelegate {
     var trackerTapped: ((Tracker) -> Void)? = nil
+    var trackerDoubleTapped: ((Tracker) -> Void)? = nil
     var trackerPositionChanged: ((CGPoint, Tracker) -> Void)? = nil
     
     func trackerPositionDidChange(position: CGPoint, tracker: Tracker) {
@@ -46,6 +49,10 @@ struct TrackerEditorView: UIViewRepresentable {
     
     func didTapOnTrackerLayer(tracker: Tracker) {
       trackerTapped?(tracker)
+    }
+    
+    func didDoubleTapOnTrackerLayer(tracker: Tracker) {
+      trackerDoubleTapped?(tracker)
     }
   }
 }
@@ -63,6 +70,12 @@ struct TrackerEditorView_Previews: PreviewProvider {
 }
 
 extension TrackerEditorView {
+  func onTrackerDoubleTapped(_ callback: @escaping (Tracker) -> Void) -> Self {
+    var copy = self
+    copy.trackerDoubleTapped = callback
+    return copy
+  }
+  
   func onTrackerTapped(_ callback: @escaping (Tracker) -> Void) -> Self {
     var copy = self
     copy.trackerTapped = callback

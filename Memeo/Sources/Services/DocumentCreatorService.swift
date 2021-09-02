@@ -28,7 +28,7 @@ class DocumentCreatorService {
       asset.loadValuesAsynchronously(forKeys: ["duration"]) {
         DispatchQueue.main.async {
           let duration = asset.duration.seconds
-          let numberOfKeyframes = Int(asset.duration.convertScale(Int32(10), method: .default).value)
+          let numberOfKeyframes = Int(asset.duration.convertScale(Int32(Document.defaultFPS), method: .default).value)
           let document = Document(duration: duration,
                                   numberOfKeyframes: numberOfKeyframes,
                                   trackers: [],
