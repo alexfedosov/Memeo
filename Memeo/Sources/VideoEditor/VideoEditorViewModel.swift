@@ -11,8 +11,9 @@ import SwiftUI
 import Combine
 
 class VideoEditorViewModel: ObservableObject {
+  
   @Published var document: Document
-  @Published var asset: AVAsset
+  
   @Published var currentKeyframe: Int = 0
   @Published var isPlaying: Bool = false
   @Published var isEditingText: Bool = false
@@ -25,30 +26,22 @@ class VideoEditorViewModel: ObservableObject {
   var clearLastActionDescriptionTimer: Timer?
   
   var previewUntilFrame: Int?
-  var assetURL: URL?
   
   var videoPlayer: VideoPlayer
   var videoExporter = VideoExporter()
   
   var cancellables = Set<AnyCancellable>()
   
-  init(document: Document, asset: AVAsset) {
+  init(document: Document) {
     self.document = document
-    ////
-//    let exportURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-//      .first!
-//      .appendingPathComponent("file")
-//      .appendingPathExtension("memeo")
-//    self.document = try! Document(url: exportURL)
     
     if document.trackers.count > 0 {
       selectedTrackerIndex = 0
     }
-    ////
-    self.asset = asset
+    
     self.videoPlayer = VideoPlayer()
     self.videoPlayer.delegate = self
-    videoPlayer.replaceCurrentItem(with: AVPlayerItem(asset: asset))
+    
     $isPlaying.sink { [videoPlayer] isPlaying in
       if isPlaying {
         videoPlayer.play()
@@ -56,7 +49,6 @@ class VideoEditorViewModel: ObservableObject {
         videoPlayer.pause()
       }
     }.store(in: &cancellables)
-    
     
     Publishers.CombineLatest($currentKeyframe, $isPlaying)
       .sink { [videoPlayer] keyframe, isPlaying in
@@ -74,6 +66,12 @@ class VideoEditorViewModel: ObservableObject {
         self.previewUntilFrame = nil
       }
     }.store(in: &cancellables)
+    
+    $document
+      .map { $0.mediaURL }
+      .removeDuplicates()
+      .sink {[videoPlayer] url in videoPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))}
+      .store(in: &cancellables)
   }
 
   func selectTracker(tracker: Tracker) {
@@ -93,26 +91,14 @@ class VideoEditorViewModel: ObservableObject {
     withAnimation {
       showExportingVideoModal = true
     }
-//    let exportURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-//      .first!
-//      .appendingPathComponent("Template")
-//      .appendingPathExtension("memeo")
-//    let wrappers = try! document.fileWrappers(with: assetURL!)
-//    try! wrappers.write(to: exportURL, options: .atomic, originalContentsURL: nil)
-//    DispatchQueue.main.async {
-//      let activityVC = UIActivityViewController(activityItems: [exportURL], applicationActivities: nil)
-//      UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-//    }
     exportedAssetURL = nil
     videoExporter
-      .export(document: document, asset: asset)
+      .export(document: document)
       .mapError { $0 as Error }
-      //      .flatMap {[videoExporter] in videoExporter.moveAssetToMemeoAlbum(url: $0) }
       .receive(on: RunLoop.main)
       .sink { [weak self] completion in
         self?.isExportingVideo = false
       } receiveValue: {[weak self] url in
-//        self?. .exportedAssetURL = url
         self?.showExportingVideoModal = false
         DispatchQueue.main.async {
           let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
@@ -124,9 +110,7 @@ class VideoEditorViewModel: ObservableObject {
 
 extension VideoEditorViewModel {
   static var preview: VideoEditorViewModel {
-    let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
-    let asset = AVAsset(url: url)
-    return VideoEditorViewModel(document: Document.loadPreviewDocument(), asset: asset)
+    VideoEditorViewModel(document: Document.loadPreviewDocument())
   }
 }
 

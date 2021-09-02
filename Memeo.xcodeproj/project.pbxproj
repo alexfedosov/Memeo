@@ -15,7 +15,6 @@
 		FA97AD7E26DB7D3C00BD8B83 /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD7D26DB7D3C00BD8B83 /* Document.swift */; };
 		FA97AD8026DB7F2100BD8B83 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD7F26DB7F2100BD8B83 /* Tracker.swift */; };
 		FA97AD8226DB7F8100BD8B83 /* VideoEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD8126DB7F8100BD8B83 /* VideoEditorViewModel.swift */; };
-		FA97AD8426DB810600BD8B83 /* PreviewData.json in Resources */ = {isa = PBXBuildFile; fileRef = FA97AD8326DB810600BD8B83 /* PreviewData.json */; };
 		FA97AD8926DB83B500BD8B83 /* TrackerLayerRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD8826DB83B500BD8B83 /* TrackerLayerRepresentable.swift */; };
 		FA97AD8B26DB966D00BD8B83 /* TrackerEditorUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD8A26DB966D00BD8B83 /* TrackerEditorUIView.swift */; };
 		FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD8C26DB9D5F00BD8B83 /* TrackerEditorView.swift */; };
@@ -30,7 +29,7 @@
 		FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */; };
 		FA97ADA326DCD60F00BD8B83 /* Home.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA226DCD60F00BD8B83 /* Home.swift */; };
 		FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */; };
-		FA97ADA826DCDA0500BD8B83 /* DocumentCreatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA726DCDA0500BD8B83 /* DocumentCreatorService.swift */; };
+		FA97ADA826DCDA0500BD8B83 /* DocumentsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA726DCDA0500BD8B83 /* DocumentsService.swift */; };
 		FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */; };
 		FAB34F8726DE1AC400F36280 /* VideoExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34F8626DE1AC400F36280 /* VideoExporter.swift */; };
 		FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */; };
@@ -51,7 +50,6 @@
 		FA97AD7D26DB7D3C00BD8B83 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		FA97AD7F26DB7F2100BD8B83 /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
 		FA97AD8126DB7F8100BD8B83 /* VideoEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorViewModel.swift; sourceTree = "<group>"; };
-		FA97AD8326DB810600BD8B83 /* PreviewData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PreviewData.json; sourceTree = "<group>"; };
 		FA97AD8826DB83B500BD8B83 /* TrackerLayerRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerLayerRepresentable.swift; sourceTree = "<group>"; };
 		FA97AD8A26DB966D00BD8B83 /* TrackerEditorUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerEditorUIView.swift; sourceTree = "<group>"; };
 		FA97AD8C26DB9D5F00BD8B83 /* TrackerEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerEditorView.swift; sourceTree = "<group>"; };
@@ -66,7 +64,7 @@
 		FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadVideoView.swift; sourceTree = "<group>"; };
 		FA97ADA226DCD60F00BD8B83 /* Home.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Home.swift; sourceTree = "<group>"; };
 		FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
-		FA97ADA726DCDA0500BD8B83 /* DocumentCreatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentCreatorService.swift; sourceTree = "<group>"; };
+		FA97ADA726DCDA0500BD8B83 /* DocumentsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsService.swift; sourceTree = "<group>"; };
 		FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAssetTrackExtentions.swift; sourceTree = "<group>"; };
 		FAB34F8626DE1AC400F36280 /* VideoExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoExporter.swift; sourceTree = "<group>"; };
 		FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorToolbar.swift; sourceTree = "<group>"; };
@@ -119,7 +117,6 @@
 			children = (
 				FADD407C26DD45AF000D142B /* previewAsset.mp4 */,
 				FA97AD6F26DB7C5900BD8B83 /* Preview Assets.xcassets */,
-				FA97AD8326DB810600BD8B83 /* PreviewData.json */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -222,7 +219,7 @@
 		FA97ADA626DCD9EB00BD8B83 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				FA97ADA726DCDA0500BD8B83 /* DocumentCreatorService.swift */,
+				FA97ADA726DCDA0500BD8B83 /* DocumentsService.swift */,
 				FAB34F8626DE1AC400F36280 /* VideoExporter.swift */,
 			);
 			path = Services;
@@ -297,7 +294,6 @@
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
-				FA97AD8426DB810600BD8B83 /* PreviewData.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -325,7 +321,7 @@
 				FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */,
 				FA97AD8226DB7F8100BD8B83 /* VideoEditorViewModel.swift in Sources */,
 				FAB34F8726DE1AC400F36280 /* VideoExporter.swift in Sources */,
-				FA97ADA826DCDA0500BD8B83 /* DocumentCreatorService.swift in Sources */,
+				FA97ADA826DCDA0500BD8B83 /* DocumentsService.swift in Sources */,
 				FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */,
 				FA97AD9826DC3E9E00BD8B83 /* UIKitTextField.swift in Sources */,
 				FA97AD9F26DC3F3500BD8B83 /* TrackerTextEditor.swift in Sources */,

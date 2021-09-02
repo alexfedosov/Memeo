@@ -18,9 +18,10 @@ enum VideoExporterError: Error {
 class VideoExporter {
   let albumName = "Memeo"
   
-  func export(document: Document, asset: AVAsset) -> Future<URL, VideoExporterError> {
+  func export(document: Document) -> Future<URL, VideoExporterError> {
     Future { promise in
       let composition = AVMutableComposition()
+      let asset = AVAsset(url: document.mediaURL)
       guard
         let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
         let videoTrack = asset.tracks(withMediaType: .video).first
