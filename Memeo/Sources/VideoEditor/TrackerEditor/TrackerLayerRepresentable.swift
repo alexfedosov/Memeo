@@ -10,7 +10,7 @@ import UIKit
 import SwiftUI
 
 protocol CALayerRepresentable {
-  associatedtype CALayerType : CALayer
+  associatedtype CALayerType: CALayer
   func makeCALayer() -> Self.CALayerType
   func updateCALayer(_ layer: Self.CALayerType)
   static func dismantleCALayer(_ layer: Self.CALayerType)
@@ -19,7 +19,7 @@ protocol CALayerRepresentable {
 class TrackerLayer: CALayer {
   let textLabel = UILabel()
   let touchAreaAround: CGFloat = 20
-  
+
   override init() {
     super.init()
     masksToBounds = true
@@ -27,7 +27,7 @@ class TrackerLayer: CALayer {
     textLabel.textColor = .white
     textLabel.textAlignment = .center
     textLabel.font = .boldSystemFont(ofSize: 14)
-    
+
     addSublayer(textLabel.layer)
   }
 
@@ -58,16 +58,25 @@ class TrackerLayer: CALayer {
 
 struct TrackerLayerRepresentable: CALayerRepresentable {
   var tracker: Tracker
-  
+  var isSelected: Bool
+
   func makeCALayer() -> TrackerLayer {
     TrackerLayer()
   }
-  
+
   func updateCALayer(_ layer: TrackerLayer) {
     layer.textLabel.text = tracker.uiText
+    if isSelected {
+      layer.cornerRadius = 12
+      layer.borderWidth = 1
+      layer.borderColor = UIColor.white.cgColor
+    } else {
+      layer.backgroundColor = UIColor.clear.cgColor
+      layer.borderColor = UIColor.clear.cgColor
+    }
     layer.sizeToFit()
   }
-  
+
   static func dismantleCALayer(_ layer: TrackerLayer) {
     layer.textLabel.layer.removeFromSuperlayer()
   }

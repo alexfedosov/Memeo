@@ -11,9 +11,9 @@ import AVKit
 import Combine
 
 struct VideoEditor: View {
-  @ObservedObject var viewModel: VideoEditorViewModel  
+  @ObservedObject var viewModel: VideoEditorViewModel
   let onClose: () -> ()
-  
+
   var selectedTracker: Tracker? {
     get {
       if let index = viewModel.selectedTrackerIndex,
@@ -24,7 +24,7 @@ struct VideoEditor: View {
       }
     }
   }
-  
+
   var highlightedKeyframes: Set<Int> {
     get {
       if let keys = selectedTracker?.position.keyframes.keys {
@@ -34,7 +34,7 @@ struct VideoEditor: View {
       }
     }
   }
-  
+
   var body: some View {
     ZStack {
       VStack {
@@ -82,10 +82,11 @@ struct VideoEditor: View {
         EmptyView()
         Spacer()
         TrackerEditorView(trackers: viewModel.document.trackers,
-                          numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                          currentKeyframe: viewModel.currentKeyframe,
-                          isPlaying: viewModel.isPlaying,
-                          duration: viewModel.document.duration)
+          numberOfKeyframes: viewModel.document.numberOfKeyframes,
+          currentKeyframe: viewModel.currentKeyframe,
+          isPlaying: viewModel.isPlaying,
+          selectedTrackerIndex: viewModel.selectedTrackerIndex,
+          duration: viewModel.document.duration)
           .onTrackerTapped({ tracker in
             viewModel.selectTracker(tracker: tracker)
           })
@@ -113,44 +114,48 @@ struct VideoEditor: View {
           ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
         }.padding()
       }
-      .opacity(viewModel.showExportingVideoModal ? 1: 0)
-      .actionSheet(isPresented: $viewModel.showExportingOptionsDialog) {
-        ActionSheet(
-          title: Text(""),
-          message: Text("Would you like to share video or meme template?"),
-          buttons: [
-            .default(Text("Share video")) {viewModel.exportVideo()},
-            .default(Text("Share template")) {viewModel.exportTemplate()},
-            .cancel()
-          ]
-        )
-      }
+        .opacity(viewModel.showExportingVideoModal ? 1 : 0)
+        .actionSheet(isPresented: $viewModel.showExportingOptionsDialog) {
+          ActionSheet(
+            title: Text(""),
+            message: Text("Would you like to share video or meme template?"),
+            buttons: [
+              .default(Text("Share video")) {
+                viewModel.exportVideo()
+              },
+              .default(Text("Share template")) {
+                viewModel.exportTemplate()
+              },
+              .cancel()
+            ]
+          )
+        }
     }
   }
-  
+
   func timeline() -> some View {
     ZStack {
       HStack {
         ZStack {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
-                   isPlaying: $viewModel.isPlaying,
-                   numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                   higlightedKeyframes: highlightedKeyframes)
+            isPlaying: $viewModel.isPlaying,
+            numberOfKeyframes: viewModel.document.numberOfKeyframes,
+            higlightedKeyframes: highlightedKeyframes)
           HStack {
             LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
-                           startPoint: .leading,
-                           endPoint: .trailing)
+              startPoint: .leading,
+              endPoint: .trailing)
               .frame(width: 40)
             Spacer()
             LinearGradient(gradient: Gradient(colors: [Color.clear, Color.black]),
-                           startPoint: .leading,
-                           endPoint: .trailing)
+              startPoint: .leading,
+              endPoint: .trailing)
               .frame(width: 40)
           }
         }
-        .frame(height: 80)
+          .frame(height: 80)
       }
-      HStack{
+      HStack {
         Text(selectedTracker?.uiText ?? "")
           .font(.system(size: 10, weight: .bold))
           .opacity(0.3)
@@ -163,7 +168,7 @@ struct VideoEditor: View {
       }.padding()
     }
   }
-  
+
   func trackerTextEditor() -> some View {
     VStack {
       if let index = viewModel.selectedTrackerIndex,
