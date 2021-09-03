@@ -55,7 +55,7 @@ struct TrackerTextEditor: View {
         HStack {
           Button(action: {
             let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            onFinishEditing(text.count > 0 ? text : "Tap to edit")
+            onFinishEditing(text)
           }, label: {
             Text("Done")
               .font(.system(size: 14, weight: .bold, design: .default))
