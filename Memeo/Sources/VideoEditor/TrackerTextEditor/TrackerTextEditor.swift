@@ -14,7 +14,7 @@ struct TrackerTextEditor: View {
   let onFinishEditing: (String) -> Void
   let onDeleteTracker: () -> Void
   @State var showRemoveConfirmation = false
-  
+
   var body: some View {
     ZStack {
       VisualEffectView(effect: UIBlurEffect(style: .regular)).ignoresSafeArea()
@@ -32,21 +32,21 @@ struct TrackerTextEditor: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.white)
             }
-            .padding()
-            .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.red))
+              .padding()
+              .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.red))
           }).padding()
         }
         Spacer()
         VStack {
           UIKitTextField(text: $text,
-                         isFirstResponder: $isTextFieldFocused) { textField in
+            isFirstResponder: $isTextFieldFocused) { textField in
             textField.textAlignment = .center
             textField.font = .systemFont(ofSize: 16, weight: .bold)
             textField.autocorrectionType = .no
             textField.autocapitalizationType = .none
           }
-          .padding()
-          .frame(height: 60)
+            .padding()
+            .frame(height: 60)
         }.frame(maxHeight: .infinity, alignment: .center)
         HStack {
           Button(action: {
@@ -62,32 +62,26 @@ struct TrackerTextEditor: View {
               .cornerRadius(12)
           }).padding()
         }
-        Text("Pro tip: after you have added text, double tap to come back to this screen")
-          .font(.system(size: 10, weight: .bold))
-          .multilineTextAlignment(.center)
-          .opacity(0.6)
-          .padding(.horizontal)
-          .padding(.bottom)
       }
-      .frame(maxHeight: .greatestFiniteMagnitude)
+        .frame(maxHeight: .greatestFiniteMagnitude)
     }
-    .transition(.opacity)
-    .alert(isPresented: $showRemoveConfirmation, content: {
-      Alert(title: Text("Delete \"\(text)\"?"),
-            message: nil,
-            primaryButton: .destructive(Text("Delete"), action: {
-              onDeleteTracker()
-            }),
-            secondaryButton: .cancel())
-    })
+      .transition(.opacity)
+      .alert(isPresented: $showRemoveConfirmation, content: {
+        Alert(title: Text("Delete text?"),
+          message: Text("This will delete text and text animation data"),
+          primaryButton: .destructive(Text("Delete"), action: {
+            onDeleteTracker()
+          }),
+          secondaryButton: .cancel())
+      })
   }
 }
 
 struct TrackerTextEditor_Previews: PreviewProvider {
   static var previews: some View {
     TrackerTextEditor(text: "Tracker 1",
-                      onFinishEditing: { _ in },
-                      onDeleteTracker: { })
+      onFinishEditing: { _ in },
+      onDeleteTracker: {})
       .background(Color.black)
       .colorScheme(.dark)
   }

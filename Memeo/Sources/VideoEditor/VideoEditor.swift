@@ -151,7 +151,7 @@ struct VideoEditor: View {
         .frame(height: 80)
       }
       HStack{
-        Text(selectedTracker?.text ?? "")
+        Text(selectedTracker?.uiText ?? "")
           .font(.system(size: 10, weight: .bold))
           .opacity(0.3)
           .offset(x: 0, y: -40)

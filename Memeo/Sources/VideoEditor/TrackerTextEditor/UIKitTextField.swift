@@ -12,16 +12,17 @@ import SwiftUI
 struct UIKitTextField: UIViewRepresentable {
   @Binding public var isFirstResponder: Bool
   @Binding public var text: String
-  
-  public var configuration = { (view: UITextField) in}
-  
+
+  public var configuration = { (view: UITextField) in
+  }
+
   public init(text: Binding<String>, isFirstResponder: Binding<Bool>, configuration: @escaping (UITextField) -> () = { _ in
   }) {
     self.configuration = configuration
     self._text = text
     self._isFirstResponder = isFirstResponder
   }
-  
+
   public func makeUIView(context: Context) -> UITextField {
     let view = UITextField()
     view.addTarget(context.coordinator, action: #selector(Coordinator.textViewDidChange), for: .editingChanged)
@@ -29,7 +30,7 @@ struct UIKitTextField: UIViewRepresentable {
     configuration(view)
     return view
   }
-  
+
   public func updateUIView(_ uiView: UITextField, context: Context) {
     uiView.text = text
     switch isFirstResponder {
@@ -37,30 +38,34 @@ struct UIKitTextField: UIViewRepresentable {
     case false: uiView.resignFirstResponder()
     }
   }
-  
+
   public func makeCoordinator() -> Coordinator {
     Coordinator($text, isFirstResponder: $isFirstResponder)
   }
-  
+
   public class Coordinator: NSObject, UITextFieldDelegate {
     var text: Binding<String>
     var isFirstResponder: Binding<Bool>
-    
+
     init(_ text: Binding<String>, isFirstResponder: Binding<Bool>) {
       self.text = text
       self.isFirstResponder = isFirstResponder
     }
-    
+
     @objc public func textViewDidChange(_ textField: UITextField) {
       text.wrappedValue = textField.text ?? ""
     }
-    
+
     public func textFieldDidBeginEditing(_ textField: UITextField) {
-      isFirstResponder.wrappedValue = true
+      DispatchQueue.main.async {
+        self.isFirstResponder.wrappedValue = true
+      }
     }
-    
+
     public func textFieldDidEndEditing(_ textField: UITextField) {
-      isFirstResponder.wrappedValue = false
+      DispatchQueue.main.async {
+        self.isFirstResponder.wrappedValue = false
+      }
     }
   }
 }

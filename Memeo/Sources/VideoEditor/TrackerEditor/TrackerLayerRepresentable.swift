@@ -64,7 +64,7 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
   }
   
   func updateCALayer(_ layer: TrackerLayer) {
-    layer.textLabel.text = tracker.text.count == 0 ? "Double tap to edit" : tracker.text
+    layer.textLabel.text = tracker.uiText
     layer.sizeToFit()
   }
   

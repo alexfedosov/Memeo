@@ -154,14 +154,14 @@ class ScrollableTimelineView: UIView {
     contentView.frame = CGRect(origin: .zero, size: contentSize)
     scrollView.contentInset = UIEdgeInsets(
       top: 0,
-      left: bounds.width / 2,
+      left: bounds.width / 2 - drawingConfig.size.width / 2,
       bottom: 0,
       right: bounds.width / 2 - (drawingConfig.size.width + drawingConfig.spacing))
     if scrollView.contentOffset == .zero {
       scrollView.contentOffset = CGPoint(x: -bounds.width / 2, y: 0)
     }
     highlightedKeyframeView.frame = CGRect(
-      x: bounds.width / 2,
+      x: bounds.width / 2 - drawingConfig.size.width / 2,
       y: 0,
       width: bounds.width / 2,
       height: bounds.height

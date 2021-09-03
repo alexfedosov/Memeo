@@ -24,6 +24,12 @@ extension CGPoint: AnimatedValue {
 struct Tracker: Identifiable, Equatable, Codable, Hashable {
   var id: UUID
   var text: String
-  
+
   var position: Animation<CGPoint>
+  var uiText: String {
+    get {
+      let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+      return text.count > 0 ? text : "Double tap to edit"
+    }
+  }
 }
