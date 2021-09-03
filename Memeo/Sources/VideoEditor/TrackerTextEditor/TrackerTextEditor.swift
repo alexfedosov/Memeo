@@ -31,12 +31,8 @@ struct TrackerTextEditor: View {
               Image(systemName: "trash")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.white)
-//              Text("Delete")
-//                .font(.system(size: 14, weight: .bold))
-//                .foregroundColor(.white)
             }
             .padding()
-//            .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.red))
           }).padding()
         }

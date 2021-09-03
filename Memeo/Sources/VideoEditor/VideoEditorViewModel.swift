@@ -160,10 +160,9 @@ extension VideoEditorViewModel {
     let animation = Animation<CGPoint>(id: UUID(),
                                        keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
                                        key: "position")
-    let tracker = Tracker(id: UUID(), text: "Tracker \(document.trackers.count + 1)", position: animation)
+    let tracker = Tracker(id: UUID(), text: "", position: animation)
     document.trackers.append(tracker)
     selectedTrackerIndex = document.trackers.count - 1
-    isEditingText = true
   }
   
   private func removeSelectedTracker() {
@@ -226,7 +225,6 @@ extension VideoEditorViewModel {
     case addTracker
     case deleteCurrentKeyframe
     case duplicateCurrentKeyframe
-    case goBack(frames: Int)
     case goForward(frames: Int)
     case removeSelectedTracker
     case play
@@ -244,8 +242,6 @@ extension VideoEditorViewModel {
       deleteCurrentKeyframe()
     case .duplicateCurrentKeyframe:
       duplicateCurrentKeyframe()
-    case .goBack(frames: let frames):
-      goBack(frames: frames)
     case .goForward(frames: let frames):
       goForward(frames: frames)
     case .removeSelectedTracker:
@@ -279,13 +275,11 @@ extension VideoEditorViewModel.Action: Help {
   func toastText() -> String {
     switch self {
     case .addTracker:
-      return "Created new tracker"
+      return "Text added"
     case .deleteCurrentKeyframe:
       return "Keyframe deleted"
     case .duplicateCurrentKeyframe:
       return "Keyframe duplicated"
-    case .goBack(frames: let frames):
-      return "Jump back \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
     case .goForward(frames: let frames):
       return "Jump forward \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
     case .removeSelectedTracker:
@@ -295,7 +289,7 @@ extension VideoEditorViewModel.Action: Help {
     case .pause:
       return "Paused"
     case .preview:
-      return "Previewing"
+      return "Previewing previous 10 keyframes"
     case .editTracker:
       return "Editing tracker"
     case .saveDocument:
