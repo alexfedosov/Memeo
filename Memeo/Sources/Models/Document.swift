@@ -13,13 +13,23 @@ import SwiftUI
 struct Document: Codable {
   static let defaultFPS = 10
   
+  var uuid: UUID = UUID()
   var duration: CFTimeInterval
   var numberOfKeyframes: Int
   var trackers: [Tracker]
   var frameSize: CGSize
-  var mediaURL: URL
+  var mediaURL: URL?
   var version: Int = 1
   var fps: Int = 10
+}
+
+extension Document: Hashable {}
+
+extension CGSize: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(width)
+    hasher.combine(height)
+  }
 }
 
 extension Document {

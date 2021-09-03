@@ -8,9 +8,10 @@
 import SwiftUI
 import AVFoundation
 import AVKit
+import Combine
 
 struct VideoEditor: View {
-  @ObservedObject var viewModel: VideoEditorViewModel
+  @ObservedObject var viewModel: VideoEditorViewModel  
   let onClose: () -> ()
   
   var selectedTracker: Tracker? {
@@ -38,7 +39,16 @@ struct VideoEditor: View {
     ZStack {
       VStack {
         HStack {
-          Button(action: onClose, label: {
+          Button(action: {
+            viewModel
+              .documentService
+              .save(document: viewModel.document)
+              .sink(receiveCompletion: { _ in
+                onClose()
+              }, receiveValue: { _ in })
+              .store(in: &viewModel.cancellables)
+            onClose()
+          }, label: {
             ZStack {
               Image(systemName: "xmark")
                 .font(.subheadline)
@@ -58,7 +68,7 @@ struct VideoEditor: View {
           }
           Spacer()
           Button(action: {
-            viewModel.exportVideo()
+            viewModel.showExportingOptionsDialog = true
           }, label: {
             ZStack {
               Image(systemName: "square.and.arrow.up")
@@ -104,6 +114,17 @@ struct VideoEditor: View {
         }.padding()
       }
       .opacity(viewModel.showExportingVideoModal ? 1: 0)
+      .actionSheet(isPresented: $viewModel.showExportingOptionsDialog) {
+        ActionSheet(
+          title: Text(""),
+          message: Text("Would you like to share video or meme template?"),
+          buttons: [
+            .default(Text("Share video")) {viewModel.exportVideo()},
+            .default(Text("Share template")) {viewModel.exportTemplate()},
+            .cancel()
+          ]
+        )
+      }
     }
   }
   

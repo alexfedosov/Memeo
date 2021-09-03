@@ -6,19 +6,22 @@
 //
 
 import SwiftUI
+import Combine
 
 @main
 struct MemeoApp: App {
-  @State var templateURL: URL?
+  @State var openUrl: URL?
   
   var body: some Scene {
     WindowGroup {
       ZStack {
         Rectangle().fill(Color.black).ignoresSafeArea()
-        Home().colorScheme(.dark)
-      }.onOpenURL(perform: { url in
-        templateURL = url
+        Home(openUrl: $openUrl)
+      }
+      .onOpenURL(perform: { url in
+        openUrl = url
       })
+      .colorScheme(.dark)
     }
   }
 }

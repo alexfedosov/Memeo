@@ -43,4 +43,9 @@ struct VideoPlayerView: UIViewRepresentable {
       uiView.playerLayer.player = videoPlayer
     }
   }
+  
+  static func dismantleUIView(_ uiView: AVPlayerLayerView, coordinator: ()) {
+    uiView.playerLayer.player = nil
+    uiView.playerLayer.removeFromSuperlayer()
+  }
 }

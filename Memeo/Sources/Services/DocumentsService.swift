@@ -17,7 +17,8 @@ enum DocumentServiceError: Error {
 
 class DocumentsService {
   static let dataFileName = "data"
-  static let mediaFileName = "media"
+  static let mediaFileName = "media.mp4"
+  static let pathExtention = "memeo"
   
   static var writableContentTypes: [UTType] {
     [.memeoFileContentType]
@@ -52,7 +53,7 @@ class DocumentsService {
     }
   }
   
-  func load(url: URL) -> Future<(Document, AVAsset), Error> {
+  func load(url: URL) -> Future<Document, Error> {
     Future { promise in
       do {
         let wrapper = try FileWrapper(url: url, options: .immediate)
@@ -64,46 +65,75 @@ class DocumentsService {
           return
         }
         let jsonDecoder = JSONDecoder()
-        let doc = try jsonDecoder.decode(Document.self, from: jsonData)
-        let asset = AVAsset(url: url.appendingPathComponent(assetFileName))
-        promise(.success((doc, asset)))
+        var doc = try jsonDecoder.decode(Document.self, from: jsonData)
+        doc.mediaURL = url.appendingPathComponent(assetFileName)
+        promise(.success(doc))
       } catch {
         promise(.failure(CocoaError(.fileReadCorruptFile)))
       }
     }
   }
   
-  func save(document: Document, assetURL: URL) -> Future<URL, Error> {
+  func save(document: Document) -> Future<URL, Error> {
     Future {[fileWrappers] promise in
       guard let exportURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
               .first?
-              .appendingPathComponent(UUID().uuidString)
-              .appendingPathExtension("memeo") else {
+              .appendingPathComponent(document.uuid.uuidString)
+              .appendingPathExtension(Self.pathExtention) else {
         promise(.failure(DocumentServiceError.error("failed to resolve document directory path")))
         return
       }
       do {
-        let wrappers = try fileWrappers(document, assetURL)
+        let wrappers = try fileWrappers(document)
         try wrappers.write(to: exportURL, options: .atomic, originalContentsURL: nil)
+        promise(.success(exportURL))
       } catch {
         promise(.failure(error))
       }
     }
   }
   
-  func fileWrappers(for document: Document, assetURL: URL) throws -> FileWrapper {
+  func fileWrappers(for document: Document) throws -> FileWrapper {
+    guard let mediaUrl = document.mediaURL else {
+      throw DocumentServiceError.unexpectedError
+    }
     let mainDirectory = FileWrapper(directoryWithFileWrappers: [:])
     let documentData = try JSONEncoder().encode(document)
     let documentFile = FileWrapper(regularFileWithContents: documentData)
     documentFile.preferredFilename = Self.dataFileName
     mainDirectory.addFileWrapper(documentFile)
     
-    let mediaData = try Data(contentsOf: assetURL)
+    let mediaData = try Data(contentsOf: mediaUrl)
     let mediaFile = FileWrapper(regularFileWithContents: mediaData)
     mediaFile.preferredFilename = Self.mediaFileName
     mainDirectory.addFileWrapper(mediaFile)
     
     return mainDirectory
+  }
+  
+  func importDocument(url: URL) -> AnyPublisher<Document, Error> {
+    load(url: url)
+      .flatMap {[save] in save($0 )}
+      .flatMap{ [load] in load($0)}
+      .eraseToAnyPublisher()
+  }
+  
+  func listStoredTemplates() -> AnyPublisher<[Document], Never> {
+    guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+      return Just([]).eraseToAnyPublisher()
+    }
+    
+    do {
+      let directoryContents = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
+      let templates = directoryContents.filter{ $0.pathExtension == "memeo" }
+      return Publishers
+        .MergeMany(templates.map { load(url: $0 ).map { $0 }.replaceError(with: nil) } )
+        .compactMap { $0 }
+        .collect()
+        .eraseToAnyPublisher()
+    } catch {
+      return Just([]).eraseToAnyPublisher()
+    }
   }
 }
 

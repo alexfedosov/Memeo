@@ -21,8 +21,8 @@ class VideoExporter {
   func export(document: Document) -> Future<URL, VideoExporterError> {
     Future { promise in
       let composition = AVMutableComposition()
-      let asset = AVAsset(url: document.mediaURL)
       guard
+        let asset = document.mediaURL != nil ? AVAsset(url: document.mediaURL!) : nil,
         let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
         let videoTrack = asset.tracks(withMediaType: .video).first
       else {
@@ -44,7 +44,7 @@ class VideoExporter {
       }
       
 
-//      compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
+      compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
       let videoSize: CGSize = videoTrack.frameSize()
       let frameRect = CGRect(origin: .zero, size: videoSize)
       

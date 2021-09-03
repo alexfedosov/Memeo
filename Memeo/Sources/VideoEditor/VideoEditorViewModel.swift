@@ -11,6 +11,7 @@ import SwiftUI
 import Combine
 
 class VideoEditorViewModel: ObservableObject {
+  let documentService = DocumentsService()
   
   @Published var document: Document
   
@@ -22,6 +23,7 @@ class VideoEditorViewModel: ObservableObject {
   @Published var showExportingVideoModal = false
   @Published var exportedAssetURL: URL?
   @Published var lastActionDescription: String?
+  @Published var showExportingOptionsDialog = false
 
   var clearLastActionDescriptionTimer: Timer?
   
@@ -68,7 +70,7 @@ class VideoEditorViewModel: ObservableObject {
     }.store(in: &cancellables)
     
     $document
-      .map { $0.mediaURL }
+      .compactMap { $0.mediaURL }
       .removeDuplicates()
       .sink {[videoPlayer] url in videoPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))}
       .store(in: &cancellables)
@@ -94,6 +96,7 @@ class VideoEditorViewModel: ObservableObject {
     exportedAssetURL = nil
     videoExporter
       .export(document: document)
+      .subscribe(on: DispatchQueue.global())
       .mapError { $0 as Error }
       .receive(on: RunLoop.main)
       .sink { [weak self] completion in
@@ -104,6 +107,24 @@ class VideoEditorViewModel: ObservableObject {
           let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
           UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
         }
+      }.store(in: &cancellables)
+  }
+  
+  func exportTemplate() {
+    isExportingVideo = true
+    withAnimation {
+      showExportingVideoModal = true
+    }
+    documentService
+      .save(document: document)
+      .subscribe(on: DispatchQueue.global())
+      .receive(on: DispatchQueue.main)
+      .sink {[weak self] completion in
+        self?.isExportingVideo = false
+        self?.showExportingVideoModal = false
+      } receiveValue: { url in
+        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
       }.store(in: &cancellables)
   }
 }
@@ -191,6 +212,13 @@ extension VideoEditorViewModel {
     goBack(frames: previewFrames)
     isPlaying = true
   }
+  
+  func saveDocument() {
+    documentService
+      .save(document: document)
+      .sink { _  in } receiveValue: { _ in }
+      .store(in: &cancellables)
+  }
 }
 
 extension VideoEditorViewModel {
@@ -205,6 +233,7 @@ extension VideoEditorViewModel {
     case pause
     case preview
     case editTracker
+    case saveDocument
   }
   
   func submit(action: Action) {
@@ -231,6 +260,8 @@ extension VideoEditorViewModel {
       if let _ = selectedTrackerIndex {
         isEditingText = true
       }
+    case .saveDocument:
+      saveDocument()
     }
     showLastActionDescription(text: action.toastText())
   }
@@ -248,25 +279,27 @@ extension VideoEditorViewModel.Action: Help {
   func toastText() -> String {
     switch self {
     case .addTracker:
-      return "Tracker added"
+      return "Created new tracker"
     case .deleteCurrentKeyframe:
       return "Keyframe deleted"
     case .duplicateCurrentKeyframe:
       return "Keyframe duplicated"
     case .goBack(frames: let frames):
-      return "Moved back \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
+      return "Jump back \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
     case .goForward(frames: let frames):
-      return "Moved forward \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
+      return "Jump forward \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
     case .removeSelectedTracker:
       return "Tracker deleted"
     case .play:
-      return "Playback started"
+      return "Playing"
     case .pause:
-      return "Playback paused"
+      return "Paused"
     case .preview:
-      return "Playing preview"
+      return "Previewing"
     case .editTracker:
       return "Editing tracker"
+    case .saveDocument:
+      return "Saving document"
     }
   }
 }

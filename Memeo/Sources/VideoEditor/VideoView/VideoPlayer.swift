@@ -13,6 +13,7 @@ protocol MediaPlayerDelegate: AnyObject {
 
 class VideoPlayer: AVPlayer {
   var layer: AVPlayerLayer! = nil
+  var shouldAutoRepeat = false
   weak var delegate: MediaPlayerDelegate?
   
   var isPlaying: Bool {
@@ -50,6 +51,9 @@ class VideoPlayer: AVPlayer {
   @objc func videoPlayerDidPlayToEnd() {
     DispatchQueue.main.async {
       self.delegate?.mediaPlayerDidPlayToEnd()
+      if self.shouldAutoRepeat {
+        self.seek(to: .zero)
+      }
     }
   }
   

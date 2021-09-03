@@ -22,7 +22,7 @@ struct UploadVideoView: View {
       Text("Open video from your photo library\nto create a new template")
         .multilineTextAlignment(.center)
         .foregroundColor(.white.opacity(0.5))
-      GradientBorderButton(text: "Open Photo Library", action: {
+      GradientBorderButton(text: "Create new", action: {
         withAnimation {
           showVideoPicker = true
         }
@@ -40,8 +40,6 @@ struct UploadVideoView: View {
 }
 
 struct GradientBorderButton: View {
-  @State var animationValue: Double = 0
-  
   let text: String
   let action: () -> ()
   
@@ -56,20 +54,15 @@ struct GradientBorderButton: View {
       Text(text)
         .foregroundColor(.white)
         .font(Font.system(size: 14, weight: .bold))
-        .padding(EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48))
-        .cornerRadius(30)
-        .frame(maxWidth: .infinity)
+        .padding(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+//        .padding(EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48))
+        .cornerRadius(7)
     }).background(
-      RoundedRectangle(cornerRadius: 16)
+      RoundedRectangle(cornerRadius: 7)
         .stroke(LinearGradient(gradient: Gradient(colors: gradientColors.reversed()),
-                               startPoint: animationValue == 1 ? .bottomLeading : .bottomTrailing,
+                               startPoint: .bottomLeading,
                                endPoint: .topTrailing))
     )
-    .onAppear() {
-      withAnimation(SwiftUI.Animation.easeInOut(duration: 60).repeatForever(autoreverses: true)) {
-        animationValue = 1
-      }
-    }
   }
 }
 
