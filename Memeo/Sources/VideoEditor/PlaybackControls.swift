@@ -28,7 +28,7 @@ struct PlaybackControls: View {
             .font(.system(size: 24))
             .foregroundColor(.white)
             .padding()
-          Image(systemName: "gobackward.10")
+          Image(systemName: "gobackward")
             .font(.system(size: 12))
             .background(Circle().fill(Color.black))
             .foregroundColor(.white)

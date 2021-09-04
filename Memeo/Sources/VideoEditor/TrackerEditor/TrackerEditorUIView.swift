@@ -213,7 +213,7 @@ class TrackersEditorUIView: UIView {
         guard let layer = layer.sublayers?[index] as? TrackerLayer else {
           continue
         }
-        trackerLayers[index].isSelected = selectedTrackerIndex == index
+        trackerLayers[index].isSelected = !isPlaying && selectedTrackerIndex == index
         trackerLayers[index].tracker = newTracker
         trackerLayers[index].updateCALayer(layer)
         let animation = newTracker.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,

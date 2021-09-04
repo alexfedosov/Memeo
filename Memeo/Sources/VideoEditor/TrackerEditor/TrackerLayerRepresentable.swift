@@ -67,9 +67,9 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
   func updateCALayer(_ layer: TrackerLayer) {
     layer.textLabel.text = tracker.uiText
     if isSelected {
-      layer.cornerRadius = 12
       layer.borderWidth = 1
-      layer.borderColor = UIColor.white.cgColor
+      layer.cornerRadius = 4
+      layer.borderColor = UIColor.systemYellow.cgColor
     } else {
       layer.backgroundColor = UIColor.clear.cgColor
       layer.borderColor = UIColor.clear.cgColor
