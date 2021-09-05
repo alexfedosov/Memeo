@@ -65,6 +65,7 @@ struct VideoEditor: View {
               .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.white.opacity(0.05)))
               .opacity(0.7)
               .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.3)))
+              .animation(.none)
           }
           Spacer()
           Button(action: {
