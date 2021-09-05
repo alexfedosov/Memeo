@@ -85,7 +85,7 @@ class VideoEditorViewModel: ObservableObject {
   deinit {
     videoPlayer.unload()
   }
-  
+
   func selectTracker(tracker: Tracker) {
     selectedTrackerIndex = document.trackers.firstIndex(of: tracker)
   }
@@ -104,7 +104,7 @@ class VideoEditorViewModel: ObservableObject {
     isPlaying = false
     showExportingOptionsDialog = true
   }
-  
+
   func exportVideo() {
     isExportingVideo = true
     withAnimation {

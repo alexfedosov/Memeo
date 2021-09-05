@@ -113,7 +113,7 @@ class DocumentsService {
   
   func importDocument(url: URL) -> AnyPublisher<Document, Error> {
     load(url: url)
-      .flatMap {[save] in save($0 )}
+      .flatMap {[save] in save($0)}
       .flatMap{ [load] in load($0)}
       .eraseToAnyPublisher()
   }
