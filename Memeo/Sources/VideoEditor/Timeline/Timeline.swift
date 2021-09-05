@@ -9,11 +9,17 @@ import Foundation
 import SwiftUI
 import UIKit
 
+enum KeyframeType: Int, Hashable {
+  case position
+  case fadeIn
+  case fadeOut
+}
+
 struct Timeline: UIViewRepresentable {
   @Binding var currentKeyframe: Int
   @Binding var isPlaying: Bool
   @State var numberOfKeyframes: Int
-  var higlightedKeyframes: Set<Int>
+  var highlightedKeyframes: [Int: KeyframeType]
 
   func updateUIView(
     _ uiView: ScrollableTimelineView,
@@ -28,8 +34,8 @@ struct Timeline: UIViewRepresentable {
       uiView.scrollToNearKeyframe()
     }
 
-    if higlightedKeyframes != uiView.contentView.keyframes {
-      uiView.contentView.keyframes = higlightedKeyframes
+    if highlightedKeyframes != uiView.contentView.highlightedKeyframes {
+      uiView.contentView.highlightedKeyframes = highlightedKeyframes
       uiView.contentView.setNeedsDisplay()
     }
   }
@@ -79,12 +85,12 @@ struct Timeline: UIViewRepresentable {
 struct Timeline_Previews: PreviewProvider {
   static var model = VideoEditorViewModel.preview
   static var previews: some View {
-    let keyframes = Set(model.document.trackers.first!.position.keyframes.keys)
+//    let keyframes = [0: .fadeInt]
     return VStack {
       Timeline(currentKeyframe: .constant(model.document.fps),
                isPlaying: .constant(false),
                numberOfKeyframes: model.document.numberOfKeyframes,
-               higlightedKeyframes: keyframes)
+               highlightedKeyframes: [:])
         .frame(height: 64)
         .frame(maxWidth: .greatestFiniteMagnitude)
     }.frame(maxWidth: .greatestFiniteMagnitude,

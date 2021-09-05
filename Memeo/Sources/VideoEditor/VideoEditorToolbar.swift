@@ -43,11 +43,13 @@ extension Image {
 
 struct VideoEditorToolbar: View {
   let isPlaying: Bool
+  let canFadeIn: Bool
   let submitAction: (VideoEditorViewModel.Action) -> Void
 
-  init(isPlaying: Bool, onSubmitAction submitAction: @escaping (VideoEditorViewModel.Action) -> Void) {
+  init(isPlaying: Bool, canFadeIn: Bool, onSubmitAction submitAction: @escaping (VideoEditorViewModel.Action) -> Void) {
     self.isPlaying = isPlaying
     self.submitAction = submitAction
+    self.canFadeIn = canFadeIn
   }
 
   var body: some View {
@@ -96,6 +98,18 @@ struct VideoEditorToolbar: View {
               .opacity(0.3)
           }
         }).frame(width: 80)
+        Button(action: {
+          submitAction(canFadeIn ? .fadeInTracker : .fadeOutTracker)
+        }, label: {
+          VStack {
+            Image(systemName: canFadeIn ? "eye" : "eye.slash").applyToolBarStyle()
+            Text(canFadeIn ? "Fade in" : "Fade out")
+              .multilineTextAlignment(.center)
+              .foregroundColor(.white)
+              .font(.system(size: 10))
+              .opacity(0.3)
+          }
+        }).frame(width: 80)
       }.padding()
     }
   }
@@ -103,7 +117,12 @@ struct VideoEditorToolbar: View {
 
 struct VideoEditorToolbar_Previews: PreviewProvider {
   static var previews: some View {
-    VideoEditorToolbar(isPlaying: false) { _ in
+    Group {
+      VideoEditorToolbar(isPlaying: false, canFadeIn: false) { _ in
+      }
+      VideoEditorToolbar(isPlaying: false, canFadeIn: false) { _ in
+      }
+      .previewDevice("iPhone 12 mini")
     }
   }
 }

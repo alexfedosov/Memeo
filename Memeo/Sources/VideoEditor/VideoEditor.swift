@@ -13,28 +13,7 @@ import Combine
 struct VideoEditor: View {
   @StateObject var viewModel: VideoEditorViewModel
   let onClose: () -> ()
-
-  var selectedTracker: Tracker? {
-    get {
-      if let index = viewModel.selectedTrackerIndex,
-         index < viewModel.document.trackers.count {
-        return viewModel.document.trackers[index]
-      } else {
-        return nil
-      }
-    }
-  }
-
-  var highlightedKeyframes: Set<Int> {
-    get {
-      if let keys = selectedTracker?.position.keyframes.keys {
-        return Set(keys)
-      } else {
-        return Set()
-      }
-    }
-  }
-
+  
   var body: some View {
     ZStack {
       VStack {
@@ -104,7 +83,7 @@ struct VideoEditor: View {
         PlaybackControls(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
         Spacer()
         timeline()
-        VideoEditorToolbar(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
+        VideoEditorToolbar(isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe, onSubmitAction: viewModel.submit)
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
       ZStack {
@@ -141,7 +120,7 @@ struct VideoEditor: View {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
             isPlaying: $viewModel.isPlaying,
             numberOfKeyframes: viewModel.document.numberOfKeyframes,
-            higlightedKeyframes: highlightedKeyframes)
+            highlightedKeyframes: viewModel.highlightedKeyframes)
           HStack {
             LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
               startPoint: .leading,
@@ -157,7 +136,7 @@ struct VideoEditor: View {
           .frame(height: 80)
       }
       HStack {
-        Text(selectedTracker?.uiText ?? "")
+        Text(viewModel.selectedTracker?.uiText ?? "")
           .font(.system(size: 10, weight: .bold))
           .opacity(0.3)
           .offset(x: 0, y: -40)

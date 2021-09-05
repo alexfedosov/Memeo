@@ -40,7 +40,9 @@ extension Document {
                     trackers: [
                       Tracker(id: UUID(),
                               text: "Test tracker",
-                              position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"))
+                              position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
+                              fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
+                      )
                     ],
                     frameSize: CGSize(width: 1280, height: 720),
                     mediaURL: url,

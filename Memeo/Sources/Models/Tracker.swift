@@ -21,11 +21,19 @@ extension CGPoint: AnimatedValue {
   }
 }
 
+extension Bool: AnimatedValue {
+  func toAnimated() -> Any {
+    self
+  }
+}
+
 struct Tracker: Identifiable, Equatable, Codable, Hashable {
   var id: UUID
   var text: String
 
   var position: Animation<CGPoint>
+  var fade: Animation<Bool>
+  
   var uiText: String {
     get {
       let text = text.trimmingCharacters(in: .whitespacesAndNewlines)

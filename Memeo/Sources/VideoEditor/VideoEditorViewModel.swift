@@ -34,6 +34,40 @@ class VideoEditorViewModel: ObservableObject {
 
   var cancellables = Set<AnyCancellable>()
 
+  var selectedTracker: Tracker? {
+    get {
+      if let index = selectedTrackerIndex, index < document.trackers.count {
+        return document.trackers[index]
+      } else {
+        return nil
+      }
+    }
+  }
+
+  var highlightedKeyframes: [Int: KeyframeType] {
+    get {
+      guard let selectedTracker = selectedTracker else { return [:] }
+      var keyframes = [Int: KeyframeType]()
+
+      for key in selectedTracker.position.keyframes.keys {
+        keyframes[key] = .position
+      }
+      
+      for (key, value) in selectedTracker.fade.keyframes {
+        keyframes[key] = value == true ? .fadeIn : .fadeOut
+      }
+      
+      return keyframes
+    }
+  }
+  var canFadeInCurrentKeyframe: Bool {
+    guard let selectedTracker = selectedTracker,
+          let prevKey = selectedTracker.fade.keyframes.keys.sorted().last(where: { $0 <= currentKeyframe })
+    else { return false }
+    
+    return !(selectedTracker.fade.keyframes[prevKey] ?? false)
+  }
+  
   init(document: Document) {
     self.document = document
 
@@ -179,7 +213,16 @@ extension VideoEditorViewModel {
     let animation = Animation<CGPoint>(id: UUID(),
       keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
       key: "position")
-    let tracker = Tracker(id: UUID(), text: "", position: animation)
+    
+    var opacity = Animation<Bool>(id: UUID(),
+                                  keyframes: [:],
+                                  key: "opacity")
+    
+    if currentKeyframe > 0 {
+      opacity.keyframes[0] = false
+      opacity.keyframes[currentKeyframe] = true
+    }
+    let tracker = Tracker(id: UUID(), text: "", position: animation, fade: opacity)
     document.trackers.append(tracker)
     selectedTrackerIndex = document.trackers.count - 1
   }
@@ -196,6 +239,7 @@ extension VideoEditorViewModel {
     if let index = selectedTrackerIndex,
        document.trackers.count > index {
       document.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
+      document.trackers[index].fade.keyframes.removeValue(forKey: currentKeyframe)
       goBack(frames: 1)
     }
   }
@@ -237,6 +281,20 @@ extension VideoEditorViewModel {
       }
       .store(in: &cancellables)
   }
+  
+  private func fadeInCurrentKeyframe() {
+    guard let index = selectedTrackerIndex else {
+      return
+    }
+    document.trackers[index].fade.keyframes[currentKeyframe] = true
+  }
+  
+  private func fadeOutCurrentKeyframe() {
+    guard let index = selectedTrackerIndex else {
+      return
+    }
+    document.trackers[index].fade.keyframes[currentKeyframe] = false
+  }
 }
 
 extension VideoEditorViewModel {
@@ -252,6 +310,8 @@ extension VideoEditorViewModel {
     case preview
     case editTracker
     case saveDocument
+    case fadeInTracker
+    case fadeOutTracker
   }
 
   func submit(action: Action) {
@@ -282,7 +342,10 @@ extension VideoEditorViewModel {
       }
     case .saveDocument:
       saveDocument()
+    case .fadeInTracker: fadeInCurrentKeyframe()
+    case .fadeOutTracker: fadeOutCurrentKeyframe()
     }
+
     showLastActionDescription(text: action.toastText())
   }
 
@@ -320,6 +383,10 @@ extension VideoEditorViewModel.Action: Help {
       return "Editing tracker"
     case .saveDocument:
       return "Saving document"
+    case .fadeInTracker:
+      return "Fade in text"
+    case .fadeOutTracker:
+      return "Fade out text"
     }
   }
 }
