@@ -100,6 +100,11 @@ class VideoEditorViewModel: ObservableObject {
     document.trackers[index].position.keyframes[currentKeyframe] = point
   }
 
+  func showExportDialog() {
+    isPlaying = false
+    showExportingOptionsDialog = true
+  }
+  
   func exportVideo() {
     isExportingVideo = true
     withAnimation {

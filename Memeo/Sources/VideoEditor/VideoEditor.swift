@@ -68,7 +68,7 @@ struct VideoEditor: View {
           }
           Spacer()
           Button(action: {
-            viewModel.showExportingOptionsDialog = true
+            viewModel.showExportDialog()
           }, label: {
             ZStack {
               Image(systemName: "square.and.arrow.up")
