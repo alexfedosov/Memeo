@@ -11,7 +11,7 @@ import AVKit
 import Combine
 
 struct VideoEditor: View {
-  @ObservedObject var viewModel: VideoEditorViewModel
+  @StateObject var viewModel: VideoEditorViewModel
   let onClose: () -> ()
 
   var selectedTracker: Tracker? {

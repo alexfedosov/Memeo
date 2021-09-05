@@ -41,7 +41,7 @@ class VideoEditorViewModel: ObservableObject {
       selectedTrackerIndex = 0
     }
 
-    self.videoPlayer = VideoPlayer()
+    videoPlayer = VideoPlayer()
     self.videoPlayer.delegate = self
 
     $isPlaying.sink { [videoPlayer] isPlaying in
@@ -82,6 +82,10 @@ class VideoEditorViewModel: ObservableObject {
       .store(in: &cancellables)
   }
 
+  deinit {
+    videoPlayer.unload()
+  }
+  
   func selectTracker(tracker: Tracker) {
     selectedTrackerIndex = document.trackers.firstIndex(of: tracker)
   }

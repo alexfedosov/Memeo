@@ -12,7 +12,7 @@ struct Home: View {
   @Binding var openUrl: URL?
   @State private var showVideoPicker = false
 
-  @ObservedObject var viewModel = HomeViewModel()
+  @StateObject var viewModel = HomeViewModel()
 
   var body: some View {
     NavigationView {
@@ -29,6 +29,7 @@ struct Home: View {
           isActive: $viewModel.showVideoEditor)
       }.navigationBarHidden(true)
     }
+      .navigationViewStyle(StackNavigationViewStyle())
       .fullScreenCover(isPresented: $showVideoPicker) {
         VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
       }
