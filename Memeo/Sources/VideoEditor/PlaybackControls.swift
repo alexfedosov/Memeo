@@ -10,31 +10,23 @@ import SwiftUI
 struct PlaybackControls: View {
   let isPlaying: Bool
   let submitAction: (VideoEditorViewModel.Action) -> Void
-  
+
   init(isPlaying: Bool, onSubmitAction submitAction: @escaping (VideoEditorViewModel.Action) -> Void) {
     self.isPlaying = isPlaying
     self.submitAction = submitAction
   }
-  
+
   var body: some View {
     HStack {
       Button(action: {
         withAnimation {
-          submitAction(.preview)
+          submitAction(.goBack(frames: 1))
         }
       }, label: {
-        ZStack {
-          Image(systemName: "play")
-            .font(.system(size: 24))
-            .foregroundColor(.white)
-            .padding()
-          Image(systemName: "gobackward")
-            .font(.system(size: 12))
-            .background(Circle().fill(Color.black))
-            .foregroundColor(.white)
-            .padding()
-            .offset(x: 5, y: 5)
-        }
+        Image(systemName: "backward.frame")
+          .font(.system(size: 24))
+          .foregroundColor(.white)
+          .padding()
       }).frame(width: 50)
       Button(action: {
         submitAction(isPlaying ? .pause : .play)
@@ -43,8 +35,8 @@ struct PlaybackControls: View {
           .font(.system(size: 24))
           .foregroundColor(.white)
       })
-      .frame(width: 50)
-      .padding()
+        .frame(width: 50)
+        .padding()
       Button(action: {
         submitAction(.goForward(frames: 1))
       }, label: {
@@ -60,7 +52,7 @@ struct PlaybackControls: View {
 struct PlaybackControls_Previews: PreviewProvider {
   static var previews: some View {
     PlaybackControls(isPlaying: true) { _ in
-      
+
     }
   }
 }

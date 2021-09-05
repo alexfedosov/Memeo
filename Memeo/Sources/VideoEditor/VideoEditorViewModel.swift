@@ -245,6 +245,7 @@ extension VideoEditorViewModel {
     case deleteCurrentKeyframe
     case duplicateCurrentKeyframe
     case goForward(frames: Int)
+    case goBack(frames: Int)
     case removeSelectedTracker
     case play
     case pause
@@ -263,6 +264,8 @@ extension VideoEditorViewModel {
       duplicateCurrentKeyframe()
     case .goForward(frames: let frames):
       goForward(frames: frames)
+    case .goBack(frames: let frames):
+      goBack(frames: frames)
     case .removeSelectedTracker:
       removeSelectedTracker()
     case .play:
@@ -303,6 +306,8 @@ extension VideoEditorViewModel.Action: Help {
       return "Keyframe duplicated"
     case .goForward(frames: let frames):
       return "Jump forward \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
+    case .goBack(frames: let frames):
+      return "Jump back \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
     case .removeSelectedTracker:
       return "Tracker deleted"
     case .play:
