@@ -58,13 +58,7 @@ class VideoExporter {
       outputLayer.addSublayer(videoLayer)
 
       let view = TrackersEditorUIView(frame: frameRect)
-      view.updateTrackers(newTrackers: document.trackers,
-        numberOfKeyframes: document.numberOfKeyframes,
-        currentKeyframe: 0,
-        isPlaying: true,
-        duration: composition.duration.seconds,
-        selectedTrackerIndex: nil,
-        forExportingVideo: true)
+      view.updateTrackers(newTrackers: document.trackers, numberOfKeyframes: document.numberOfKeyframes, isPlaying: true, duration: composition.duration.seconds, selectedTrackerIndex: nil)
       view.layer.sublayers?.forEach({ layer in
         layer.removeFromSuperlayer()
         layer.shouldRasterize = true

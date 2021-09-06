@@ -6,20 +6,23 @@
 //
 
 import SwiftUI
+import AVKit
 
 struct TrackerEditorView: UIViewRepresentable {
   let trackers: [Tracker]
   let numberOfKeyframes: Int
-  let currentKeyframe: Int
   let isPlaying: Bool
   let selectedTrackerIndex: Int?
   let duration: CFTimeInterval
+  let playerItem: AVPlayerItem?
+
   var trackerTapped: ((Tracker) -> Void)? = nil
   var trackerPositionChanged: ((CGPoint, Tracker) -> Void)? = nil
   var trackerDoubleTapped: ((Tracker) -> Void)? = nil
 
   func makeUIView(context: Context) -> TrackersEditorUIView {
     let view = TrackersEditorUIView()
+    view.playerItem = playerItem
     view.delegate = context.coordinator
     return view
   }
@@ -28,12 +31,10 @@ struct TrackerEditorView: UIViewRepresentable {
     context.coordinator.trackerTapped = trackerTapped
     context.coordinator.trackerDoubleTapped = trackerDoubleTapped
     context.coordinator.trackerPositionChanged = trackerPositionChanged
-    uiView.updateTrackers(newTrackers: trackers,
-      numberOfKeyframes: numberOfKeyframes,
-      currentKeyframe: currentKeyframe,
-      isPlaying: isPlaying,
-      duration: duration,
-      selectedTrackerIndex: selectedTrackerIndex)
+    if uiView.playerItem != playerItem {
+      uiView.playerItem = playerItem
+    }
+    uiView.updateTrackers(newTrackers: trackers, numberOfKeyframes: numberOfKeyframes, isPlaying: isPlaying, duration: duration, selectedTrackerIndex: selectedTrackerIndex)
   }
 
   func makeCoordinator() -> Coordinator {
@@ -64,10 +65,10 @@ struct TrackerEditorView_Previews: PreviewProvider {
   static var previews: some View {
     TrackerEditorView(trackers: model.document.trackers,
       numberOfKeyframes: model.document.numberOfKeyframes,
-      currentKeyframe: model.currentKeyframe,
       isPlaying: model.isPlaying,
       selectedTrackerIndex: 0,
-      duration: model.document.duration)
+      duration: model.document.duration,
+      playerItem: nil)
       .background(Color.black)
   }
 }

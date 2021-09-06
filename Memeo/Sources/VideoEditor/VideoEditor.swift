@@ -63,10 +63,10 @@ struct VideoEditor: View {
         Spacer()
         TrackerEditorView(trackers: viewModel.document.trackers,
           numberOfKeyframes: viewModel.document.numberOfKeyframes,
-          currentKeyframe: viewModel.currentKeyframe,
           isPlaying: viewModel.isPlaying,
           selectedTrackerIndex: viewModel.selectedTrackerIndex,
-          duration: viewModel.document.duration)
+          duration: viewModel.document.duration,
+          playerItem: viewModel.videoPlayer.currentItem)
           .onTrackerTapped({ tracker in
             viewModel.selectTracker(tracker: tracker)
           })
@@ -113,12 +113,13 @@ struct VideoEditor: View {
     }
   }
 
+  @ViewBuilder
   func timeline() -> some View {
     ZStack {
       HStack {
         ZStack {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
-            isPlaying: $viewModel.isPlaying,
+                   isPlaying: $viewModel.isPlaying,
             numberOfKeyframes: viewModel.document.numberOfKeyframes,
             highlightedKeyframes: viewModel.highlightedKeyframes)
           HStack {

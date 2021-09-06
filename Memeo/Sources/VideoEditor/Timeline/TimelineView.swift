@@ -65,7 +65,7 @@ class TimelineView: UIView {
           .insetBy(dx: 4,
                    dy: 4)
         contextRef.setFillColor(UIColor.white.cgColor)
-
+        
         switch keyframe {
         case .position:
           contextRef.fillEllipse(in: keyframeMarkerRect)
@@ -75,7 +75,7 @@ class TimelineView: UIView {
           contextRef.fillPath()
         case .fadeOut:
           contextRef.addPath(fadeOutMarkerPath(center: CGPoint(x: keyframeMarkerRect.midX + 1, y: keyframeMarkerRect.midY),
-                                              radius: diameter / 2 - 4).cgPath)
+                                               radius: diameter / 2 - 4).cgPath)
           contextRef.fillPath()
         }
       }
@@ -267,7 +267,7 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
     previouslyClickedKeyframeIndex = keyframe
     let width = drawingConfig.size.width + drawingConfig.spacing
     let offset = CGFloat(keyframe) * width - scrollView.contentInset.left
-    UIView.animateKeyframes(withDuration: 0.1, delay: 0.0, options: .allowUserInteraction) { [weak self] in
+    UIView.animateKeyframes(withDuration: 0.3, delay: 0.0, options: [.allowUserInteraction, .beginFromCurrentState]) { [weak self] in
       self?.scrollView.contentOffset = CGPoint(x: offset, y: 0)
     } completion: { _ in
       self.scrollViewDidEndScrollingAnimation(self.scrollView)

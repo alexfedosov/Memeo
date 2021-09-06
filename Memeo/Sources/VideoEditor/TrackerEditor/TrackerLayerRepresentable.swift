@@ -65,6 +65,8 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
   }
 
   func updateCALayer(_ layer: TrackerLayer) {
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
     layer.textLabel.text = tracker.uiText
     if isSelected {
       layer.borderWidth = 1
@@ -75,6 +77,7 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
       layer.borderColor = UIColor.clear.cgColor
     }
     layer.sizeToFit()
+    CATransaction.commit()
   }
 
   static func dismantleCALayer(_ layer: TrackerLayer) {

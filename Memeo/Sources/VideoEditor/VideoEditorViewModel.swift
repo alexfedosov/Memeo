@@ -31,6 +31,8 @@ class VideoEditorViewModel: ObservableObject {
 
   var videoPlayer: VideoPlayer
   var videoExporter = VideoExporter()
+  let generator = UIImpactFeedbackGenerator()
+
 
   var cancellables = Set<AnyCancellable>()
 
@@ -78,7 +80,7 @@ class VideoEditorViewModel: ObservableObject {
     videoPlayer = VideoPlayer()
     self.videoPlayer.delegate = self
 
-    $isPlaying.sink { [videoPlayer] isPlaying in
+    $isPlaying.removeDuplicates().sink { [videoPlayer] isPlaying in
       if isPlaying {
         videoPlayer.play()
       } else {
@@ -86,14 +88,21 @@ class VideoEditorViewModel: ObservableObject {
       }
     }.store(in: &cancellables)
 
-    Publishers.CombineLatest($currentKeyframe, $isPlaying)
-      .sink { [videoPlayer] keyframe, isPlaying in
-        if !isPlaying {
-          videoPlayer.seek(to: keyframe, fps: document.fps)
-        }
+    Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
+      .filter { !$0.1 }
+      .map { $0.0 }
+      .sink { [videoPlayer] keyframe in
+        videoPlayer.seek(to: keyframe, fps: document.fps)
       }.store(in: &cancellables)
 
-    $currentKeyframe.sink { [weak self] frame in
+    Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
+      .filter { !$0.1 }
+      .sink { [generator] _, _ in
+        generator.impactOccurred(intensity: 0.5)
+        generator.prepare()
+      }.store(in: &cancellables)
+    
+    $currentKeyframe.removeDuplicates().sink { [weak self] frame in
       guard
         let self = self,
         let previewUntilFrame = self.previewUntilFrame else {
@@ -110,8 +119,15 @@ class VideoEditorViewModel: ObservableObject {
         $0.mediaURL
       }
       .removeDuplicates()
-      .sink { [videoPlayer] url in
-        videoPlayer.replaceCurrentItem(with: AVPlayerItem(url: url))
+      .map { url in AVAsset(url: url) }
+      .flatMap { asset in Future<AVAsset, Never> { promise in
+        asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+          promise(.success(asset))
+        }
+      }}
+      .map { AVPlayerItem(asset: $0) }
+      .sink { [videoPlayer] playerItem in
+        videoPlayer.replaceCurrentItem(with: playerItem)
       }
       .store(in: &cancellables)
   }

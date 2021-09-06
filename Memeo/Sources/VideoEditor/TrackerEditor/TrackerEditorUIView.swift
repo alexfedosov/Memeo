@@ -31,11 +31,23 @@ class TrackersEditorUIView: UIView {
   let doubleTapGestureRecognizer = UITapGestureRecognizer()
   let tapGestureRecognizer = UITapGestureRecognizer()
 
-  var currentKeyframe: Int = 0
   var numberOfKeyframes: Int = 0
   var duration: Double = 0
   var isPlaying: Bool = false
   var selectedTrackerIndex: Int? = nil
+
+  override static var layerClass: AnyClass {
+    AVSynchronizedLayer.self
+  }
+
+  var playerItem: AVPlayerItem? {
+    get {
+      (layer as! AVSynchronizedLayer).playerItem
+    }
+    set {
+      (layer as! AVSynchronizedLayer).playerItem = newValue
+    }
+  }
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -66,16 +78,13 @@ class TrackersEditorUIView: UIView {
 
   override func layoutSubviews() {
     super.layoutSubviews()
+    forceUpdateTrackers()
+  }
+
+  func forceUpdateTrackers() {
     updateTrackers(newTrackers: trackerLayers.map {
       $0.tracker
-    },
-      numberOfKeyframes: numberOfKeyframes,
-      currentKeyframe: currentKeyframe,
-      isPlaying: isPlaying,
-      duration: duration,
-      selectedTrackerIndex: selectedTrackerIndex,
-      forExportingVideo: false,
-      forceUpdate: true)
+    }, numberOfKeyframes: numberOfKeyframes, isPlaying: isPlaying, duration: duration, selectedTrackerIndex: selectedTrackerIndex, forceUpdate: true)
   }
 
   func getTracker(at location: CGPoint) -> TrackerLayer? {
@@ -157,14 +166,7 @@ class TrackersEditorUIView: UIView {
     }
   }
 
-  func updateTrackers(newTrackers: [Tracker],
-                      numberOfKeyframes: Int,
-                      currentKeyframe: Int,
-                      isPlaying: Bool,
-                      duration: CFTimeInterval,
-                      selectedTrackerIndex: Int?,
-                      forExportingVideo: Bool = false,
-                      forceUpdate: Bool = false) {
+  func updateTrackers(newTrackers: [Tracker], numberOfKeyframes: Int, isPlaying: Bool, duration: CFTimeInterval, selectedTrackerIndex: Int?, forceUpdate: Bool = false) {
     let oldTrackers = trackerLayers.map {
       $0.tracker
     }
@@ -174,29 +176,7 @@ class TrackersEditorUIView: UIView {
       case .insert(offset: let offset, element: let element, associatedWith: _):
         let trackerLayer = TrackerLayerRepresentable(tracker: element, isSelected: offset == selectedTrackerIndex)
         trackerLayers.insert(trackerLayer, at: offset)
-        let createdTrackerLayer = trackerLayer.makeCALayer()
-        layer.insertSublayer(createdTrackerLayer, at: UInt32(offset))
-        trackerLayer.updateCALayer(createdTrackerLayer)
-        let positionAnimation = element.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
-          currentKeyframe: currentKeyframe,
-          duration: duration,
-          speed: isPlaying ? 1 : 0,
-          frameSize: bounds.size)
-        if (forExportingVideo) {
-          positionAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
-        }
-        createdTrackerLayer.add(positionAnimation, forKey: positionAnimation.keyPath)
-        
-        let opacityAnimation = element.fade.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
-          currentKeyframe: currentKeyframe,
-          duration: duration,
-          speed: isPlaying ? 1 : 0,
-          isPlaying: isPlaying)
-        if (forExportingVideo) {
-          opacityAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
-        }
-        createdTrackerLayer.add(opacityAnimation, forKey: opacityAnimation.keyPath)
-        
+        layer.insertSublayer(trackerLayer.makeCALayer(), at: UInt32(offset))
       case .remove(offset: let offset, element: _, associatedWith: _):
         guard let trackerLayer = layer.sublayers?[offset] as? TrackerLayer else {
           break
@@ -208,47 +188,38 @@ class TrackersEditorUIView: UIView {
     }
 
     let needUpdate = self.isPlaying != isPlaying
-      || (self.currentKeyframe != currentKeyframe && !self.isPlaying)
-      || self.numberOfKeyframes != numberOfKeyframes
-      || self.duration != duration
       || self.selectedTrackerIndex != selectedTrackerIndex
       || forceUpdate
+      || diff.insertions.count > 0
 
     self.isPlaying = isPlaying
-    self.currentKeyframe = currentKeyframe
     self.numberOfKeyframes = numberOfKeyframes
     self.duration = duration
     self.selectedTrackerIndex = selectedTrackerIndex
 
+    if bounds.size == .zero { return }
+    
     for (index, newTracker) in newTrackers.enumerated() {
-      if newTracker != trackerLayers[index].tracker || needUpdate {
-        guard let layer = layer.sublayers?[index] as? TrackerLayer else {
-          continue
-        }
-        trackerLayers[index].isSelected = !isPlaying && selectedTrackerIndex == index
-        trackerLayers[index].tracker = newTracker
-        trackerLayers[index].updateCALayer(layer)
-        
-        let positionAnimation = newTracker.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
-          currentKeyframe: currentKeyframe,
-          duration: duration,
-          speed: isPlaying ? 1 : 0,
-          frameSize: bounds.size)
-        if (forExportingVideo) {
-          positionAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
-        }
-        layer.add(positionAnimation, forKey: positionAnimation.keyPath)
-        
-        let opacityAnimation = newTracker.fade.makeCAAnimation(numberOfKeyframes: numberOfKeyframes,
-          currentKeyframe: currentKeyframe,
-          duration: duration,
-          speed: isPlaying ? 1 : 0,
-          isPlaying: isPlaying)
-        if (forExportingVideo) {
-          opacityAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
-        }
-        layer.add(opacityAnimation, forKey: opacityAnimation.keyPath)
+      let trackerChanged = newTracker != trackerLayers[index].tracker
+      guard trackerChanged || needUpdate, let layer = layer.sublayers?[index] as? TrackerLayer else {
+        continue
       }
+      if newTracker.position != trackerLayers[index].tracker.position || needUpdate {
+        let positionAnimation = newTracker.position.makeCAAnimation(numberOfKeyframes: numberOfKeyframes, duration: duration, frameSize: bounds.size)
+        layer.removeAllAnimations()
+        layer.add(positionAnimation, forKey: positionAnimation.keyPath)
+      }
+
+      if newTracker.fade != trackerLayers[index].tracker.fade || needUpdate {
+        let opacityAnimation = newTracker.fade.makeCAAnimation(numberOfKeyframes: numberOfKeyframes, duration: duration, isPlaying: isPlaying)
+        opacityAnimation.beginTime = AVCoreAnimationBeginTimeAtZero
+        layer.textLabel.layer.removeAllAnimations()
+        layer.textLabel.layer.add(opacityAnimation, forKey: opacityAnimation.keyPath)
+      }
+
+      trackerLayers[index].isSelected = !isPlaying && selectedTrackerIndex == index
+      trackerLayers[index].tracker = newTracker
+      trackerLayers[index].updateCALayer(layer)
     }
   }
 }
