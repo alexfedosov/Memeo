@@ -14,14 +14,86 @@ struct Home: View {
   
   @StateObject var viewModel = HomeViewModel()
   
+  @State var index: Int = 0
+  @State private var offset: CGFloat = 0
+  @State private var normalizedOffset: CGFloat = 0
+  
+  func animatedValueForTab(_ index: Int) -> Double {
+    let offset: CGFloat = -normalizedOffset
+    let diff = max(offset, CGFloat(index)) - min(offset, CGFloat(index))
+    return Double(min(1, max(0.5, 1 - diff)))
+  }
+  
   var body: some View {
     NavigationView {
       VStack {
         navigationBar()
-        if viewModel.templates.count == 0 {
-          emptyView()
-        } else {
-          templateList()
+        GeometryReader { geometry in
+          VStack(alignment: .leading) {
+            HStack {
+              Text("Featured").font(.subheadline.weight(.bold))
+                .opacity(animatedValueForTab(0))
+                .scaleEffect(CGFloat(max(animatedValueForTab(0), 0.99)))
+                .onTapGesture {
+                  index = 0
+                  withAnimation(.linear(duration: 0.2)) {
+                    self.offset = CGFloat(self.index) * -geometry.size.width
+                    self.normalizedOffset = self.offset / geometry.size.width
+                  }
+                }
+              Text("My templates").font(.subheadline.weight(.bold))
+                .opacity(animatedValueForTab(1))
+                .scaleEffect(CGFloat(max(animatedValueForTab(1), 0.99)))
+                .onTapGesture {
+                  index = 1
+                  withAnimation(.linear(duration: 0.2)) {
+                    self.offset = CGFloat(self.index) * -geometry.size.width
+                    self.normalizedOffset = self.offset / geometry.size.width
+                  }
+                }
+                .padding(.leading, 4)
+              Spacer()
+            }
+            .padding([.leading, .trailing])
+            HStack(alignment: .center, spacing: 0) {
+              emptyFeaturedTemplatesView()
+                .frame(width: geometry.size.width)
+                .frame(maxHeight: .infinity)
+                .background(Color.black)
+              if viewModel.templates.count > 0 {
+                templateList()
+                  .frame(width: geometry.size.width)
+                  .frame(maxHeight: .infinity)
+              } else {
+                emptyView()
+                  .frame(width: geometry.size.width)
+                  .frame(maxHeight: .infinity)
+                  .background(Color.black)
+              }
+            }
+            .offset(x: self.offset)
+            .frame(width: geometry.size.width, alignment: .leading)
+            .gesture(
+              DragGesture()
+                .onChanged({ value in
+                  let translation = value.translation.width + -geometry.size.width * CGFloat(self.index)
+                  self.offset = max(min(0, translation), -geometry.size.width)
+                  self.normalizedOffset = self.offset / geometry.size.width
+                })
+                .onEnded({ value in
+                  if value.predictedEndTranslation.width < geometry.size.width / 2, self.index < 2 - 1 {
+                    self.index += 1
+                  }
+                  if value.predictedEndTranslation.width > geometry.size.width / 2, self.index > 0 {
+                    self.index -= 1
+                  }
+                  withAnimation(.easeOut(duration: 0.2)) {
+                    self.offset = CGFloat(self.index) * -geometry.size.width
+                    self.normalizedOffset = self.offset / geometry.size.width
+                  }
+                })
+            )
+          }
         }
         NavigationLink(
           "",
@@ -33,16 +105,6 @@ struct Home: View {
     .fullScreenCover(isPresented: $showVideoPicker) {
       VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
     }
-    .fullScreenCover(isPresented: $viewModel.isImportingTemplate, content: {
-      ZStack {
-        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-          .ignoresSafeArea()
-        HStack {
-          Text("Importing template..").font(.title3)
-          ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-        }.padding()
-      }
-    })
     .fullScreenCover(isPresented: $viewModel.isImportingVideo, content: {
       ZStack {
         VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
@@ -51,11 +113,6 @@ struct Home: View {
           Text("Importing your video").font(.title3)
           ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
         }.padding()
-      }
-    })
-    .onChange(of: openUrl, perform: { url in
-      if let url = url {
-        viewModel.importTemplate(url: url)
       }
     })
   }
@@ -73,29 +130,35 @@ struct Home: View {
     }.frame(height: 44).padding()
   }
   
-  func emptyView() -> some View {
+  func emptyFeaturedTemplatesView() -> some View {
     VStack {
       Spacer()
-      Text("Create new template")
+      Text("Oh, there is no featured templates yet")
         .font(.headline)
         .foregroundColor(Color.white)
         .padding()
-      Text("Open video from your photo library to create a new template")
+      Spacer()
+    }
+  }
+  
+  func emptyView() -> some View {
+    VStack {
+      Spacer()
+      Text("Make your own templates!")
+        .font(.headline)
+        .foregroundColor(Color.white)
+        .padding()
+      Text("Add video from your photo library to create a new template")
         .font(.subheadline)
         .multilineTextAlignment(.center)
         .foregroundColor(.white.opacity(0.5))
         .frame(maxWidth: 300)
       Spacer()
-    }.onAppear() {
-      viewModel.discoverTemplates()
     }
   }
   
   func templateList() -> some View {
     TemplateList(templates: viewModel.templates) { viewModel.openTemplate(uuid:$0)}
-      .onAppear() {
-        viewModel.discoverTemplates()
-      }
   }
   
   @ViewBuilder
@@ -114,5 +177,6 @@ struct Home: View {
 struct Home_Previews: PreviewProvider {
   static var previews: some View {
     Home(openUrl: .constant(nil))
+    Home(openUrl: .constant(nil)).previewDevice("iPhone 12 mini")
   }
 }

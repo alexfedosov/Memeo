@@ -20,7 +20,6 @@ class HomeViewModel: ObservableObject {
   
   @Published var videoEditorViewModel: VideoEditorViewModel? = nil
   @Published var showVideoEditor = false
-  @Published var isImportingTemplate = false
   @Published var isImportingVideo = false
   @Published var templates: [TemplatePreview] = []
   
@@ -50,6 +49,7 @@ class HomeViewModel: ObservableObject {
       receiveValue: {[weak self] model in
         self?.isImportingVideo = false
         self?.videoEditorViewModel = model
+        self?.reloadSavedTemplates()
       })
       .store(in: &cancellables)
     
@@ -60,24 +60,16 @@ class HomeViewModel: ObservableObject {
       .assign(to: \.showVideoEditor, on: self)
       .store(in: &cancellables)
     
-    discoverTemplates()
+    reloadSavedTemplates()
   }
   
-  func importTemplate(url: URL) {
-    isImportingTemplate = true
-    DocumentsService()
-      .importDocument(url: url)
-      .receive(on: DispatchQueue.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        self?.isImportingTemplate = false
-        self?.discoverTemplates()
-      }) { [weak self] doc in
-        self?.videoEditorViewModel = VideoEditorViewModel(document: doc)
-      }
+  func reloadSavedTemplates() {
+    getSavedTemplates()
+      .assign(to: \.templates, on: self)
       .store(in: &cancellables)
   }
   
-  func discoverTemplates() {
+  func getSavedTemplates() -> AnyPublisher<[TemplatePreview], Never> {
     Just(())
       .receive(on: DispatchQueue.global())
       .flatMap {
@@ -90,8 +82,7 @@ class HomeViewModel: ObservableObject {
           }
       }
       .receive(on: DispatchQueue.main)
-      .assign(to: \.templates, on: self)
-      .store(in: &cancellables)
+      .eraseToAnyPublisher()
   }
   
   func openTemplate(uuid: UUID) {

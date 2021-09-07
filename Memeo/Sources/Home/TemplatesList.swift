@@ -18,6 +18,7 @@ struct TemplateList: UIViewRepresentable {
   
   func makeUIView(context: Context) -> UICollectionView {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: context.coordinator.createLayout())
+    collectionView.showsVerticalScrollIndicator = false
     context.coordinator.collectionView = collectionView
     return collectionView
   }
@@ -141,7 +142,6 @@ struct TemplateList: UIViewRepresentable {
                                                      subitems: [item])
       
       let section = NSCollectionLayoutSection(group: group)
-      
       let layout = UICollectionViewCompositionalLayout(section: section)
       return layout
     }
