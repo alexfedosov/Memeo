@@ -3,10 +3,12 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2DBA19D092E48441837C32B2 /* TemplatesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA15EF54C06E2604287A8F /* TemplatesList.swift */; };
+		61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */; };
 		FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */; };
 		FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */; };
 		FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */; };
@@ -33,12 +35,18 @@
 		FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */; };
 		FAB34F8726DE1AC400F36280 /* VideoExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34F8626DE1AC400F36280 /* VideoExporter.swift */; };
 		FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */; };
+		FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481226E771C70076B9BE /* FLAnimatedImage */; };
+		FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481526E77CA10076B9BE /* SnapKit */; };
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.debug.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.debug.xcconfig"; sourceTree = "<group>"; };
+		2DBA15EF54C06E2604287A8F /* TemplatesList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplatesList.swift; sourceTree = "<group>"; };
+		4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Memeo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.release.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.release.xcconfig"; sourceTree = "<group>"; };
 		FA7F03F926E0100400323E19 /* Memeo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Memeo.entitlements; sourceTree = "<group>"; };
 		FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControls.swift; sourceTree = "<group>"; };
 		FA97AD6526DB7C5800BD8B83 /* Memeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,17 +86,39 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */,
+				FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */,
+				61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		AC9672794C3115E9C6FE5BD2 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */,
+				AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		E9905126DA1F056CA2325082 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		FA97AD5C26DB7C5800BD8B83 = {
 			isa = PBXGroup;
 			children = (
 				FA97AD6726DB7C5800BD8B83 /* Memeo */,
 				FA97AD6626DB7C5800BD8B83 /* Products */,
+				AC9672794C3115E9C6FE5BD2 /* Pods */,
+				E9905126DA1F056CA2325082 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -141,6 +171,7 @@
 				FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */,
 				FA97ADA226DCD60F00BD8B83 /* Home.swift */,
 				FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */,
+				2DBA15EF54C06E2604287A8F /* TemplatesList.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -241,6 +272,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA97AD7426DB7C5900BD8B83 /* Build configuration list for PBXNativeTarget "Memeo" */;
 			buildPhases = (
+				ACF989D2500E3C66B70A2680 /* [CP] Check Pods Manifest.lock */,
 				FA97AD6126DB7C5800BD8B83 /* Sources */,
 				FA97AD6226DB7C5800BD8B83 /* Frameworks */,
 				FA97AD6326DB7C5800BD8B83 /* Resources */,
@@ -250,6 +282,10 @@
 			dependencies = (
 			);
 			name = Memeo;
+			packageProductDependencies = (
+				FAB7481226E771C70076B9BE /* FLAnimatedImage */,
+				FAB7481526E77CA10076B9BE /* SnapKit */,
+			);
 			productName = Memeo;
 			productReference = FA97AD6526DB7C5800BD8B83 /* Memeo.app */;
 			productType = "com.apple.product-type.application";
@@ -277,6 +313,10 @@
 				Base,
 			);
 			mainGroup = FA97AD5C26DB7C5800BD8B83;
+			packageReferences = (
+				FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
+				FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			productRefGroup = FA97AD6626DB7C5800BD8B83 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -298,6 +338,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		ACF989D2500E3C66B70A2680 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Memeo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FA97AD6126DB7C5800BD8B83 /* Sources */ = {
@@ -330,6 +395,7 @@
 				FA97AD9626DBF7A800BD8B83 /* Animation.swift in Sources */,
 				FA97AD9426DBBF5900BD8B83 /* Timeline.swift in Sources */,
 				FA97AD9A26DC3ECF00BD8B83 /* VisualEffectsView.swift in Sources */,
+				2DBA19D092E48441837C32B2 /* TemplatesList.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -454,6 +520,7 @@
 		};
 		FA97AD7526DB7C5900BD8B83 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -480,6 +547,7 @@
 		};
 		FA97AD7626DB7C5900BD8B83 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -526,6 +594,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Flipboard/FLAnimatedImage.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.16;
+			};
+		};
+		FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FAB7481226E771C70076B9BE /* FLAnimatedImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */;
+			productName = FLAnimatedImage;
+		};
+		FAB7481526E77CA10076B9BE /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FA97AD5D26DB7C5800BD8B83 /* Project object */;
 }

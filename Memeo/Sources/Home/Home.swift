@@ -11,9 +11,9 @@ import AVKit
 struct Home: View {
   @Binding var openUrl: URL?
   @State private var showVideoPicker = false
-
+  
   @StateObject var viewModel = HomeViewModel()
-
+  
   var body: some View {
     NavigationView {
       VStack {
@@ -29,27 +29,37 @@ struct Home: View {
           isActive: $viewModel.showVideoEditor)
       }.navigationBarHidden(true)
     }
-      .navigationViewStyle(StackNavigationViewStyle())
-      .fullScreenCover(isPresented: $showVideoPicker) {
-        VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
+    .navigationViewStyle(StackNavigationViewStyle())
+    .fullScreenCover(isPresented: $showVideoPicker) {
+      VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
+    }
+    .fullScreenCover(isPresented: $viewModel.isImportingTemplate, content: {
+      ZStack {
+        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+          .ignoresSafeArea()
+        HStack {
+          Text("Importing template..").font(.title3)
+          ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
+        }.padding()
       }
-      .fullScreenCover(isPresented: $viewModel.isImportingTemplate, content: {
-        ZStack {
-          VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-            .ignoresSafeArea()
-          HStack {
-            Text("Importing template..").font(.title3)
-            ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-          }.padding()
-        }
-      })
-      .onChange(of: openUrl, perform: { url in
-        if let url = url {
-          viewModel.importTemplate(url: url)
-        }
-      })
+    })
+    .fullScreenCover(isPresented: $viewModel.isImportingVideo, content: {
+      ZStack {
+        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+          .ignoresSafeArea()
+        HStack {
+          Text("Importing your video").font(.title3)
+          ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
+        }.padding()
+      }
+    })
+    .onChange(of: openUrl, perform: { url in
+      if let url = url {
+        viewModel.importTemplate(url: url)
+      }
+    })
   }
-
+  
   @ViewBuilder
   func navigationBar() -> some View {
     HStack {
@@ -62,7 +72,7 @@ struct Home: View {
       })
     }.frame(height: 44).padding()
   }
-
+  
   func emptyView() -> some View {
     VStack {
       Spacer()
@@ -80,49 +90,24 @@ struct Home: View {
       viewModel.discoverTemplates()
     }
   }
-
+  
   func templateList() -> some View {
-    ScrollView {
-      ForEach(viewModel.templates) { preview in
-        TemplatePreviewView(preview: preview).onTapGesture {
-          viewModel.openTemplate(uuid: preview.id)
-        }.padding(.bottom, 8)
-      }.padding()
-    }.onAppear() {
-      viewModel.discoverTemplates()
-    }
+    TemplateList(templates: viewModel.templates) { viewModel.openTemplate(uuid:$0)}
+      .onAppear() {
+        viewModel.discoverTemplates()
+      }
   }
-
+  
   @ViewBuilder
   func editorView() -> some View {
     if let model = viewModel.videoEditorViewModel {
-      VideoEditor(viewModel: model) {
-        viewModel.videoEditorViewModel = nil
+      VideoEditor(viewModel: model) { [weak viewModel] in
+        viewModel?.videoEditorViewModel = nil
       }
-        .navigationBarHidden(true)
+      .navigationBarHidden(true)
     } else {
       Text("Hello")
     }
-  }
-}
-
-struct TemplatePreviewView: View {
-  let preview: HomeViewTemplatePreview
-  @State var videoPlayer = VideoPlayer()
-
-  var body: some View {
-    VideoPlayerView(videoPlayer: videoPlayer)
-      .aspectRatio(preview.aspectRatio, contentMode: .fill)
-      .frame(maxHeight: 400, alignment: .center)
-      .cornerRadius(16)
-      .onAppear() {
-        if videoPlayer.currentItem == nil {
-          videoPlayer.replaceCurrentItem(with: AVPlayerItem(url: preview.mediaURL))
-          videoPlayer.isMuted = true
-          videoPlayer.shouldAutoRepeat = true
-          videoPlayer.seek(to: .zero)
-        }
-      }
   }
 }
 

@@ -9,6 +9,7 @@ import Foundation
 import AVKit
 import Combine
 import Photos
+import ffmpegkit
 
 enum VideoExporterError: Error {
   case unexpectedError(String)
@@ -17,7 +18,14 @@ enum VideoExporterError: Error {
 
 class VideoExporter {
   let albumName = "Memeo"
-
+  
+  func exportGif(url: URL) -> URL? {
+    let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "preview.gif")
+    let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
+    let _ = FFmpegKit.execute("-ss 0.1 -t 3  -i \(url.path)  -filter_complex \"[0:v] fps=12,scale=w=480:h=-1,split [a][b];[a] palettegen [p];[b][p] paletteuse\" \(outfileURL.path)")
+    return FileManager().fileExists(atPath: outfileURL.path)  ? outfileURL : nil
+  }
+  
   func export(document: Document) -> Future<URL, VideoExporterError> {
     Future { promise in
       let composition = AVMutableComposition()
@@ -25,11 +33,11 @@ class VideoExporter {
         let asset = document.mediaURL != nil ? AVAsset(url: document.mediaURL!) : nil,
         let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
         let videoTrack = asset.tracks(withMediaType: .video).first
-        else {
+      else {
         promise(.failure(.unexpectedError("No video tracks found")))
         return
       }
-
+      
       do {
         let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
         try compositionVideoTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
@@ -42,21 +50,21 @@ class VideoExporter {
         promise(.failure(.unexpectedError(error.localizedDescription)))
         return
       }
-
-
+      
+      
       compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
       let videoSize: CGSize = videoTrack.frameSize()
       let frameRect = CGRect(origin: .zero, size: videoSize)
-
+      
       let scaling = videoSize.width / UIScreen.main.bounds.width
-
+      
       let videoLayer = CALayer()
       videoLayer.frame = frameRect
-
+      
       let outputLayer = CALayer()
       outputLayer.frame = frameRect
       outputLayer.addSublayer(videoLayer)
-
+      
       let view = TrackersEditorUIView(frame: frameRect)
       view.updateTrackers(newTrackers: document.trackers, numberOfKeyframes: document.numberOfKeyframes, isPlaying: true, duration: composition.duration.seconds, selectedTrackerIndex: nil)
       view.layer.sublayers?.forEach({ layer in
@@ -69,7 +77,7 @@ class VideoExporter {
       })
       outputLayer.isGeometryFlipped = true
       outputLayer.addSublayer(view.layer)
-
+      
       if let image = UIImage(named: "watermark") {
         let watermark = CALayer()
         let aspect: CGFloat = image.size.width / image.size.height
@@ -79,35 +87,35 @@ class VideoExporter {
         let height = width / aspect
         let padding = height / 2
         watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
-          y: frameRect.height - height - padding),
-          size: CGSize(width: width, height: height))
+                                                 y: frameRect.height - height - padding),
+                                 size: CGSize(width: width, height: height))
         outputLayer.addSublayer(watermark)
       }
-
+      
       let videoComposition = AVMutableVideoComposition()
       videoComposition.renderScale = 1.0
       videoComposition.renderSize = frameRect.size
       videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
       videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(postProcessingAsVideoLayer: videoLayer, in: outputLayer)
-
+      
       let instruction = AVMutableVideoCompositionInstruction()
       instruction.timeRange = CMTimeRange(start: .zero, duration: composition.duration)
       videoComposition.instructions = [instruction]
-
+      
       let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: compositionVideoTrack)
       layerInstruction.setTransform(videoTrack.preferredTransform, at: .zero)
       instruction.layerInstructions = [layerInstruction]
-
+      
       guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {
         promise(.failure(.unexpectedError("Cannot create export session")))
         return
       }
-
+      
       let videoName = "Meme made with memeo.app"
       var exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
         .appendingPathComponent(videoName)
         .appendingPathExtension("mp4")
-
+      
       if FileManager().fileExists(atPath: exportURL.path) {
         do {
           try FileManager().removeItem(at: exportURL)
@@ -119,11 +127,11 @@ class VideoExporter {
           print("saving under generated url")
         }
       }
-
+      
       export.videoComposition = videoComposition
       export.outputFileType = .mp4
       export.outputURL = exportURL
-
+      
       export.exportAsynchronously {
         DispatchQueue.main.async {
           switch export.status {
@@ -140,7 +148,7 @@ class VideoExporter {
       }
     }
   }
-
+  
   func makeLayerScalingAnimation(scaleFactor: CGFloat, duration: CFTimeInterval) -> CAAnimation {
     let animation = CAKeyframeAnimation(keyPath: "transform.scale")
     animation.duration = duration
@@ -152,7 +160,7 @@ class VideoExporter {
     animation.speed = 1
     return animation
   }
-
+  
   func createMemeoAlbum() -> Future<PHAssetCollection, Error> {
     Future { [albumName] promise in
       var placeholder: PHObjectPlaceholder?
@@ -174,7 +182,7 @@ class VideoExporter {
       })
     }
   }
-
+  
   func fetchMemeoAlbum() -> Future<PHAssetCollection?, Never> {
     Future { [albumName] promise in
       let fetchOptions = PHFetchOptions()
@@ -183,7 +191,7 @@ class VideoExporter {
       promise(.success(collections.firstObject))
     }
   }
-
+  
   func findOrCreateMemeoAlbum() -> AnyPublisher<PHAssetCollection, Error> {
     fetchMemeoAlbum()
       .flatMap { [createMemeoAlbum] (album) -> Future<PHAssetCollection, Error> in
@@ -196,7 +204,7 @@ class VideoExporter {
         }
       }.eraseToAnyPublisher()
   }
-
+  
   func moveAssetToMemeoAlbum(url: URL) -> AnyPublisher<Bool, Error> {
     let requestPermissions = Future<Bool, Error> { promise in
       PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -207,7 +215,7 @@ class VideoExporter {
         }
       }
     }.eraseToAnyPublisher()
-
+    
     let moveToAlbum = findOrCreateMemeoAlbum().flatMap { album in
       Future<Bool, Error> { promise in
         PHPhotoLibrary.shared().performChanges {
@@ -225,7 +233,7 @@ class VideoExporter {
         }
       }
     }.eraseToAnyPublisher()
-
+    
     return requestPermissions.flatMap { _ in
       moveToAlbum
     }.eraseToAnyPublisher()

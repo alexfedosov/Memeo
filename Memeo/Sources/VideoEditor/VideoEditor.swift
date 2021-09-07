@@ -22,9 +22,9 @@ struct VideoEditor: View {
             viewModel
               .documentService
               .save(document: viewModel.document)
-              .sink(receiveCompletion: { _ in
-                onClose()
-              }, receiveValue: { _ in })
+              .map { $0 }
+              .replaceError(with: nil)
+              .sink { _ in onClose() }
               .store(in: &viewModel.cancellables)
             onClose()
           }, label: {

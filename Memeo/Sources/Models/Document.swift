@@ -19,6 +19,7 @@ struct Document: Codable {
   var trackers: [Tracker]
   var frameSize: CGSize
   var mediaURL: URL?
+  var previewURL: URL?
   var version: Int = 1
   var fps: Int = 10
 }

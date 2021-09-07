@@ -18,6 +18,7 @@ enum DocumentServiceError: Error {
 class DocumentsService {
   static let dataFileName = "data"
   static let mediaFileName = "media.mp4"
+  static let previewFileName = "preview.gif"
   static let pathExtention = "memeo"
   
   static var writableContentTypes: [UTType] {
@@ -67,6 +68,9 @@ class DocumentsService {
         let jsonDecoder = JSONDecoder()
         var doc = try jsonDecoder.decode(Document.self, from: jsonData)
         doc.mediaURL = url.appendingPathComponent(assetFileName)
+        if let previewFileName = wrappers[Self.previewFileName]?.filename {
+          doc.previewURL = url.appendingPathComponent(previewFileName)
+        }
         promise(.success(doc))
       } catch {
         promise(.failure(CocoaError(.fileReadCorruptFile)))
@@ -108,6 +112,18 @@ class DocumentsService {
     mediaFile.preferredFilename = Self.mediaFileName
     mainDirectory.addFileWrapper(mediaFile)
     
+    var previewUrl = document.previewURL
+    if previewUrl == nil {
+      previewUrl = VideoExporter().exportGif(url: mediaUrl)
+    }
+    
+    if let previewUrl = previewUrl {
+      let previewData = try Data(contentsOf: previewUrl)
+      let previewFile = FileWrapper(regularFileWithContents: previewData)
+      previewFile.preferredFilename = Self.previewFileName
+      mainDirectory.addFileWrapper(previewFile)
+    }
+    
     return mainDirectory
   }
   
@@ -125,9 +141,10 @@ class DocumentsService {
     
     do {
       let directoryContents = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
-      let templates = directoryContents.filter{ $0.pathExtension == "memeo" }
+      let templates = directoryContents.filter{ $0.pathExtension == "memeo" }.sorted { $0.path < $1.path }
       return Publishers
         .MergeMany(templates.map { load(url: $0 ).map { $0 }.replaceError(with: nil) } )
+        .subscribe(on: DispatchQueue.global())
         .compactMap { $0 }
         .collect()
         .eraseToAnyPublisher()
