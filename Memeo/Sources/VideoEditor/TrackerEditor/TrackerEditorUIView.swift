@@ -197,8 +197,10 @@ class TrackersEditorUIView: UIView {
     self.duration = duration
     self.selectedTrackerIndex = selectedTrackerIndex
 
-    if bounds.size == .zero { return }
-    
+    if bounds.size == .zero {
+      return
+    }
+
     for (index, newTracker) in newTrackers.enumerated() {
       let trackerChanged = newTracker != trackerLayers[index].tracker
       guard trackerChanged || needUpdate, let layer = layer.sublayers?[index] as? TrackerLayer else {

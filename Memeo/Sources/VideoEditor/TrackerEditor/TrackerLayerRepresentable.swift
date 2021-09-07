@@ -27,6 +27,8 @@ class TrackerLayer: CALayer {
     textLabel.textColor = .white
     textLabel.textAlignment = .center
     textLabel.font = .boldSystemFont(ofSize: 14)
+    textLabel.shadowColor = UIColor.black.withAlphaComponent(0.5)
+    textLabel.shadowOffset = CGSize(width: 0, height: 1)
 
     addSublayer(textLabel.layer)
   }
