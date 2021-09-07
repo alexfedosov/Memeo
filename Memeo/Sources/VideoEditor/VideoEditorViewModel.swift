@@ -362,6 +362,9 @@ extension VideoEditorViewModel {
       removeSelectedTracker()
     case .play:
       previewUntilFrame = nil
+      if currentKeyframe == document.numberOfKeyframes - 1 {
+        currentKeyframe = 0
+      }
       isPlaying = true
     case .pause:
       previewUntilFrame = nil
