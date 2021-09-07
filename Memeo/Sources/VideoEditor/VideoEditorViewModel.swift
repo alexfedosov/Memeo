@@ -48,28 +48,32 @@ class VideoEditorViewModel: ObservableObject {
 
   var highlightedKeyframes: [Int: KeyframeType] {
     get {
-      guard let selectedTracker = selectedTracker else { return [:] }
+      guard let selectedTracker = selectedTracker else {
+        return [:]
+      }
       var keyframes = [Int: KeyframeType]()
 
       for key in selectedTracker.position.keyframes.keys {
         keyframes[key] = .position
       }
-      
+
       for (key, value) in selectedTracker.fade.keyframes {
         keyframes[key] = value == true ? .fadeIn : .fadeOut
       }
-      
+
       return keyframes
     }
   }
   var canFadeInCurrentKeyframe: Bool {
     guard let selectedTracker = selectedTracker,
           let prevKey = selectedTracker.fade.keyframes.keys.sorted().last(where: { $0 <= currentKeyframe })
-    else { return false }
-    
+      else {
+      return false
+    }
+
     return !(selectedTracker.fade.keyframes[prevKey] ?? false)
   }
-  
+
   init(document: Document) {
     self.document = document
 
@@ -89,19 +93,25 @@ class VideoEditorViewModel: ObservableObject {
     }.store(in: &cancellables)
 
     Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-      .filter { !$0.1 }
-      .map { $0.0 }
+      .filter {
+        !$0.1
+      }
+      .map {
+        $0.0
+      }
       .sink { [videoPlayer] keyframe in
         videoPlayer.seek(to: keyframe, fps: document.fps)
       }.store(in: &cancellables)
 
     Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-      .filter { !$0.1 }
+      .filter {
+        !$0.1
+      }
       .sink { [generator] _, _ in
         generator.impactOccurred(intensity: 0.5)
         generator.prepare()
       }.store(in: &cancellables)
-    
+
     $currentKeyframe.removeDuplicates().sink { [weak self] frame in
       guard
         let self = self,
@@ -119,13 +129,19 @@ class VideoEditorViewModel: ObservableObject {
         $0.mediaURL
       }
       .removeDuplicates()
-      .map { url in AVAsset(url: url) }
-      .flatMap { asset in Future<AVAsset, Never> { promise in
-        asset.loadValuesAsynchronously(forKeys: ["duration"]) {
-          promise(.success(asset))
+      .map { url in
+        AVAsset(url: url)
+      }
+      .flatMap { asset in
+        Future<AVAsset, Never> { promise in
+          asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+            promise(.success(asset))
+          }
         }
-      }}
-      .map { AVPlayerItem(asset: $0) }
+      }
+      .map {
+        AVPlayerItem(asset: $0)
+      }
       .sink { [videoPlayer] playerItem in
         videoPlayer.replaceCurrentItem(with: playerItem)
       }
@@ -229,11 +245,11 @@ extension VideoEditorViewModel {
     let animation = Animation<CGPoint>(id: UUID(),
       keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
       key: "position")
-    
+
     var opacity = Animation<Bool>(id: UUID(),
-                                  keyframes: [:],
-                                  key: "opacity")
-    
+      keyframes: [:],
+      key: "opacity")
+
     if currentKeyframe > 0 {
       opacity.keyframes[0] = false
       opacity.keyframes[currentKeyframe] = true
@@ -297,14 +313,14 @@ extension VideoEditorViewModel {
       }
       .store(in: &cancellables)
   }
-  
+
   private func fadeInCurrentKeyframe() {
     guard let index = selectedTrackerIndex else {
       return
     }
     document.trackers[index].fade.keyframes[currentKeyframe] = true
   }
-  
+
   private func fadeOutCurrentKeyframe() {
     guard let index = selectedTrackerIndex else {
       return

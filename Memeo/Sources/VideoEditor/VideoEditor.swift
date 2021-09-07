@@ -120,7 +120,7 @@ struct VideoEditor: View {
         ZStack {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
                    isPlaying: $viewModel.isPlaying,
-            numberOfKeyframes: viewModel.document.numberOfKeyframes,
+            numberOfKeyframes: $viewModel.document.numberOfKeyframes,
             highlightedKeyframes: viewModel.highlightedKeyframes)
           HStack {
             LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
