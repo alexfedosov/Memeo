@@ -45,17 +45,16 @@ class ShareViewModel: ObservableObject {
     } catch {
       print("Could not copy gif to clipboard")
     }
-    closeShareDialog()
   }
 
   func showMoreSharingOptions() {
     guard let videoUrl = videoUrl else {
       return
     }
-
-    closeShareDialog()
     let activityVC = UIActivityViewController(activityItems: [videoUrl], applicationActivities: nil)
-    UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
+    UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: { [weak self] in
+      self?.closeShareDialog()
+    })
   }
 
   func shareToInstagram() {
@@ -66,9 +65,7 @@ class ShareViewModel: ObservableObject {
     VideoExporter()
       .moveAssetToMemeoAlbum(url: videoUrl)
       .receive(on: RunLoop.main)
-      .sink(receiveCompletion: { [weak self] _ in
-        self?.closeShareDialog()
-      },
+      .sink(receiveCompletion: { _ in },
         receiveValue: { localIdentifier in
           guard let localIdentifier = localIdentifier else {
             return
@@ -91,10 +88,7 @@ class ShareViewModel: ObservableObject {
     VideoExporter()
       .moveAssetToMemeoAlbum(url: videoUrl)
       .receive(on: RunLoop.main)
-      .sink(receiveCompletion: { [weak self] completion in
-        print(completion)
-        self?.closeShareDialog()
-      },
+      .sink(receiveCompletion: { _ in },
         receiveValue: { _ in })
       .store(in: &bag)
   }

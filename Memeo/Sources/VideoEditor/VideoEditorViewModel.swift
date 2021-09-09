@@ -172,58 +172,81 @@ class VideoEditorViewModel: ObservableObject {
 
   func share() {
     isPlaying = false
-
-    let finishedCallback = { [weak self] (videoUrl: URL, gifUrl: URL?) in
-      guard let self = self else {
-        return
-      }
-      self.exportedVideoUrl = videoUrl
-      self.exportedGifUrl = gifUrl
-      withAnimation {
-        self.isExportingVideo = false
-        self.isShowingShareDialog = true
-      }
-    }
-
-    let showAdIfLoaded = { [weak self] () -> AnyPublisher<(), Never> in
-      guard let _ = InterstitialAd.shared.interstitialAd,
-            let self = self,
-            self.isShowingInterstitialAd == false else {
-        return Just(()).eraseToAnyPublisher()
-      }
-      return Just(())
-        .side { [weak self] _ in
-          self?.isExportingVideo = true
-          self?.isShowingInterstitialAd = true
+    Publishers
+      .Zip(showAds(count: 2)
+        .mapError {
+          $0 as Error
+        },
+        exportVideoSignal().mapError {
+          $0 as Error
+        })
+      .receive(on: RunLoop.main)
+      .delay(for: .seconds(1), scheduler: RunLoop.main)
+      .sink(receiveCompletion: { [weak self] completion in
+        guard let self = self else {
+          return
         }
-        .eraseToAnyPublisher()
+        withAnimation {
+          self.isExportingVideo = false
+        }
+
+        switch completion {
+        case .finished:
+          withAnimation {
+            self.isShowingShareDialog = true
+          }
+        case .failure(let error):
+          print(error)
+        }
+      },
+        receiveValue: { [weak self] value in
+          let urls = value.1
+          self?.exportedVideoUrl = urls.0
+          self?.exportedGifUrl = urls.1
+        })
+      .store(in: &cancellables)
+  }
+
+  func showAds(count: Int) -> AnyPublisher<(), Never> {
+    guard InterstitialAd.shared.interstitialAd != nil else {
+      return Just(()).eraseToAnyPublisher()
     }
 
-
-    let startExportingSignal = Just(())
-      .receive(on: DispatchQueue.main)
-      .flatMap {
-        showAdIfLoaded()
+    let publisher = $isShowingInterstitialAd
+      .side { [weak self] _ in
+        self?.isExportingVideo = true
+      }
+      .removeDuplicates()
+      .dropFirst()
+      .filter {
+        !$0
+      }
+      .delay(for: .seconds(2), scheduler: RunLoop.main)
+      .side { [weak self] _ in
+        self?.isShowingInterstitialAd = true
+      }
+      .collect(count - 1)
+      .first()
+      .map { _ in
+        ()
       }
       .eraseToAnyPublisher()
 
+    isShowingInterstitialAd = true
+    return publisher
+  }
+
+  func exportVideoSignal() -> AnyPublisher<(URL, URL?), VideoExporterError> {
     if let videoUrl = exportedVideoUrl {
-      startExportingSignal.sink { [exportedGifUrl] _ in
-        finishedCallback(videoUrl, exportedGifUrl)
-      }.store(in: &cancellables)
-      return
+      return Just((videoUrl, exportedGifUrl)).setFailureType(to: VideoExporterError.self).eraseToAnyPublisher()
     }
 
-//    let showingAllAdsFinished = $isShowingInterstitialAd.dropFirst()
-//      .filter {
-//        !$0
-//      }.collect(2).first().map { _ in
-//        true
-//      }.assign(to: &$isShowingShareDialog)
-//
-//    let exportingFinished
-
-    startExportingSignal
+    return Just(())
+      .side { [weak self] in
+        withAnimation {
+          self?.isExportingVideo = true
+        }
+      }
       .receive(on: DispatchQueue.global())
       .compactMap { [weak self] _ in
         guard let self = self else {
@@ -240,27 +263,7 @@ class VideoEditorViewModel: ObservableObject {
           .eraseToAnyPublisher()
       }
       .eraseToAnyPublisher()
-      .receive(on: DispatchQueue.main)
-      .sink(
-        receiveCompletion: { [weak self] completion in
-          guard let self = self else {
-            return
-          }
-          self.isExportingVideo = false
-        },
-        receiveValue: { (videoUrl, gifUrl) in
-          finishedCallback(videoUrl, gifUrl)
-        })
-      .store(in: &cancellables)
   }
-
-  func exportVideo() {
-    DispatchQueue.main.async {
-      let activityVC = UIActivityViewController(activityItems: [], applicationActivities: nil)
-      UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-    }
-  }
-
 
 //  func exportTemplate() {
 //    self?.sharingStep = .shareDialog

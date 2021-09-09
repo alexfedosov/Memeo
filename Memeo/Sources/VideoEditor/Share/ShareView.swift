@@ -10,7 +10,7 @@ import Combine
 import AVKit
 
 struct ShareView: View {
-  @ObservedObject var viewModel: ShareViewModel
+  var viewModel: ShareViewModel
 
   var body: some View {
     VStack {
@@ -54,7 +54,7 @@ struct ShareView: View {
       }, label: {
         Image(systemName: "xmark")
           .font(.system(size: 16).bold())
-          .foregroundColor(Color(red: 125 / 255, green: 120 / 255, blue: 145 / 255))
+          .foregroundColor(Color.white)
           .padding(8)
           .background(Circle().fill(Color.white.opacity(0.1)))
       })
