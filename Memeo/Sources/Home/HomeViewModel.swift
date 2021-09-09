@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 import Combine
+import AppTrackingTransparency
+import AdSupport
 
 struct TemplatePreview: Identifiable, Hashable {
   var id: UUID
@@ -21,6 +23,7 @@ class HomeViewModel: ObservableObject {
   @Published var videoEditorViewModel: VideoEditorViewModel? = nil
   @Published var showVideoEditor = false
   @Published var isImportingVideo = false
+  @Published var isShowingAppTrackingDialog = false
   @Published var templates: [TemplatePreview] = []
   
   var cancellables = Set<AnyCancellable>()
@@ -61,6 +64,8 @@ class HomeViewModel: ObservableObject {
       .store(in: &cancellables)
     
     reloadSavedTemplates()
+    isShowingAppTrackingDialog = ATTrackingManager.trackingAuthorizationStatus == .notDetermined
+      || ATTrackingManager.trackingAuthorizationStatus == .restricted
   }
   
   func reloadSavedTemplates() {

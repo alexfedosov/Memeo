@@ -45,6 +45,7 @@
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
 		FAEA2F9126EAB3DD00FBD5CA /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; };
+		FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +90,7 @@
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 		FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
+		FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrackingPermissionRequestView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +221,7 @@
 				FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */,
 				FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */,
 				FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */,
+				FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */,
 			);
 			path = VideoEditor;
 			sourceTree = "<group>";
@@ -421,6 +424,7 @@
 			files = (
 				FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */,
 				FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */,
+				FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */,
 				FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */,
 				FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */,
 				FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */,

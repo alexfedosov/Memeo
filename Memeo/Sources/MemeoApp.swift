@@ -7,8 +7,6 @@
 
 import SwiftUI
 import GoogleMobileAds
-import AppTrackingTransparency
-import AdSupport
 
 @main
 struct MemeoApp: App {
@@ -16,12 +14,7 @@ struct MemeoApp: App {
 
   init() {
     GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = ["120295e57b98a68268ffc522c0333e45"]
-  }
-
-  func requestIDFA() {
-    ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
-      GADMobileAds.sharedInstance().start(completionHandler: nil)
-    })
+    GADMobileAds.sharedInstance().start(completionHandler: nil)
   }
 
   var body: some Scene {
@@ -33,9 +26,6 @@ struct MemeoApp: App {
       .onOpenURL(perform: { url in
         openUrl = url
       })
-      .onAppear() {
-        requestIDFA()
-      }
       .colorScheme(.dark)
     }
   }
