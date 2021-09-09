@@ -35,7 +35,9 @@ struct AppTrackingPermissionRequestView: View {
         ContinueButton(text: "Continue", action: {
           ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
             DispatchQueue.main.async {
-              isPresented = false
+              withAnimation {
+                isPresented = false
+              }
             }
           })
         })
@@ -81,13 +83,15 @@ struct FullscreenModifier<T: View>: ViewModifier {
   @Binding var isPresented: Bool
   
   func body(content: Content) -> some View {
-    if isPresented {
-      ZStack {
-        content
-        presenting.background(EmptyView().ignoresSafeArea())
-      }
-    } else {
+    ZStack {
       content
+      if isPresented {
+        ZStack {
+          VisualEffectView(effect: UIBlurEffect(style: .prominent)).opacity(0.6).ignoresSafeArea()
+          Rectangle().fill(Color.black.opacity(0.6)).ignoresSafeArea()
+          presenting
+        }.transition(.opacity)
+      }
     }
   }
 }
