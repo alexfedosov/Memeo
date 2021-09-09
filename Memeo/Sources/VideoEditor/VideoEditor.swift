@@ -51,18 +51,21 @@ struct VideoEditor: View {
               .animation(.none)
           }
           Spacer()
-          Button(action: {
+          GradientBorderButton(text: "Share!", action: {
             withAnimation {
               viewModel.share()
             }
-          }, label: {
-            ZStack {
-              Image(systemName: "square.and.arrow.up")
-                .font(.subheadline)
-                .foregroundColor(.white)
-                .padding()
-            }
-          })
+          }).padding(.trailing)
+//          Button(action: {
+//
+//          }, label: {
+//            ZStack {
+//              Image(systemName: "square.and.arrow.up")
+//                .font(.subheadline)
+//                .foregroundColor(.white)
+//                .padding()
+//            }
+//          })
         }
         Spacer()
         EmptyView()

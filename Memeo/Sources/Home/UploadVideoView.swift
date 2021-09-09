@@ -59,7 +59,7 @@ struct GradientBorderButton: View {
         .cornerRadius(7)
     }).background(
       RoundedRectangle(cornerRadius: 7)
-        .stroke(LinearGradient(gradient: Gradient(colors: gradientColors.reversed()),
+        .fill(LinearGradient(gradient: Gradient(colors: gradientColors.reversed()),
                                startPoint: .bottomLeading,
                                endPoint: .topTrailing))
     )
