@@ -9,6 +9,7 @@ import Foundation
 import AVFoundation
 import SwiftUI
 import Combine
+import MobileCoreServices
 
 class VideoEditorViewModel: ObservableObject {
   let documentService = DocumentsService()
@@ -19,20 +20,20 @@ class VideoEditorViewModel: ObservableObject {
   @Published var isPlaying: Bool = false
   @Published var isEditingText: Bool = false
   @Published var selectedTrackerIndex: Int?
+
   @Published var isExportingVideo = false
-  @Published var showExportingVideoModal = false
-  @Published var exportedAssetURL: URL?
+  @Published var isShowingInterstitialAd = false
+  @Published var isShowingShareDialog = false
+
   @Published var lastActionDescription: String?
-  @Published var showExportingOptionsDialog = false
-
-  var clearLastActionDescriptionTimer: Timer?
-
-  var previewUntilFrame: Int?
+  var lastActionDescriptionTimer: Timer?
 
   var videoPlayer: VideoPlayer
   var videoExporter = VideoExporter()
   let generator = UIImpactFeedbackGenerator()
 
+  @Published var exportedVideoUrl: URL?
+  @Published var exportedGifUrl: URL?
 
   var cancellables = Set<AnyCancellable>()
 
@@ -82,7 +83,7 @@ class VideoEditorViewModel: ObservableObject {
     }
 
     videoPlayer = VideoPlayer()
-    self.videoPlayer.delegate = self
+    videoPlayer.delegate = self
 
     $isPlaying.removeDuplicates().sink { [videoPlayer] isPlaying in
       if isPlaying {
@@ -112,18 +113,6 @@ class VideoEditorViewModel: ObservableObject {
         generator.prepare()
       }.store(in: &cancellables)
 
-    $currentKeyframe.removeDuplicates().sink { [weak self] frame in
-      guard
-        let self = self,
-        let previewUntilFrame = self.previewUntilFrame else {
-        return
-      }
-      if frame >= previewUntilFrame {
-        self.isPlaying = false
-        self.previewUntilFrame = nil
-      }
-    }.store(in: &cancellables)
-
     $document
       .compactMap {
         $0.mediaURL
@@ -146,6 +135,21 @@ class VideoEditorViewModel: ObservableObject {
         videoPlayer.replaceCurrentItem(with: playerItem)
       }
       .store(in: &cancellables)
+
+    $document
+      .removeDuplicates()
+      .map { _ in
+        nil
+      }
+      .print("exportedVideoUrl set to nil")
+      .assign(to: &$exportedVideoUrl)
+
+    $document
+      .removeDuplicates()
+      .map { _ in
+        nil
+      }
+      .assign(to: &$exportedGifUrl)
   }
 
   deinit {
@@ -166,52 +170,115 @@ class VideoEditorViewModel: ObservableObject {
     document.trackers[index].position.keyframes[currentKeyframe] = point
   }
 
-  func showExportDialog() {
+  func share() {
     isPlaying = false
-    showExportingOptionsDialog = true
+
+    let finishedCallback = { [weak self] (videoUrl: URL, gifUrl: URL?) in
+      guard let self = self else {
+        return
+      }
+      self.exportedVideoUrl = videoUrl
+      self.exportedGifUrl = gifUrl
+      withAnimation {
+        self.isExportingVideo = false
+        self.isShowingShareDialog = true
+      }
+    }
+
+    let showAdIfLoaded = { [weak self] () -> AnyPublisher<(), Never> in
+      guard let _ = InterstitialAd.shared.interstitialAd,
+            let self = self,
+            self.isShowingInterstitialAd == false else {
+        return Just(()).eraseToAnyPublisher()
+      }
+      return Just(())
+        .side { [weak self] _ in
+          self?.isExportingVideo = true
+          self?.isShowingInterstitialAd = true
+        }
+        .eraseToAnyPublisher()
+    }
+
+
+    let startExportingSignal = Just(())
+      .receive(on: DispatchQueue.main)
+      .flatMap {
+        showAdIfLoaded()
+      }
+      .eraseToAnyPublisher()
+
+    if let videoUrl = exportedVideoUrl {
+      startExportingSignal.sink { [exportedGifUrl] _ in
+        finishedCallback(videoUrl, exportedGifUrl)
+      }.store(in: &cancellables)
+      return
+    }
+
+//    let showingAllAdsFinished = $isShowingInterstitialAd.dropFirst()
+//      .filter {
+//        !$0
+//      }.collect(2).first().map { _ in
+//        true
+//      }.assign(to: &$isShowingShareDialog)
+//
+//    let exportingFinished
+
+    startExportingSignal
+      .receive(on: DispatchQueue.global())
+      .compactMap { [weak self] _ in
+        guard let self = self else {
+          return nil
+        }
+        return (self.videoExporter, self.document)
+      }
+      .flatMap { (exporter: VideoExporter, document: Document) in
+        exporter.export(document: document)
+          .receive(on: DispatchQueue.global())
+          .map { url in
+            (url, document.duration < 10 ? exporter.exportGif(url: url, trim: false) : nil)
+          }
+          .eraseToAnyPublisher()
+      }
+      .eraseToAnyPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink(
+        receiveCompletion: { [weak self] completion in
+          guard let self = self else {
+            return
+          }
+          self.isExportingVideo = false
+        },
+        receiveValue: { (videoUrl, gifUrl) in
+          finishedCallback(videoUrl, gifUrl)
+        })
+      .store(in: &cancellables)
   }
 
   func exportVideo() {
-    isExportingVideo = true
-    withAnimation {
-      showExportingVideoModal = true
+    DispatchQueue.main.async {
+      let activityVC = UIActivityViewController(activityItems: [], applicationActivities: nil)
+      UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
     }
-    exportedAssetURL = nil
-    videoExporter
-      .export(document: document)
-      .subscribe(on: DispatchQueue.global())
-      .mapError {
-        $0 as Error
-      }
-      .receive(on: RunLoop.main)
-      .sink { [weak self] completion in
-        self?.isExportingVideo = false
-      } receiveValue: { [weak self] url in
-        self?.showExportingVideoModal = false
-        DispatchQueue.main.async {
-          let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-          UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-        }
-      }.store(in: &cancellables)
   }
 
-  func exportTemplate() {
-    isExportingVideo = true
-    withAnimation {
-      showExportingVideoModal = true
-    }
-    documentService
-      .save(document: document)
-      .subscribe(on: DispatchQueue.global())
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] completion in
-        self?.isExportingVideo = false
-        self?.showExportingVideoModal = false
-      } receiveValue: { url in
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-      }.store(in: &cancellables)
-  }
+
+//  func exportTemplate() {
+//    self?.sharingStep = .shareDialog
+//    withAnimation {
+//      showExportingVideoModal = true
+//    }
+//    documentService
+//      .save(document: document)
+//      .subscribe(on: DispatchQueue.global())
+//      .receive(on: DispatchQueue.main)
+//      .sink { [weak self] completion in
+//        self?.isExportingVideo = false
+//        self?.showExportingVideoModal = false
+//      } receiveValue: { url in
+//        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+//        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
+//      }.store(in: &cancellables)
+//  }
 }
 
 extension VideoEditorViewModel {
@@ -296,15 +363,6 @@ extension VideoEditorViewModel {
     currentKeyframe = min(document.numberOfKeyframes - 1, currentKeyframe + frames)
   }
 
-  private func preview() {
-    if currentKeyframe == 0 {
-      return
-    }
-    previewUntilFrame = currentKeyframe
-    goBack(frames: currentKeyframe)
-    isPlaying = true
-  }
-
   func saveDocument() {
     documentService
       .save(document: document)
@@ -339,7 +397,6 @@ extension VideoEditorViewModel {
     case removeSelectedTracker
     case play
     case pause
-    case preview
     case editTracker
     case saveDocument
     case fadeInTracker
@@ -361,16 +418,12 @@ extension VideoEditorViewModel {
     case .removeSelectedTracker:
       removeSelectedTracker()
     case .play:
-      previewUntilFrame = nil
       if currentKeyframe == document.numberOfKeyframes - 1 {
         currentKeyframe = 0
       }
       isPlaying = true
     case .pause:
-      previewUntilFrame = nil
       isPlaying = false
-    case .preview:
-      preview()
     case .editTracker:
       if let _ = selectedTrackerIndex {
         isEditingText = true
@@ -386,8 +439,8 @@ extension VideoEditorViewModel {
 
   func showLastActionDescription(text: String) {
     lastActionDescription = text
-    clearLastActionDescriptionTimer?.invalidate()
-    clearLastActionDescriptionTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] _ in
+    lastActionDescriptionTimer?.invalidate()
+    lastActionDescriptionTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] _ in
       self?.lastActionDescription = nil
     })
   }
@@ -412,16 +465,23 @@ extension VideoEditorViewModel.Action: Help {
       return "Playing"
     case .pause:
       return "Paused"
-    case .preview:
-      return "Playing from the beginning"
     case .editTracker:
       return "Editing tracker"
     case .saveDocument:
       return "Saving document"
     case .fadeInTracker:
-      return "Fade in text"
+      return "Show text"
     case .fadeOutTracker:
-      return "Fade out text"
+      return "Hide text"
     }
+  }
+}
+
+extension Publisher {
+  public func side(_ closure: @escaping (Self.Output) -> Void) -> AnyPublisher<Self.Output, Self.Failure> {
+    self.map { input in
+      closure(input)
+      return input
+    }.eraseToAnyPublisher()
   }
 }

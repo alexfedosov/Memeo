@@ -22,13 +22,15 @@ struct Timeline: UIViewRepresentable {
   var highlightedKeyframes: [Int: KeyframeType]
 
   func updateUIView(_ uiView: ScrollableTimelineView, context: Context) {
-    uiView.scrollToKeyframe(keyframe: currentKeyframe)
-
+    if uiView.currentKeyframe != currentKeyframe {
+      uiView.scrollToKeyframe(keyframe: currentKeyframe)
+    }
+    
     if numberOfKeyframes != uiView.numberOfKeyframes {
       uiView.numberOfKeyframes = numberOfKeyframes
       uiView.contentView.setNeedsDisplay()
       uiView.setNeedsDisplay()
-      uiView.scrollToNearKeyframe()
+      uiView.scrollToKeyframe(keyframe: currentKeyframe)
     }
 
     if highlightedKeyframes != uiView.contentView.highlightedKeyframes {

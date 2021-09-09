@@ -5,6 +5,7 @@
 import Foundation
 import UIKit
 import AVFoundation
+import Combine
 
 protocol MediaPlayerDelegate: AnyObject {
   func mediaPlayerDidPlayToTime(time: CMTime, duration: CMTime)
@@ -14,6 +15,7 @@ protocol MediaPlayerDelegate: AnyObject {
 class VideoPlayer: AVPlayer {
   var shouldAutoRepeat = false
   weak var delegate: MediaPlayerDelegate?
+  var didPlayerToEndCancellable: AnyCancellable?
 
   var isPlaying: Bool {
     get {
@@ -34,24 +36,35 @@ class VideoPlayer: AVPlayer {
       let convertedTime = CMTimeConvertScale(time, timescale: duration.timescale, method: .default)
       delegate.mediaPlayerDidPlayToTime(time: convertedTime, duration: duration)
     }
-    NotificationCenter.default.addObserver(self, selector: #selector(videoPlayerDidPlayToEnd), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
   }
 
   deinit {
     if let token = timeObserverToken {
       removeTimeObserver(token)
     }
-
-    NotificationCenter.default.removeObserver(self)
   }
 
-  @objc func videoPlayerDidPlayToEnd() {
-    DispatchQueue.main.async {
-      self.delegate?.mediaPlayerDidPlayToEnd()
-      if self.shouldAutoRepeat {
-        self.seek(to: .zero)
+  override func replaceCurrentItem(with item: AVPlayerItem?) {
+    super.replaceCurrentItem(with: item)
+    didPlayerToEndCancellable?.cancel()
+    didPlayerToEndCancellable = NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: nil)
+      .map {
+        $0.object as? AVPlayerItem
       }
-    }
+      .filter { [weak self] in
+        $0 === self?.currentItem && $0 != nil
+      }
+      .subscribe(on: RunLoop.main)
+      .sink { [weak self] notification in
+        guard let self = self else {
+          return
+        }
+        self.delegate?.mediaPlayerDidPlayToEnd()
+        if self.shouldAutoRepeat {
+          self.seek(to: .zero)
+          self.play()
+        }
+      }
   }
 
   func unload() {

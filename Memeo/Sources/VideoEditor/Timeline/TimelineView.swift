@@ -158,8 +158,7 @@ class ScrollableTimelineView: UIView {
   var highlightedKeyframeView: HighlightedKeyframeView
   let drawingConfig: TimelineViewDrawConfig
   let scrollView = UIScrollView()
-  var previouslyClickedKeyframeIndex: Int = -1
-  var currentKeyframe = 0
+  var currentKeyframe: Int = -1
   weak var delegate: ScrollableTimelineViewDelegate?
 
   var numberOfKeyframes: Int = 0
@@ -215,24 +214,25 @@ class ScrollableTimelineView: UIView {
 }
 
 extension ScrollableTimelineView: UIScrollViewDelegate {
+  func nearestKeyframe() -> Int {
+    let width = drawingConfig.size.width + drawingConfig.spacing
+    return Int((contentView.offset / width).rounded())
+  }
+  
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     let maxOffset = max(0, scrollView.contentOffset.x + scrollView.contentInset.left)
     contentView.offset = min(maxOffset, scrollView.contentSize.width)
     contentView.setNeedsDisplay()
-
-    let width = drawingConfig.size.width + drawingConfig.spacing
-    let keyframeIndex = Int(floor(contentView.offset / width))
-
-    if previouslyClickedKeyframeIndex != keyframeIndex {
-      previouslyClickedKeyframeIndex = keyframeIndex
-      delegate?.scrollableTimelineViewDidScrollToKeyframe(keyframe: Int(keyframeIndex))
+    let keyframeIndex = nearestKeyframe()
+    
+    if currentKeyframe != keyframeIndex {
+      currentKeyframe = keyframeIndex
+      delegate?.scrollableTimelineViewDidScrollToKeyframe(keyframe: keyframeIndex)
     }
   }
 
   func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-    let width = drawingConfig.size.width + drawingConfig.spacing
-    let keyframeIndex = floor(contentView.offset / width)
-    delegate?.scrollableTimelineViewDidScrollToKeyframe(keyframe: Int(keyframeIndex))
+    delegate?.scrollableTimelineViewDidScrollToKeyframe(keyframe: nearestKeyframe())
   }
 
   func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
@@ -254,17 +254,14 @@ extension ScrollableTimelineView: UIScrollViewDelegate {
   }
 
   func scrollToNearKeyframe() {
-    let width = drawingConfig.size.width + drawingConfig.spacing
-    let contentViewOffset = scrollView.contentOffset.x + scrollView.contentInset.left
-    let keyframe = Int((contentViewOffset / width).rounded(.toNearestOrEven))
-    scrollToKeyframe(keyframe: keyframe, animated: true, forceUpdate: true)
+    scrollToKeyframe(keyframe: nearestKeyframe(), animated: true, forceUpdate: true)
   }
 
   func scrollToKeyframe(keyframe: Int, animated: Bool = false, forceUpdate: Bool = false) {
-    guard previouslyClickedKeyframeIndex != keyframe || forceUpdate else {
+    guard currentKeyframe != keyframe || forceUpdate else {
       return
     }
-    previouslyClickedKeyframeIndex = keyframe
+    currentKeyframe = keyframe
     let width = drawingConfig.size.width + drawingConfig.spacing
     let offset = CGFloat(keyframe) * width - scrollView.contentInset.left
     UIView.animateKeyframes(withDuration: 0.3, delay: 0.0, options: [.allowUserInteraction, .beginFromCurrentState]) { [weak self] in

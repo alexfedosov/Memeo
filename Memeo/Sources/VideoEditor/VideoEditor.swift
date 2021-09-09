@@ -13,7 +13,7 @@ import Combine
 struct VideoEditor: View {
   @StateObject var viewModel: VideoEditorViewModel
   let onClose: () -> ()
-  
+
   var body: some View {
     ZStack {
       VStack {
@@ -22,9 +22,13 @@ struct VideoEditor: View {
             viewModel
               .documentService
               .save(document: viewModel.document)
-              .map { $0 }
+              .map {
+                $0
+              }
               .replaceError(with: nil)
-              .sink { _ in onClose() }
+              .sink { _ in
+                onClose()
+              }
               .store(in: &viewModel.cancellables)
             onClose()
           }, label: {
@@ -48,7 +52,9 @@ struct VideoEditor: View {
           }
           Spacer()
           Button(action: {
-            viewModel.showExportDialog()
+            withAnimation {
+              viewModel.share()
+            }
           }, label: {
             ZStack {
               Image(systemName: "square.and.arrow.up")
@@ -92,24 +98,17 @@ struct VideoEditor: View {
         HStack {
           Text("Exporting your video").font(.title3)
           ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-        }.padding()
-      }
-        .opacity(viewModel.showExportingVideoModal ? 1 : 0)
-        .actionSheet(isPresented: $viewModel.showExportingOptionsDialog) {
-          ActionSheet(
-            title: Text(""),
-            message: Text("Would you like to share video or meme template?"),
-            buttons: [
-              .default(Text("Share video")) {
-                viewModel.exportVideo()
-              },
-              .default(Text("Share template")) {
-                viewModel.exportTemplate()
-              },
-              .cancel()
-            ]
-          )
         }
+          .padding()
+      }.opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
+      ZStack {
+        ShareView(viewModel: ShareViewModel(
+          isShown: $viewModel.isShowingShareDialog,
+          videoUrl: viewModel.exportedVideoUrl,
+          gifURL: viewModel.exportedGifUrl,
+          frameSize: viewModel.document.frameSize,
+          muted: viewModel.isShowingInterstitialAd))
+      }.presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.testAdUnit)
     }
   }
 
@@ -119,7 +118,7 @@ struct VideoEditor: View {
       HStack {
         ZStack {
           Timeline(currentKeyframe: $viewModel.currentKeyframe,
-                   isPlaying: $viewModel.isPlaying,
+            isPlaying: $viewModel.isPlaying,
             numberOfKeyframes: $viewModel.document.numberOfKeyframes,
             highlightedKeyframes: viewModel.highlightedKeyframes)
           HStack {

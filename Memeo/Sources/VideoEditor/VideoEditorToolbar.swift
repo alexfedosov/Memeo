@@ -103,7 +103,7 @@ struct VideoEditorToolbar: View {
         }, label: {
           VStack {
             Image(systemName: canFadeIn ? "eye" : "eye.slash").applyToolBarStyle()
-            Text(canFadeIn ? "Fade in" : "Fade out")
+            Text(canFadeIn ? "Show text" : "Hide text")
               .multilineTextAlignment(.center)
               .foregroundColor(.white)
               .font(.system(size: 10))
@@ -122,7 +122,7 @@ struct VideoEditorToolbar_Previews: PreviewProvider {
       }
       VideoEditorToolbar(isPlaying: false, canFadeIn: false) { _ in
       }
-      .previewDevice("iPhone 12 mini")
+        .previewDevice("iPhone 12 mini")
     }
   }
 }

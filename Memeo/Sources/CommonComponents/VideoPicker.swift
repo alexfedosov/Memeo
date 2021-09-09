@@ -49,8 +49,8 @@ struct VideoPicker: UIViewControllerRepresentable {
     let picker = UIImagePickerController()
     picker.allowsEditing = true
     picker.mediaTypes = [String(kUTTypeMovie)]
-    picker.videoMaximumDuration = 60 * 5
-    picker.videoQuality = .typeHigh
+    picker.videoMaximumDuration = 60
+    picker.videoQuality = .typeMedium
     picker.sourceType = .photoLibrary
     picker.delegate = context.coordinator
     return picker
