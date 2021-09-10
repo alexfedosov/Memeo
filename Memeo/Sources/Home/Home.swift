@@ -22,6 +22,8 @@ struct Home: View {
   
   @State private var searchQuery: String = ""
   
+  @State private var showSettings: Bool = false
+  
   func animatedValueForTab(_ index: Int) -> Double {
     let offset: CGFloat = -normalizedOffset
     let diff = max(offset, CGFloat(index)) - min(offset, CGFloat(index))
@@ -40,6 +42,7 @@ struct Home: View {
       }.navigationBarHidden(true)
     }
     .navigationViewStyle(StackNavigationViewStyle())
+    .presentInfoView(isPresented: $showSettings)
     .presentAppTrackingRequestView(isPresented: $viewModel.isShowingAppTrackingDialog)
     .fullScreenCover(isPresented: $showVideoPicker) {
       VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
@@ -61,6 +64,18 @@ struct Home: View {
     HStack {
       Image("logo").resizable().aspectRatio(contentMode: .fit).frame(height: 28)
       Spacer()
+      Button(action: {
+        withAnimation {
+          showSettings = true
+        }
+      }, label: {
+        Image(systemName: "info.circle")
+          .font(Font.system(size: 14, weight: .bold))
+          .foregroundColor(.white.opacity(0.7))
+          .padding(9)
+          .background(Color.white.opacity(0.1))
+          .cornerRadius(7)
+      })
       GradientBorderButton(text: "Create new", action: {
         withAnimation {
           showVideoPicker = true

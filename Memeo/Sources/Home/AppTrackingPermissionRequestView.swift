@@ -32,7 +32,7 @@ struct AppTrackingPermissionRequestView: View {
               .font(.system(size: 14).bold()).lineSpacing(6)
           }
         }.padding(36)
-        ContinueButton(text: "Continue", action: {
+        DialogGradientButton(text: "Continue", action: {
           ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
             DispatchQueue.main.async {
               withAnimation {
@@ -51,7 +51,7 @@ struct AppTrackingPermissionRequestView: View {
   }
 }
 
-fileprivate struct ContinueButton: View {
+struct DialogGradientButton: View {
   let text: String
   let action: () -> ()
   
@@ -90,7 +90,9 @@ struct FullscreenModifier<T: View>: ViewModifier {
           VisualEffectView(effect: UIBlurEffect(style: .prominent)).opacity(0.6).ignoresSafeArea()
           Rectangle().fill(Color.black.opacity(0.6)).ignoresSafeArea()
           presenting
-        }.transition(.opacity)
+        }
+        .animation(.easeInOut)
+        .transition(.opacity)
       }
     }
   }

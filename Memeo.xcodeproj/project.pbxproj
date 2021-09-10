@@ -48,6 +48,8 @@
 		FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */; };
 		FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = FAEA2F9526EB1D1900FBD5CA /* GiphyUISDK */; };
 		FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */; };
+		FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */; };
+		FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9B26EB908900FBD5CA /* InfoView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +96,8 @@
 		FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
 		FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrackingPermissionRequestView.swift; sourceTree = "<group>"; };
 		FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyView.swift; sourceTree = "<group>"; };
+		FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		FAEA2F9B26EB908900FBD5CA /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -174,6 +178,7 @@
 				FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */,
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
+				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
 			);
 			path = Memeo;
 			sourceTree = "<group>";
@@ -204,6 +209,8 @@
 		FA97AD7826DB7CB200BD8B83 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */,
+				FAEA2F9B26EB908900FBD5CA /* InfoView.swift */,
 				FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */,
 				FA97ADA226DCD60F00BD8B83 /* Home.swift */,
 				FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */,
@@ -226,7 +233,6 @@
 				FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */,
 				FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */,
 				FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */,
-				FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */,
 			);
 			path = VideoEditor;
 			sourceTree = "<group>";
@@ -376,6 +382,7 @@
 			files = (
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
+				FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -433,6 +440,7 @@
 				FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */,
 				FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */,
 				FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */,
+				FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */,
 				FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */,
 				FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */,
 				FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */,
