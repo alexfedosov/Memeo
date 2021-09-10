@@ -55,10 +55,12 @@ class VideoExporter {
 
 
       compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
-      let videoSize: CGSize = videoTrack.frameSize()
+      var videoSize: CGSize = videoTrack.frameSize()
+      let videoTrackScaling = max(640 / videoSize.width, 1)
+      videoSize = CGSize(width: videoSize.width * videoTrackScaling, height: videoSize.height * videoTrackScaling)
       let frameRect = CGRect(origin: .zero, size: videoSize)
-
-      let scaling = videoSize.width / UIScreen.main.bounds.width
+      
+      let scaling = frameRect.width / UIScreen.main.bounds.width
 
       let videoLayer = CALayer()
       videoLayer.frame = frameRect
@@ -105,7 +107,8 @@ class VideoExporter {
       videoComposition.instructions = [instruction]
 
       let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: compositionVideoTrack)
-      layerInstruction.setTransform(videoTrack.preferredTransform, at: .zero)
+      let finalTransform = videoTrack.preferredTransform.scaledBy(x: videoTrackScaling, y: videoTrackScaling)
+      layerInstruction.setTransform(finalTransform, at: .zero)
       instruction.layerInstructions = [layerInstruction]
 
       guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality) else {

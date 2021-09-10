@@ -64,6 +64,8 @@
 	<string>Memeo will export video and save it to your photo library</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Memeo will create a new album for exported videos</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -291,7 +293,5 @@
 			</dict>
 		</dict>
 	</array>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>This identifier will be used to deliver personalized ads to you.</string>
 </dict>
 </plist>

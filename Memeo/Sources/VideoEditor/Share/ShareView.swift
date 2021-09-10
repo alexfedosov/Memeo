@@ -10,8 +10,8 @@ import Combine
 import AVKit
 
 struct ShareView: View {
-  var viewModel: ShareViewModel
-
+  @ObservedObject var viewModel: ShareViewModel
+  
   var body: some View {
     VStack {
       Spacer()
@@ -20,6 +20,13 @@ struct ShareView: View {
           header()
           if let videoPlayer = viewModel.videoPlayer {
             VideoPlayerView(videoPlayer: videoPlayer)
+              .overlay(Text(viewModel.notification ?? "")
+                        .font(.system(size: 14, weight: .bold))
+                        .animation(.easeInOut)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.green.opacity(0.3))
+                        .opacity(viewModel.notification == nil ? 0 : 1)
+                        .animation(.easeInOut))
               .cornerRadius(8)
               .frame(maxHeight: 400)
               .aspectRatio(viewModel.frameSize, contentMode: .fit)
@@ -29,20 +36,20 @@ struct ShareView: View {
           buttons()
         }
       }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .padding(.bottom, 24)
-        .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
-        .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
-        .offset(x: 0, y: viewModel.isShown.wrappedValue ? 0 : 400)
+      .padding()
+      .frame(maxWidth: .infinity)
+      .padding(.bottom, 24)
+      .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
+      .clipShape(RoundedCorner(radius: 20, corners: [.topLeft, .topRight]))
+      .offset(x: 0, y: viewModel.isShown.wrappedValue ? 0 : 400)
     }
-      .background(Color.black.opacity(viewModel.isShown.wrappedValue ? 0.8 : 0).onTapGesture {
-        viewModel.closeShareDialog()
-      })
-      .ignoresSafeArea(.all, edges: .vertical)
-      .opacity(viewModel.isShown.wrappedValue ? 1 : 0)
+    .background(Color.black.opacity(viewModel.isShown.wrappedValue ? 0.8 : 0).onTapGesture {
+      viewModel.closeShareDialog()
+    })
+    .ignoresSafeArea(.all, edges: .vertical)
+    .opacity(viewModel.isShown.wrappedValue ? 1 : 0)
   }
-
+  
   @ViewBuilder
   func header() -> some View {
     HStack {
@@ -63,9 +70,9 @@ struct ShareView: View {
     Text("Thank you for using \(Text("#memeo").bold()) hashtag!")
       .font(.system(size: 14))
       .opacity(0.6)
-
+    
   }
-
+  
   func buttons() -> some View {
     HStack(alignment: .lastTextBaseline) {
       Button(action: { viewModel.shareToInstagram() }, label: {
@@ -129,15 +136,15 @@ struct ShareView: View {
         }
       }).frame(width: 60)
     }
-      .padding(.vertical)
-      .padding(.top)
+    .padding(.vertical)
+    .padding(.top)
   }
 }
 
 struct RoundedCorner: Shape {
   var radius: CGFloat = .infinity
   var corners: UIRectCorner = .allCorners
-
+  
   func path(in rect: CGRect) -> Path {
     let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
     return Path(path.cgPath)
@@ -146,13 +153,13 @@ struct RoundedCorner: Shape {
 
 struct ShareView_Previews: PreviewProvider {
   static let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
-
+  
   static var previews: some View {
     ShareView(viewModel: ShareViewModel(isShown: .constant(true),
-      videoUrl: url,
-      gifURL: nil,
-      frameSize: CGSize(width: 800, height: 8000),
-      muted: true))
+                                        videoUrl: url,
+                                        gifURL: nil,
+                                        frameSize: CGSize(width: 800, height: 600),
+                                        muted: true))
       .previewDevice("iPhone 12 mini")
   }
 }

@@ -282,6 +282,12 @@ class VideoEditorViewModel: ObservableObject {
 //        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
 //      }.store(in: &cancellables)
 //  }
+  
+  func cleanDocumentsDirectory() {
+    DispatchQueue.global().async {
+      DocumentsService().cleanDocumentsDirectory()
+    }
+  }
 }
 
 extension VideoEditorViewModel {
@@ -366,15 +372,6 @@ extension VideoEditorViewModel {
     currentKeyframe = min(document.numberOfKeyframes - 1, currentKeyframe + frames)
   }
 
-  func saveDocument() {
-    documentService
-      .save(document: document)
-      .sink { _ in
-      } receiveValue: { _ in
-      }
-      .store(in: &cancellables)
-  }
-
   private func fadeInCurrentKeyframe() {
     guard let index = selectedTrackerIndex else {
       return
@@ -401,7 +398,6 @@ extension VideoEditorViewModel {
     case play
     case pause
     case editTracker
-    case saveDocument
     case fadeInTracker
     case fadeOutTracker
   }
@@ -431,8 +427,6 @@ extension VideoEditorViewModel {
       if let _ = selectedTrackerIndex {
         isEditingText = true
       }
-    case .saveDocument:
-      saveDocument()
     case .fadeInTracker: fadeInCurrentKeyframe()
     case .fadeOutTracker: fadeOutCurrentKeyframe()
     }
@@ -470,8 +464,6 @@ extension VideoEditorViewModel.Action: Help {
       return "Paused"
     case .editTracker:
       return "Editing tracker"
-    case .saveDocument:
-      return "Saving document"
     case .fadeInTracker:
       return "Show text"
     case .fadeOutTracker:

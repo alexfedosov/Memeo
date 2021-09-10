@@ -20,6 +20,8 @@ struct Home: View {
   @State private var offset: CGFloat = 0
   @State private var normalizedOffset: CGFloat = 0
   
+  @State private var searchQuery: String = ""
+  
   func animatedValueForTab(_ index: Int) -> Double {
     let offset: CGFloat = -normalizedOffset
     let diff = max(offset, CGFloat(index)) - min(offset, CGFloat(index))
@@ -30,76 +32,7 @@ struct Home: View {
     NavigationView {
       VStack {
         navigationBar()
-        GeometryReader { geometry in
-          VStack(alignment: .leading) {
-            HStack {
-              Text("Featured templates").font(.subheadline.weight(.bold))
-                .opacity(animatedValueForTab(0))
-                .scaleEffect(CGFloat(max(animatedValueForTab(0), 0.99)))
-                .onTapGesture {
-                  index = 0
-                  withAnimation(.linear(duration: 0.2)) {
-                    self.offset = CGFloat(index) * -geometry.size.width
-                    self.normalizedOffset = offset / geometry.size.width
-                  }
-                }
-              Text("My templates").font(.subheadline.weight(.bold))
-                .opacity(animatedValueForTab(1))
-                .scaleEffect(CGFloat(max(animatedValueForTab(1), 0.99)))
-                .onTapGesture {
-                  index = 1
-                  withAnimation(.linear(duration: 0.2)) {
-                    self.offset = CGFloat(index) * -geometry.size.width
-                    self.normalizedOffset = offset / geometry.size.width
-                  }
-                }
-                .padding(.leading, 8)
-              Spacer()
-            }
-            .padding([.leading, .trailing])
-            ScrollView(showsIndicators: false) {
-              HStack(alignment: .center, spacing: 0) {
-                emptyFeaturedTemplatesView()
-                  .frame(width: geometry.size.width)
-                  .frame(maxHeight: .infinity)
-                  .background(Color.black)
-                if viewModel.templates.count > 0 {
-                  templateList()
-                    .frame(width: geometry.size.width)
-                    .frame(maxHeight: .infinity)
-                } else {
-                  emptyView()
-                    .frame(width: geometry.size.width)
-                    .frame(maxHeight: .infinity)
-                    .background(Color.black)
-                }
-              }
-            }
-            .content
-            .offset(x: offset)
-            .frame(width: geometry.size.width, alignment: .leading)
-            .gesture(DragGesture()
-                      .onChanged({ value in
-                        isDragging = true
-                        let translation = value.translation.width + -geometry.size.width * CGFloat(index)
-                        self.offset = max(min(0, translation), -geometry.size.width)
-                        self.normalizedOffset = offset / geometry.size.width
-                      })
-                      .onEnded({ value in
-                        if value.predictedEndTranslation.width < geometry.size.width / 2, index < 2 - 1 {
-                          self.index += 1
-                        }
-                        if value.predictedEndTranslation.width > geometry.size.width / 2, index > 0 {
-                          self.index -= 1
-                        }
-                        withAnimation(.easeOut(duration: 0.2)) {
-                          self.offset = CGFloat(index) * -geometry.size.width
-                          self.normalizedOffset = offset / geometry.size.width
-                          self.isDragging = false
-                        }
-                      }))
-          }
-        }
+        searchGIPHYView().padding([.horizontal, .top], 8)
         NavigationLink(
           "",
           destination: editorView(),
@@ -133,17 +66,18 @@ struct Home: View {
           showVideoPicker = true
         }
       })
-    }.frame(height: 44).padding()
+    }.frame(height: 44).padding(8)
   }
   
-  func emptyFeaturedTemplatesView() -> some View {
-    VStack {
-      Spacer()
-      Text("We don't have featured templates yet")
-        .font(.headline)
-        .foregroundColor(Color.white)
-        .padding()
-      Spacer()
+  @ViewBuilder
+  func searchGIPHYView() -> some View {
+    VStack{
+      TextField("Search GIPHY", text: $searchQuery)
+        .font(.subheadline.bold())
+        .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.1)))
+      GiphyView(searchQuery: $searchQuery, selectedMedia: $viewModel.selectedGIPHYMedia)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
   }
   

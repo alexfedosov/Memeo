@@ -19,17 +19,7 @@ struct VideoEditor: View {
       VStack {
         HStack {
           Button(action: {
-            viewModel
-              .documentService
-              .save(document: viewModel.document)
-              .map {
-                $0
-              }
-              .replaceError(with: nil)
-              .sink { _ in
-                onClose()
-              }
-              .store(in: &viewModel.cancellables)
+            viewModel.cleanDocumentsDirectory()
             onClose()
           }, label: {
             ZStack {
@@ -56,16 +46,6 @@ struct VideoEditor: View {
               viewModel.share()
             }
           }).padding(.trailing)
-//          Button(action: {
-//
-//          }, label: {
-//            ZStack {
-//              Image(systemName: "square.and.arrow.up")
-//                .font(.subheadline)
-//                .foregroundColor(.white)
-//                .padding()
-//            }
-//          })
         }
         Spacer()
         EmptyView()
@@ -111,7 +91,7 @@ struct VideoEditor: View {
           gifURL: viewModel.exportedGifUrl,
           frameSize: viewModel.document.frameSize,
           muted: viewModel.isShowingInterstitialAd))
-      }.presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.testAdUnit)
+      }.presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.adUnit)
     }
   }
 

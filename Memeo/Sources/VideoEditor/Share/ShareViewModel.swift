@@ -15,6 +15,8 @@ class ShareViewModel: ObservableObject {
   let frameSize: CGSize
   let videoUrl: URL?
   let gifURL: URL?
+  
+  @Published var notification: String?
 
   var bag = Set<AnyCancellable>()
 
@@ -32,6 +34,13 @@ class ShareViewModel: ObservableObject {
       videoPlayer?.isMuted = muted
       videoPlayer?.play()
     }
+    
+    $notification
+      .print()
+      .compactMap { $0 }
+      .delay(for: 1.5, scheduler: RunLoop.main)
+      .map { _ in nil }
+      .assign(to: &$notification)
   }
 
   func copyGifToPasteboard() {
@@ -42,6 +51,7 @@ class ShareViewModel: ObservableObject {
     do {
       let data = try Data(contentsOf: gifURL)
       UIPasteboard.general.setData(data, forPasteboardType: kUTTypeGIF as String)
+      notification = "Gif copied!"
     } catch {
       print("Could not copy gif to clipboard")
     }
@@ -88,8 +98,10 @@ class ShareViewModel: ObservableObject {
     VideoExporter()
       .moveAssetToMemeoAlbum(url: videoUrl)
       .receive(on: RunLoop.main)
-      .sink(receiveCompletion: { _ in },
-        receiveValue: { _ in })
+      .sink(receiveCompletion: { [weak self] _ in
+        self?.notification = "Video saved!"
+      },
+      receiveValue: { _ in })
       .store(in: &bag)
   }
 

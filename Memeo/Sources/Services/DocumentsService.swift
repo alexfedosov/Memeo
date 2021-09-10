@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import AVFoundation
 import Combine
+import GiphyUISDK
 
 enum DocumentServiceError: Error {
   case unexpectedError
@@ -29,9 +30,30 @@ class DocumentsService {
     [.memeoFileContentType]
   }
   
-  func create(from mediaUrl: URL) -> Future<Document, Error> {
+  func create(fromMedia url: URL, copyToDocumentsDir: Bool = true) -> Future<Document, Error> {
     Future { promise in
-      let asset = AVAsset(url: mediaUrl)
+      var assetUrl = url
+      
+      if copyToDocumentsDir {
+        guard let importURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+                .first?
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension(".mp4") else {
+          promise(.failure(DocumentServiceError.error("failed to resolve document directory path")))
+          return
+        }
+        
+        do {
+          try FileManager.default.copyItem(at: url, to: importURL)
+        } catch {
+          promise(.failure(DocumentServiceError.error(error.localizedDescription)))
+          return
+        }
+        assetUrl = importURL
+      }
+
+      
+      let asset = AVAsset(url: assetUrl)
       
       guard let videoTrack = asset.tracks(withMediaType: .video).first else {
         promise(.failure(DocumentServiceError.unexpectedError))
@@ -47,10 +69,36 @@ class DocumentsService {
                                   numberOfKeyframes: numberOfKeyframes,
                                   trackers: [],
                                   frameSize: frameSize,
-                                  mediaURL: mediaUrl)
+                                  mediaURL: assetUrl)
           promise(.success(document))
         }
       }
+    }
+  }
+  
+  func create(fromGIPHY media: GPHMedia) -> AnyPublisher<Document, Error> {
+    guard let importURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+            .first?
+            .appendingPathComponent("giphy-\(media.id)")
+            .appendingPathExtension(".mp4") else {
+      return Fail(error: DocumentServiceError.unexpectedError).eraseToAnyPublisher()
+    }
+    
+    guard let urlString = media.url(rendition: .fixedWidth, fileType: .mp4),
+          let url = URL(string: urlString) else {
+      return Fail(error: DocumentServiceError.unexpectedError).eraseToAnyPublisher()
+    }
+    
+    if FileManager.default.fileExists(atPath: importURL.path) {
+      return create(fromMedia: importURL, copyToDocumentsDir: false).eraseToAnyPublisher()
+    } else {
+      return URLSession.shared
+        .dataTaskPublisher(for: url)
+        .tryMap { data, response in
+          try data.write(to: importURL, options: .atomic)
+        }
+        .flatMap { self.create(fromMedia: importURL, copyToDocumentsDir: false) }
+        .eraseToAnyPublisher()
     }
   }
   
@@ -150,6 +198,22 @@ class DocumentsService {
         .eraseToAnyPublisher()
     } catch {
       return Just([]).eraseToAnyPublisher()
+    }
+  }
+  
+  func cleanDocumentsDirectory()  {
+    guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+      return
+    }
+    
+    do {
+      let directoryContents = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
+      for url in directoryContents {
+        try FileManager.default.removeItem(at: url)
+        print("Removed \(url)!")
+      }
+    } catch {
+      return
     }
   }
 }

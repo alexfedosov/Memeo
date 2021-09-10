@@ -7,6 +7,7 @@
 
 import SwiftUI
 import GoogleMobileAds
+import GiphyUISDK
 
 @main
 struct MemeoApp: App {
@@ -15,6 +16,7 @@ struct MemeoApp: App {
   init() {
     GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = ["120295e57b98a68268ffc522c0333e45"]
     GADMobileAds.sharedInstance().start(completionHandler: nil)
+    Giphy.configure(apiKey: "Y1yEr5cD6XeiWadQrhG7BpoQZMDmQYe8")
   }
 
   var body: some Scene {
