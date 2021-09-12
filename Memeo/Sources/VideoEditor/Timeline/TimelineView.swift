@@ -162,6 +162,7 @@ class ScrollableTimelineView: UIView {
   weak var delegate: ScrollableTimelineViewDelegate?
 
   var numberOfKeyframes: Int = 0
+  var initiallySetup = false
 
   override init(frame: CGRect) {
     drawingConfig = TimelineViewDrawConfig(size: CGSize(width: 14, height: 34),
@@ -194,8 +195,9 @@ class ScrollableTimelineView: UIView {
       left: bounds.width / 2 - drawingConfig.size.width / 2,
       bottom: 0,
       right: bounds.width / 2 - (drawingConfig.size.width + drawingConfig.spacing))
-    if scrollView.contentOffset == .zero {
+    if !initiallySetup {
       scrollView.contentOffset = CGPoint(x: -bounds.width / 2, y: 0)
+      initiallySetup = true
     }
     highlightedKeyframeView.frame = CGRect(
       x: bounds.width / 2 - drawingConfig.size.width / 2,
