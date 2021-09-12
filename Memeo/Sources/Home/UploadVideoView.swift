@@ -55,7 +55,6 @@ struct GradientBorderButton: View {
         .foregroundColor(.white)
         .font(Font.system(size: 14, weight: .bold))
         .padding(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
-//        .padding(EdgeInsets(top: 16, leading: 48, bottom: 16, trailing: 48))
         .cornerRadius(7)
     }).background(
       RoundedRectangle(cornerRadius: 7)

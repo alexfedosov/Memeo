@@ -50,7 +50,7 @@ struct InfoView: View {
 
 extension View {
   public func presentInfoView(isPresented: Binding<Bool>) -> some View {
-    self.modifier(FullscreenModifier(presenting: InfoView(isPresented: isPresented), isPresented: isPresented))
+    self.modifier(FullscreenModifier(presenting: InfoView(isPresented: isPresented), canCancelByBackgroundTap: true, isPresented: isPresented))
   }
 }
 

@@ -30,32 +30,41 @@ struct VideoEditor: View {
             }
           })
           Spacer()
-          if let text = viewModel.lastActionDescription {
-            Text(text)
-              .font(.system(size: 10, weight: .bold))
-              .foregroundColor(.white)
-              .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-              .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.white.opacity(0.05)))
-              .opacity(0.7)
-              .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.3)))
-              .animation(.none)
-          }
-          Spacer()
+          Button(action: {
+            viewModel.isPlaying = false
+            withAnimation {
+              viewModel.showHelp = true
+            }
+          }, label: {
+            Image(systemName: "questionmark")
+              .font(Font.system(size: 14, weight: .bold))
+              .foregroundColor(.white.opacity(0.7))
+              .padding(EdgeInsets(top: 9, leading: 12, bottom: 9, trailing: 12))
+              .background(Color.white.opacity(0.1))
+              .cornerRadius(7)
+          })
           GradientBorderButton(text: "Share!", action: {
             withAnimation {
               viewModel.share()
             }
           }).padding(.trailing)
         }
+        Text(viewModel.lastActionDescription ?? "")
+          .frame(height: 12)
+          .font(.system(size: 10, weight: .bold))
+          .foregroundColor(.white)
+          .opacity(0.7)
+          .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.3)))
+          .animation(.none)
         Spacer()
         EmptyView()
         Spacer()
         TrackerEditorView(trackers: viewModel.document.trackers,
-          numberOfKeyframes: viewModel.document.numberOfKeyframes,
-          isPlaying: viewModel.isPlaying,
-          selectedTrackerIndex: viewModel.selectedTrackerIndex,
-          duration: viewModel.document.duration,
-          playerItem: viewModel.videoPlayer.currentItem)
+                          numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                          isPlaying: viewModel.isPlaying,
+                          selectedTrackerIndex: viewModel.selectedTrackerIndex,
+                          duration: viewModel.document.duration,
+                          playerItem: viewModel.videoPlayer.currentItem)
           .onTrackerTapped({ tracker in
             viewModel.selectTracker(tracker: tracker)
           })
@@ -71,8 +80,10 @@ struct VideoEditor: View {
         Spacer()
         PlaybackControls(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
         Spacer()
-        timeline()
-        VideoEditorToolbar(isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe, onSubmitAction: viewModel.submit)
+        VStack {
+          timeline()
+          VideoEditorToolbar(isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe, onSubmitAction: viewModel.submit)
+        }
       }.ignoresSafeArea(.keyboard, edges: .bottom)
       trackerTextEditor()
       ZStack {
@@ -91,7 +102,9 @@ struct VideoEditor: View {
           gifURL: viewModel.exportedGifUrl,
           frameSize: viewModel.document.frameSize,
           muted: viewModel.isShowingInterstitialAd))
-      }.presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.adUnit)
+      }
+      .presentHelpView(isPresented: $viewModel.showHelp)
+      .presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.adUnit)
     }
   }
 

@@ -35,6 +35,10 @@ class VideoEditorViewModel: ObservableObject {
   @Published var exportedVideoUrl: URL?
   @Published var exportedGifUrl: URL?
 
+  @Published var showHelp: Bool = false
+
+  @AppStorage("showHelpAtFirstLaunch") var showHelpAtFirstLaunch = true
+  
   var cancellables = Set<AnyCancellable>()
 
   var selectedTracker: Tracker? {
@@ -150,6 +154,9 @@ class VideoEditorViewModel: ObservableObject {
         nil
       }
       .assign(to: &$exportedGifUrl)
+    
+    showHelp = showHelpAtFirstLaunch
+    showHelpAtFirstLaunch = false
   }
 
   deinit {
@@ -173,13 +180,10 @@ class VideoEditorViewModel: ObservableObject {
   func share() {
     isPlaying = false
     Publishers
-      .Zip(showAds(count: 2)
-        .mapError {
-          $0 as Error
-        },
-        exportVideoSignal().mapError {
-          $0 as Error
-        })
+      .Zip(showAds(count: 2).setFailureType(to: Error.self),
+           exportVideoSignal().mapError {
+            $0 as Error
+           })
       .receive(on: RunLoop.main)
       .delay(for: .seconds(1), scheduler: RunLoop.main)
       .sink(receiveCompletion: { [weak self] completion in

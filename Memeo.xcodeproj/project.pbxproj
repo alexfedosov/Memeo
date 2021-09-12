@@ -41,6 +41,11 @@
 		FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */; };
 		FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481226E771C70076B9BE /* FLAnimatedImage */; };
 		FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481526E77CA10076B9BE /* SnapKit */; };
+		FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */; };
+		FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FABA4CB326EDFDC500ADAA16 /* learn2.mp4 */; };
+		FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */; };
+		FABA4CB926EE19EB00ADAA16 /* DialogGradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */; };
+		FABA4CBB26EE1A2400ADAA16 /* FullscreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */; };
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
@@ -90,6 +95,11 @@
 		FAA9D98F26E8D56800D2C0CA /* FullscreenAdModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenAdModifier.swift; sourceTree = "<group>"; };
 		FAB34F8626DE1AC400F36280 /* VideoExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoExporter.swift; sourceTree = "<group>"; };
 		FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorToolbar.swift; sourceTree = "<group>"; };
+		FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = learn1.mp4; sourceTree = "<group>"; };
+		FABA4CB326EDFDC500ADAA16 /* learn2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = learn2.mp4; sourceTree = "<group>"; };
+		FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGradientButton.swift; sourceTree = "<group>"; };
+		FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenModifier.swift; sourceTree = "<group>"; };
 		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -179,6 +189,8 @@
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
 				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
+				FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */,
+				FABA4CB326EDFDC500ADAA16 /* learn2.mp4 */,
 			);
 			path = Memeo;
 			sourceTree = "<group>";
@@ -223,6 +235,7 @@
 		FA97AD7926DB7CBA00BD8B83 /* VideoEditor */ = {
 			isa = PBXGroup;
 			children = (
+				FABA4CB126EDFD9500ADAA16 /* Help */,
 				FA387D8726E8A2D3003D44A3 /* Ads */,
 				FA387D8426E81553003D44A3 /* Share */,
 				FADD407E26DD46B1000D142B /* VideoView */,
@@ -241,6 +254,8 @@
 			isa = PBXGroup;
 			children = (
 				FA97AD9B26DC3EF000BD8B83 /* VideoPicker.swift */,
+				FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */,
+				FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */,
 			);
 			path = CommonComponents;
 			sourceTree = "<group>";
@@ -300,6 +315,14 @@
 				FAB34F8626DE1AC400F36280 /* VideoExporter.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		FABA4CB126EDFD9500ADAA16 /* Help */ = {
+			isa = PBXGroup;
+			children = (
+				FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */,
+			);
+			path = Help;
 			sourceTree = "<group>";
 		};
 		FADD407E26DD46B1000D142B /* VideoView */ = {
@@ -384,6 +407,8 @@
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
+				FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */,
+				FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -436,6 +461,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FABA4CBB26EE1A2400ADAA16 /* FullscreenModifier.swift in Sources */,
+				FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */,
 				FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */,
 				FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */,
 				FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */,
@@ -462,6 +489,7 @@
 				FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */,
 				FA97AD9826DC3E9E00BD8B83 /* UIKitTextField.swift in Sources */,
 				FA97AD9F26DC3F3500BD8B83 /* TrackerTextEditor.swift in Sources */,
+				FABA4CB926EE19EB00ADAA16 /* DialogGradientButton.swift in Sources */,
 				FA97AD7E26DB7D3C00BD8B83 /* Document.swift in Sources */,
 				FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */,
 				FA97AD9626DBF7A800BD8B83 /* Animation.swift in Sources */,
@@ -600,7 +628,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
@@ -627,7 +655,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
