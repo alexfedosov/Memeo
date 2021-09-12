@@ -7,6 +7,7 @@
 
 import SwiftUI
 import GiphyUISDK
+import FirebaseAnalytics
 
 struct GiphyView: UIViewControllerRepresentable {
   @Binding var searchQuery: String
@@ -45,6 +46,11 @@ struct GiphyView: UIViewControllerRepresentable {
     
     @objc func didSelectMedia(media: GPHMedia, cell: UICollectionViewCell) {
       selectedMedia.wrappedValue = media
+      Analytics.logEvent(AnalyticsEventViewItem, parameters: [
+        AnalyticsParameterItemID: media.id,
+        AnalyticsParameterItemName: media.bitlyUrl ?? media.bitlyGifUrl ?? "",
+        AnalyticsParameterContentType: "GIPHY",
+      ])
     }
     
     @objc func didScroll(offset: CGFloat) {}

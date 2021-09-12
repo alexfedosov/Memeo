@@ -46,6 +46,7 @@
 		FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */; };
 		FABA4CB926EE19EB00ADAA16 /* DialogGradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */; };
 		FABA4CBB26EE1A2400ADAA16 /* FullscreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */; };
+		FABA4CBF26EE33EA00ADAA16 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FABA4CBE26EE33EA00ADAA16 /* GoogleService-Info.plist */; };
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
@@ -100,6 +101,7 @@
 		FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGradientButton.swift; sourceTree = "<group>"; };
 		FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenModifier.swift; sourceTree = "<group>"; };
+		FABA4CBE26EE33EA00ADAA16 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -187,6 +189,7 @@
 				FA97AD7726DB7C9900BD8B83 /* Sources */,
 				FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */,
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
+				FABA4CBE26EE33EA00ADAA16 /* GoogleService-Info.plist */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
 				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
 				FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */,
@@ -406,6 +409,7 @@
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */,
+				FABA4CBF26EE33EA00ADAA16 /* GoogleService-Info.plist in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 				FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */,
 				FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */,
@@ -628,7 +632,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
@@ -655,7 +659,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;

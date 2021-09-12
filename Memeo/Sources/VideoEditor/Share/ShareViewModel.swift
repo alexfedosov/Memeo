@@ -7,6 +7,7 @@ import Combine
 import SwiftUI
 import MobileCoreServices
 import AVKit
+import FirebaseAnalytics
 
 class ShareViewModel: ObservableObject {
   var isShown: Binding<Bool>
@@ -44,6 +45,10 @@ class ShareViewModel: ObservableObject {
   }
 
   func copyGifToPasteboard() {
+    Analytics.logEvent(AnalyticsEventShare, parameters: [
+      AnalyticsParameterDestination: "Copy GIF",
+    ])
+    
     guard let gifURL = gifURL else {
       return
     }
@@ -58,6 +63,9 @@ class ShareViewModel: ObservableObject {
   }
 
   func showMoreSharingOptions() {
+    Analytics.logEvent(AnalyticsEventShare, parameters: [
+      AnalyticsParameterDestination: "Other",
+    ])
     guard let videoUrl = videoUrl else {
       return
     }
@@ -68,6 +76,10 @@ class ShareViewModel: ObservableObject {
   }
 
   func shareToInstagram() {
+    Analytics.logEvent(AnalyticsEventShare, parameters: [
+      AnalyticsParameterDestination: "Instagram",
+    ])
+    
     guard let videoUrl = videoUrl else {
       return
     }
@@ -91,6 +103,10 @@ class ShareViewModel: ObservableObject {
   }
 
   func saveToPhotoLibrary() {
+    Analytics.logEvent(AnalyticsEventShare, parameters: [
+      AnalyticsParameterDestination: "Save to Photo Library",
+    ])
+    
     guard let videoUrl = videoUrl else {
       return
     }

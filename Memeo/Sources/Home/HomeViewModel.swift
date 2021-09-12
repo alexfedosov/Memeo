@@ -83,7 +83,7 @@ class HomeViewModel: ObservableObject {
       .store(in: &cancellables)
     
 //    reloadSavedTemplates()
-    isShowingAppTrackingDialog = false && ATTrackingManager.trackingAuthorizationStatus == .notDetermined
+    isShowingAppTrackingDialog = ATTrackingManager.trackingAuthorizationStatus == .notDetermined
       || ATTrackingManager.trackingAuthorizationStatus == .restricted
   }
   
