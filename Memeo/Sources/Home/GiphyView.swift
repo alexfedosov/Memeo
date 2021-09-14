@@ -30,6 +30,7 @@ struct GiphyView: UIViewControllerRepresentable {
         uiViewController.content = GPHContent.search(withQuery: searchQuery, mediaType: .gif, language: .english)
       } else {
         uiViewController.content = .trendingGifs
+        uiViewController.rating = .ratedG
       }
       uiViewController.update()
     }
