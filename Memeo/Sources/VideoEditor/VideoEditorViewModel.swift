@@ -179,8 +179,13 @@ class VideoEditorViewModel: ObservableObject {
 
   func share() {
     isPlaying = false
+    withAnimation {
+      self.isExportingVideo = true
+    }
     Publishers
-      .Zip(showAds(count: 2).setFailureType(to: Error.self),
+      .Zip(Just(())
+            .delay(for: 1.5, scheduler: RunLoop.main)
+            .flatMap { [showAds] _ in showAds(2) }.setFailureType(to: Error.self),
            exportVideoSignal().mapError {
             $0 as Error
            })
