@@ -8,6 +8,7 @@
 import SwiftUI
 import GiphyUISDK
 import FirebaseAnalytics
+import Combine
 
 struct GiphyView: UIViewControllerRepresentable {
   @Binding var searchQuery: String
@@ -39,10 +40,28 @@ struct GiphyView: UIViewControllerRepresentable {
 
   class Coordinator: NSObject, GPHGridDelegate {
     var selectedMedia: Binding<GPHMedia?>
-    var prevSearchString: String? = nil
+    var searchQuerySubject = PassthroughSubject<String?, Never>()
+    var prevSearchString: String? = nil {
+      didSet {
+        searchQuerySubject.send(prevSearchString)
+      }
+    }
+    
+    var cancellable: AnyCancellable? = nil
     
     init(selectedMedia: Binding<GPHMedia?>) {
       self.selectedMedia = selectedMedia
+      cancellable = searchQuerySubject
+        .compactMap { $0 }
+        .filter { $0.count > 0 }
+        .receive(on: DispatchQueue.global())
+        .debounce(for: 1, scheduler: DispatchQueue.global())
+        .removeDuplicates()
+        .sink(receiveValue: { value in
+          Analytics.logEvent("search_giphy", parameters: [
+            "query": value
+          ])
+        })
     }
     
     @objc func didSelectMedia(media: GPHMedia, cell: UICollectionViewCell) {
