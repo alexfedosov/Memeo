@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "FLAnimatedImage",
+        "repositoryURL": "https://github.com/Flipboard/FLAnimatedImage.git",
+        "state": {
+          "branch": null,
+          "revision": "e7f9fd4681ae41bf6f3056db08af4f401d61da52",
+          "version": "1.0.16"
+        }
+      },
+      {
+        "package": "GiphyUISDK",
+        "repositoryURL": "https://github.com/Giphy/giphy-ios-sdk",
+        "state": {
+          "branch": null,
+          "revision": "734452df675b2cfafa370613584e3a6271c149aa",
+          "version": "2.1.11"
+        }
+      },
+      {
+        "package": "libwebp",
+        "repositoryURL": "https://github.com/SDWebImage/libwebp-Xcode",
+        "state": {
+          "branch": null,
+          "revision": "289862b9466243cdec407997d4cb8ba529359a99",
+          "version": "1.2.0"
+        }
+      },
+      {
+        "package": "SnapKit",
+        "repositoryURL": "https://github.com/SnapKit/SnapKit.git",
+        "state": {
+          "branch": null,
+          "revision": "d458564516e5676af9c70b4f4b2a9178294f1bc6",
+          "version": "5.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -8,4 +8,6 @@ target 'Memeo' do
   pod 'ffmpeg-kit-ios-full', '4.4'
   pod 'Google-Mobile-Ads-SDK'
   pod 'Firebase/Analytics'
+  pod 'Firebase/Storage'
+  
 end

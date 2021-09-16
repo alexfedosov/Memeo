@@ -10,6 +10,7 @@ import AVFoundation
 import SwiftUI
 import Combine
 import MobileCoreServices
+import FirebaseStorage
 
 class VideoEditorViewModel: ObservableObject {
   let documentService = DocumentsService()
@@ -155,6 +156,19 @@ class VideoEditorViewModel: ObservableObject {
       }
       .assign(to: &$exportedGifUrl)
     
+    $exportedVideoUrl
+      .compactMap { $0 }
+      .removeDuplicates()
+      .receive(on: DispatchQueue.global(qos: .background))
+      .sink { url in
+        let storageRef = Storage.storage().reference().child("public/\(UUID().uuidString).mp4")
+        let metadata = StorageMetadata()
+        metadata.contentType = "video/mp4"
+        let uploadTask = storageRef.putFile(from: url, metadata: metadata) { _, _ in }
+        uploadTask.resume()
+      }
+      .store(in: &cancellables)
+
     showHelp = showHelpAtFirstLaunch
     showHelpAtFirstLaunch = false
   }
