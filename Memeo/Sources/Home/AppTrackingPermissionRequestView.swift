@@ -13,7 +13,6 @@ struct AppTrackingPermissionRequestView: View {
   @Binding var isPresented: Bool
   
   var body: some View {
-    VStack {
       VStack {
         Text("You're on iOS \(UIDevice.current.systemVersion)").font(.title2).bold()
           .padding()
@@ -24,14 +23,23 @@ struct AppTrackingPermissionRequestView: View {
           HStack {
             Image(systemName: "person")
             Text("Get ads that are more personalised")
-              .font(.system(size: 14).bold()).lineSpacing(6)
-          }.padding(.bottom, 4)
+              .lineLimit(2)
+              .fixedSize(horizontal: false, vertical: true)
+              .multilineTextAlignment(.leading)
+              .font(.system(size: 13).bold()).lineSpacing(6)
+          }
+          .frame(maxHeight: 64)
+          .padding(.bottom, 4)
           HStack {
             Image(systemName: "heart")
             Text("Help keep Memeo free of charge")
-              .font(.system(size: 14).bold()).lineSpacing(6)
+              .lineLimit(2)
+              .fixedSize(horizontal: false, vertical: true)
+              .multilineTextAlignment(.leading)
+              .font(.system(size: 13).bold()).lineSpacing(6)
+            
           }
-        }.padding(36)
+        }.padding(24)
         DialogGradientButton(text: "Continue", action: {
           ATTrackingManager.requestTrackingAuthorization(completionHandler: { status in
             DispatchQueue.main.async {
@@ -47,7 +55,6 @@ struct AppTrackingPermissionRequestView: View {
       .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
       .cornerRadius(16)
       .padding()
-    }
   }
 }
 
@@ -60,5 +67,7 @@ extension View {
 struct AppTrackingPermissionRequestView_Previews: PreviewProvider {
   static var previews: some View {
     AppTrackingPermissionRequestView(isPresented: .constant(true))
+    AppTrackingPermissionRequestView(isPresented: .constant(true)).previewDevice("iPhone 12 Pro Max")
+
   }
 }
