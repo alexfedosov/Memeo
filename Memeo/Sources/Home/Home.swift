@@ -44,9 +44,6 @@ struct Home: View {
     .navigationViewStyle(StackNavigationViewStyle())
     .presentInfoView(isPresented: $showSettings)
     .presentAppTrackingRequestView(isPresented: $viewModel.isShowingAppTrackingDialog)
-    .fullScreenCover(isPresented: $showVideoPicker) {
-      VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
-    }
     .fullScreenCover(isPresented: $viewModel.isImportingVideo, content: {
       ZStack {
         VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
@@ -80,7 +77,9 @@ struct Home: View {
         withAnimation {
           showVideoPicker = true
         }
-      })
+      }).fullScreenCover(isPresented: $showVideoPicker) {
+          VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
+        }
     }.frame(height: 44).padding(8)
   }
   
