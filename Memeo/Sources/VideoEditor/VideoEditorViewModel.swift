@@ -200,9 +200,8 @@ class VideoEditorViewModel: ObservableObject {
       .Zip(Just(())
             .delay(for: 1.5, scheduler: RunLoop.main)
             .flatMap { [showAds] _ in showAds(2) }.setFailureType(to: Error.self),
-           exportVideoSignal().mapError {
-            $0 as Error
-           })
+           exportVideoSignal().mapError { $0 as Error }
+      )
       .receive(on: RunLoop.main)
       .delay(for: .seconds(1), scheduler: RunLoop.main)
       .sink(receiveCompletion: { [weak self] completion in
@@ -232,6 +231,7 @@ class VideoEditorViewModel: ObservableObject {
 
   func showAds(count: Int) -> AnyPublisher<(), Never> {
     guard InterstitialAd.shared.interstitialAd != nil else {
+      InterstitialAd.shared.loadAd(withAdUnitId: InterstitialAd.adUnit)
       return Just(()).eraseToAnyPublisher()
     }
 
