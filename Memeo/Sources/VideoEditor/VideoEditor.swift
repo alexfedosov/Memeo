@@ -66,18 +66,18 @@ struct VideoEditor: View {
                             selectedTrackerIndex: viewModel.selectedTrackerIndex,
                             duration: viewModel.document.duration,
                             playerItem: viewModel.videoPlayer.currentItem)
-            .onTrackerTapped({ tracker in
-              viewModel.selectTracker(tracker: tracker)
-            })
-            .onTrackerDoubleTapped({ tracker in
-              viewModel.selectTracker(tracker: tracker)
-              viewModel.isEditingText = true
-            })
-            .onTrackerPositionChanged({ point, tracker in
-              viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
-            })
-            .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
-            .background(VideoPlayerView(videoPlayer: viewModel.videoPlayer))
+          .onTrackerTapped({ tracker in
+            viewModel.selectTracker(tracker: tracker)
+          })
+          .onTrackerDoubleTapped({ tracker in
+            viewModel.selectTracker(tracker: tracker)
+            viewModel.isEditingText = true
+          })
+          .onTrackerPositionChanged({ point, tracker in
+            viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
+          })
+          .aspectRatio(viewModel.document.frameSize, contentMode: .fit)
+          .background(VideoPlayerView(videoPlayer: viewModel.videoPlayer))
           Spacer()
           PlaybackControls(isPlaying: viewModel.isPlaying, onSubmitAction: viewModel.submit)
           Spacer()
@@ -99,11 +99,11 @@ struct VideoEditor: View {
         }.opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
         ZStack {
           ShareView(viewModel: ShareViewModel(
-                      isShown: $viewModel.isShowingShareDialog,
-                      videoUrl: viewModel.exportedVideoUrl,
-                      gifURL: viewModel.exportedGifUrl,
-                      frameSize: viewModel.document.frameSize,
-                      muted: viewModel.isShowingInterstitialAd))
+            isShown: $viewModel.isShowingShareDialog,
+            videoUrl: viewModel.exportedVideoUrl,
+            gifURL: viewModel.exportedGifUrl,
+            frameSize: viewModel.document.frameSize,
+            muted: viewModel.isShowingInterstitialAd))
         }
         .presentHelpView(isPresented: $viewModel.showHelp)
         .presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.adUnit)
@@ -124,12 +124,12 @@ struct VideoEditor: View {
             LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
                            startPoint: .leading,
                            endPoint: .trailing)
-              .frame(width: 40)
+            .frame(width: 40)
             Spacer()
             LinearGradient(gradient: Gradient(colors: [Color.clear, Color.black]),
                            startPoint: .leading,
                            endPoint: .trailing)
-              .frame(width: 40)
+            .frame(width: 40)
           }
         }
         .frame(height: 80)
@@ -150,10 +150,8 @@ struct VideoEditor: View {
   
   func trackerTextEditor() -> some View {
     VStack {
-      if let index = viewModel.selectedTrackerIndex,
-         let text = viewModel.document.trackers[index].text,
-         viewModel.isEditingText {
-        TrackerTextEditor(text: text) { newText in
+      if let index = viewModel.selectedTrackerIndex, viewModel.isEditingText {
+        TrackerTextEditor(text: viewModel.document.trackers[index].text) { newText in
           viewModel.document.trackers[index].text = newText
           viewModel.isEditingText = false
         } onDeleteTracker: {
