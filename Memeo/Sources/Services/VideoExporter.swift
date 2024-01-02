@@ -82,19 +82,19 @@ class VideoExporter {
       outputLayer.isGeometryFlipped = true
       outputLayer.addSublayer(view.layer)
 
-      if let image = UIImage(named: "watermark") {
-        let watermark = CALayer()
-        let aspect: CGFloat = image.size.width / image.size.height
-        watermark.contents = image.cgImage
-        watermark.contentsGravity = .resizeAspect
-        let width = frameRect.width / 6
-        let height = width / aspect
-        let padding = height / 2
-        watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
-          y: frameRect.height - height - padding),
-          size: CGSize(width: width, height: height))
-        outputLayer.addSublayer(watermark)
-      }
+//      if let image = UIImage(named: "watermark") {
+//        let watermark = CALayer()
+//        let aspect: CGFloat = image.size.width / image.size.height
+//        watermark.contents = image.cgImage
+//        watermark.contentsGravity = .resizeAspect
+//        let width = frameRect.width / 6
+//        let height = width / aspect
+//        let padding = height / 2
+//        watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
+//          y: frameRect.height - height - padding),
+//          size: CGSize(width: width, height: height))
+//        outputLayer.addSublayer(watermark)
+//      }
 
       let videoComposition = AVMutableVideoComposition()
       videoComposition.renderScale = 1.0

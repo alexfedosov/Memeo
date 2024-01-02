@@ -10,7 +10,6 @@ import AVFoundation
 import SwiftUI
 import Combine
 import MobileCoreServices
-import FirebaseStorage
 
 class VideoEditorViewModel: ObservableObject {
   let documentService = DocumentsService()
@@ -156,19 +155,6 @@ class VideoEditorViewModel: ObservableObject {
       }
       .assign(to: &$exportedGifUrl)
     
-    $exportedVideoUrl
-      .compactMap { $0 }
-      .removeDuplicates()
-      .receive(on: DispatchQueue.global(qos: .background))
-      .sink { url in
-        let storageRef = Storage.storage().reference().child("public/\(UUID().uuidString).mp4")
-        let metadata = StorageMetadata()
-        metadata.contentType = "video/mp4"
-        let uploadTask = storageRef.putFile(from: url, metadata: metadata) { _, _ in }
-        uploadTask.resume()
-      }
-      .store(in: &cancellables)
-
     showHelp = showHelpAtFirstLaunch
     showHelpAtFirstLaunch = false
   }
@@ -196,12 +182,7 @@ class VideoEditorViewModel: ObservableObject {
     withAnimation {
       self.isExportingVideo = true
     }
-    Publishers
-      .Zip(Just(())
-            .delay(for: 1.5, scheduler: RunLoop.main)
-            .flatMap { [showAds] _ in showAds(2) }.setFailureType(to: Error.self),
-           exportVideoSignal().mapError { $0 as Error }
-      )
+      exportVideoSignal().mapError { $0 as Error }
       .receive(on: RunLoop.main)
       .delay(for: .seconds(1), scheduler: RunLoop.main)
       .sink(receiveCompletion: { [weak self] completion in
@@ -222,41 +203,11 @@ class VideoEditorViewModel: ObservableObject {
         }
       },
         receiveValue: { [weak self] value in
-          let urls = value.1
+          let urls = value
           self?.exportedVideoUrl = urls.0
           self?.exportedGifUrl = urls.1
         })
       .store(in: &cancellables)
-  }
-
-  func showAds(count: Int) -> AnyPublisher<(), Never> {
-    guard InterstitialAd.shared.interstitialAd != nil else {
-      InterstitialAd.shared.loadAd(withAdUnitId: InterstitialAd.adUnit)
-      return Just(()).eraseToAnyPublisher()
-    }
-
-    let publisher = $isShowingInterstitialAd
-      .side { [weak self] _ in
-        self?.isExportingVideo = true
-      }
-      .removeDuplicates()
-      .dropFirst()
-      .filter {
-        !$0
-      }
-      .delay(for: .seconds(2), scheduler: RunLoop.main)
-      .side { [weak self] _ in
-        self?.isShowingInterstitialAd = true
-      }
-      .collect(count - 1)
-      .first()
-      .map { _ in
-        ()
-      }
-      .eraseToAnyPublisher()
-
-    isShowingInterstitialAd = true
-    return publisher
   }
 
   func exportVideoSignal() -> AnyPublisher<(URL, URL?), VideoExporterError> {

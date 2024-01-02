@@ -106,7 +106,6 @@ struct VideoEditor: View {
             muted: viewModel.isShowingInterstitialAd))
         }
         .presentHelpView(isPresented: $viewModel.showHelp)
-        .presentInterstitialAd(isPresented: $viewModel.isShowingInterstitialAd, adUnitId: InterstitialAd.adUnit)
       }
     }
   }

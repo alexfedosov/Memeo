@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,7 @@
 		61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */; };
 		FA387D8626E81563003D44A3 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA387D8526E81563003D44A3 /* ShareView.swift */; };
 		FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */; };
+		FA8B79722B4438BA00C8743F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */; };
 		FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */; };
 		FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */; };
 		FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */; };
@@ -35,8 +36,6 @@
 		FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */; };
 		FA97ADA826DCDA0500BD8B83 /* DocumentsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA726DCDA0500BD8B83 /* DocumentsService.swift */; };
 		FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */; };
-		FAA9D98E26E8D4A000D2C0CA /* InterstitialAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA9D98D26E8D4A000D2C0CA /* InterstitialAdView.swift */; };
-		FAA9D99026E8D56800D2C0CA /* FullscreenAdModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA9D98F26E8D56800D2C0CA /* FullscreenAdModifier.swift */; };
 		FAB34F8726DE1AC400F36280 /* VideoExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34F8626DE1AC400F36280 /* VideoExporter.swift */; };
 		FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */; };
 		FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481226E771C70076B9BE /* FLAnimatedImage */; };
@@ -50,12 +49,10 @@
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
 		FAEA2F9126EAB3DD00FBD5CA /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; };
-		FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */; };
 		FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = FAEA2F9526EB1D1900FBD5CA /* GiphyUISDK */; };
 		FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */; };
 		FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */; };
 		FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9B26EB908900FBD5CA /* InfoView.swift */; };
-		FAF43C98270F045A00018959 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FAF43C97270F045A00018959 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,6 +64,7 @@
 		FA387D8526E81563003D44A3 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		FA7F03F926E0100400323E19 /* Memeo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Memeo.entitlements; sourceTree = "<group>"; };
 		FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControls.swift; sourceTree = "<group>"; };
+		FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA97AD6526DB7C5800BD8B83 /* Memeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeoApp.swift; sourceTree = "<group>"; };
 		FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
@@ -92,8 +90,6 @@
 		FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		FA97ADA726DCDA0500BD8B83 /* DocumentsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentsService.swift; sourceTree = "<group>"; };
 		FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVAssetTrackExtentions.swift; sourceTree = "<group>"; };
-		FAA9D98D26E8D4A000D2C0CA /* InterstitialAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterstitialAdView.swift; sourceTree = "<group>"; };
-		FAA9D98F26E8D56800D2C0CA /* FullscreenAdModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenAdModifier.swift; sourceTree = "<group>"; };
 		FAB34F8626DE1AC400F36280 /* VideoExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoExporter.swift; sourceTree = "<group>"; };
 		FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorToolbar.swift; sourceTree = "<group>"; };
 		FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = learn1.mp4; sourceTree = "<group>"; };
@@ -105,11 +101,9 @@
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 		FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = iAd.framework; path = System/Library/Frameworks/iAd.framework; sourceTree = SDKROOT; };
-		FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTrackingPermissionRequestView.swift; sourceTree = "<group>"; };
 		FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiphyView.swift; sourceTree = "<group>"; };
 		FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		FAEA2F9B26EB908900FBD5CA /* InfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoView.swift; sourceTree = "<group>"; };
-		FAF43C97270F045A00018959 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,15 +149,6 @@
 			path = Share;
 			sourceTree = "<group>";
 		};
-		FA387D8726E8A2D3003D44A3 /* Ads */ = {
-			isa = PBXGroup;
-			children = (
-				FAA9D98D26E8D4A000D2C0CA /* InterstitialAdView.swift */,
-				FAA9D98F26E8D56800D2C0CA /* FullscreenAdModifier.swift */,
-			);
-			path = Ads;
-			sourceTree = "<group>";
-		};
 		FA97AD5C26DB7C5800BD8B83 = {
 			isa = PBXGroup;
 			children = (
@@ -189,7 +174,7 @@
 				FA97AD7726DB7C9900BD8B83 /* Sources */,
 				FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */,
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
-				FAF43C97270F045A00018959 /* GoogleService-Info.plist */,
+				FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
 				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
 				FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */,
@@ -224,7 +209,6 @@
 		FA97AD7826DB7CB200BD8B83 /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				FAEA2F9226EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift */,
 				FAEA2F9B26EB908900FBD5CA /* InfoView.swift */,
 				FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */,
 				FA97ADA226DCD60F00BD8B83 /* Home.swift */,
@@ -239,7 +223,6 @@
 			isa = PBXGroup;
 			children = (
 				FABA4CB126EDFD9500ADAA16 /* Help */,
-				FA387D8726E8A2D3003D44A3 /* Ads */,
 				FA387D8426E81553003D44A3 /* Share */,
 				FADD407E26DD46B1000D142B /* VideoView */,
 				FA97AD9D26DC3F2000BD8B83 /* TrackerTextEditor */,
@@ -370,8 +353,9 @@
 		FA97AD5D26DB7C5800BD8B83 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					FA97AD6426DB7C5800BD8B83 = {
 						CreatedOnToolsVersion = 12.5.1;
@@ -412,7 +396,7 @@
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 				FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */,
 				FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */,
-				FAF43C98270F045A00018959 /* GoogleService-Info.plist in Resources */,
+				FA8B79722B4438BA00C8743F /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -469,7 +453,6 @@
 				FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */,
 				FA97ADA526DCD64200BD8B83 /* HomeViewModel.swift in Sources */,
 				FA97ADA126DCC05600BD8B83 /* UploadVideoView.swift in Sources */,
-				FAEA2F9326EAB7D900FBD5CA /* AppTrackingPermissionRequestView.swift in Sources */,
 				FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */,
 				FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */,
 				FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */,
@@ -478,13 +461,11 @@
 				FA97AD8F26DBAA2900BD8B83 /* CGPointExtentions.swift in Sources */,
 				FA97AD8B26DB966D00BD8B83 /* TrackerEditorUIView.swift in Sources */,
 				FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */,
-				FAA9D99026E8D56800D2C0CA /* FullscreenAdModifier.swift in Sources */,
 				FA97ADA326DCD60F00BD8B83 /* Home.swift in Sources */,
 				FA97AD9C26DC3EF000BD8B83 /* VideoPicker.swift in Sources */,
 				FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */,
 				FA97AD9226DBBF1C00BD8B83 /* TimelineView.swift in Sources */,
 				FA97AD8026DB7F2100BD8B83 /* Tracker.swift in Sources */,
-				FAA9D98E26E8D4A000D2C0CA /* InterstitialAdView.swift in Sources */,
 				FA97AD8926DB83B500BD8B83 /* TrackerLayerRepresentable.swift in Sources */,
 				FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */,
 				FA97AD8226DB7F8100BD8B83 /* VideoEditorViewModel.swift in Sources */,

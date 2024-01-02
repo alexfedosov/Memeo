@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import GoogleMobileAds
 import GiphyUISDK
 import Firebase
 
@@ -17,7 +16,6 @@ struct MemeoApp: App {
   init() {
     FirebaseApp.configure()
 //    GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = ["120295e57b98a68268ffc522c0333e45"]
-    GADMobileAds.sharedInstance().start(completionHandler: nil)
     Giphy.configure(apiKey: "Y1yEr5cD6XeiWadQrhG7BpoQZMDmQYe8")
   }
 

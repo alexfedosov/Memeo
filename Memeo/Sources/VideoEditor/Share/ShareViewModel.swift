@@ -70,9 +70,9 @@ class ShareViewModel: ObservableObject {
       return
     }
     let activityVC = UIActivityViewController(activityItems: [videoUrl], applicationActivities: nil)
-    UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: { [weak self] in
-      self?.closeShareDialog()
-    })
+    UIApplication.shared.windows.first?
+          .rootViewController?
+          .present(activityVC, animated: true)
   }
 
   func shareToInstagram() {

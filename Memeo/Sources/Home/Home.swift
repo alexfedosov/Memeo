@@ -43,7 +43,6 @@ struct Home: View {
     }
     .navigationViewStyle(StackNavigationViewStyle())
     .presentInfoView(isPresented: $showSettings)
-    .presentAppTrackingRequestView(isPresented: $viewModel.isShowingAppTrackingDialog)
     .fullScreenCover(isPresented: $viewModel.isImportingVideo, content: {
       ZStack {
         VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
