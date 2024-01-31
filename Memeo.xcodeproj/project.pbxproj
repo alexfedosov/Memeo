@@ -7,12 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2DBA19D092E48441837C32B2 /* TemplatesList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA15EF54C06E2604287A8F /* TemplatesList.swift */; };
 		2DBA1CA289D21EFD14FC436F /* ShareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */; };
 		61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */; };
 		FA387D8626E81563003D44A3 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA387D8526E81563003D44A3 /* ShareView.swift */; };
+		FA7279C02B4B3280000FEDF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */; };
+		FA7279C22B4B3573000FEDF7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7279C12B4B3573000FEDF7 /* UIApplication.swift */; };
 		FA7F03FB26E0118F00323E19 /* PlaybackControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */; };
-		FA8B79722B4438BA00C8743F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */; };
+		FA9044ED2B4C58440064E296 /* GiphyUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044EC2B4C58440064E296 /* GiphyUISDK */; };
+		FA9044F02B4C58720064E296 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044EF2B4C58720064E296 /* FirebaseAnalytics */; };
+		FA9044F22B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044F12B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion */; };
+		FA9044F42B4C58720064E296 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044F32B4C58720064E296 /* FirebaseAnalyticsSwift */; };
+		FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044F52B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044F72B4C58720064E296 /* FirebaseAppCheck */; };
 		FA97AD6926DB7C5800BD8B83 /* MemeoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */; };
 		FA97AD6B26DB7C5800BD8B83 /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */; };
 		FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */; };
@@ -38,13 +44,14 @@
 		FA97ADAA26DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */; };
 		FAB34F8726DE1AC400F36280 /* VideoExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34F8626DE1AC400F36280 /* VideoExporter.swift */; };
 		FAB34FAA26DFA6D100F36280 /* VideoEditorToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB34FA926DFA6D100F36280 /* VideoEditorToolbar.swift */; };
-		FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481226E771C70076B9BE /* FLAnimatedImage */; };
 		FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAB7481526E77CA10076B9BE /* SnapKit */; };
 		FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */; };
 		FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FABA4CB326EDFDC500ADAA16 /* learn2.mp4 */; };
 		FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */; };
 		FABA4CB926EE19EB00ADAA16 /* DialogGradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */; };
 		FABA4CBB26EE1A2400ADAA16 /* FullscreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */; };
+		FABC8C4A2B4EB0A70077C397 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FABC8C482B4EB0A70077C397 /* InfoPlist.strings */; };
+		FABC8C4D2B4EB0A70077C397 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FABC8C4B2B4EB0A70077C397 /* Localizable.strings */; };
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
@@ -58,13 +65,13 @@
 /* Begin PBXFileReference section */
 		0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.debug.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.debug.xcconfig"; sourceTree = "<group>"; };
 		2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareViewModel.swift; sourceTree = "<group>"; };
-		2DBA15EF54C06E2604287A8F /* TemplatesList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemplatesList.swift; sourceTree = "<group>"; };
 		4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Memeo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.release.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.release.xcconfig"; sourceTree = "<group>"; };
 		FA387D8526E81563003D44A3 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
+		FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		FA7279C12B4B3573000FEDF7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		FA7F03F926E0100400323E19 /* Memeo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Memeo.entitlements; sourceTree = "<group>"; };
 		FA7F03FA26E0118F00323E19 /* PlaybackControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackControls.swift; sourceTree = "<group>"; };
-		FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA97AD6526DB7C5800BD8B83 /* Memeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA97AD6826DB7C5800BD8B83 /* MemeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeoApp.swift; sourceTree = "<group>"; };
 		FA97AD6A26DB7C5800BD8B83 /* VideoEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
@@ -97,6 +104,8 @@
 		FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGradientButton.swift; sourceTree = "<group>"; };
 		FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenModifier.swift; sourceTree = "<group>"; };
+		FABC8C492B4EB0A70077C397 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FABC8C4C2B4EB0A70077C397 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -111,10 +120,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA9044ED2B4C58440064E296 /* GiphyUISDK in Frameworks */,
 				FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */,
-				FAB7481326E771C70076B9BE /* FLAnimatedImage in Frameworks */,
+				FA9044F02B4C58720064E296 /* FirebaseAnalytics in Frameworks */,
+				FA9044F22B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				FA9044F42B4C58720064E296 /* FirebaseAnalyticsSwift in Frameworks */,
 				FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */,
 				61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */,
+				FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */,
 				FAEA2F9126EAB3DD00FBD5CA /* iAd.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -170,11 +184,13 @@
 		FA97AD6726DB7C5800BD8B83 /* Memeo */ = {
 			isa = PBXGroup;
 			children = (
+				FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */,
 				FA7F03F926E0100400323E19 /* Memeo.entitlements */,
 				FA97AD7726DB7C9900BD8B83 /* Sources */,
 				FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */,
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
-				FA8B79712B4438BA00C8743F /* GoogleService-Info.plist */,
+				FABC8C4B2B4EB0A70077C397 /* Localizable.strings */,
+				FABC8C482B4EB0A70077C397 /* InfoPlist.strings */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
 				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
 				FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */,
@@ -213,7 +229,6 @@
 				FA97ADA026DCC05600BD8B83 /* UploadVideoView.swift */,
 				FA97ADA226DCD60F00BD8B83 /* Home.swift */,
 				FA97ADA426DCD64200BD8B83 /* HomeViewModel.swift */,
-				2DBA15EF54C06E2604287A8F /* TemplatesList.swift */,
 				FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */,
 			);
 			path = Home;
@@ -251,6 +266,7 @@
 			children = (
 				FA97AD8E26DBAA2900BD8B83 /* CGPointExtentions.swift */,
 				FA97ADA926DCDA8A00BD8B83 /* AVAssetTrackExtentions.swift */,
+				FA7279C12B4B3573000FEDF7 /* UIApplication.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -331,7 +347,6 @@
 				FA97AD6126DB7C5800BD8B83 /* Sources */,
 				FA97AD6226DB7C5800BD8B83 /* Frameworks */,
 				FA97AD6326DB7C5800BD8B83 /* Resources */,
-				C125ACFB92D0A877D77E868E /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -339,9 +354,14 @@
 			);
 			name = Memeo;
 			packageProductDependencies = (
-				FAB7481226E771C70076B9BE /* FLAnimatedImage */,
 				FAB7481526E77CA10076B9BE /* SnapKit */,
 				FAEA2F9526EB1D1900FBD5CA /* GiphyUISDK */,
+				FA9044EC2B4C58440064E296 /* GiphyUISDK */,
+				FA9044EF2B4C58720064E296 /* FirebaseAnalytics */,
+				FA9044F12B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion */,
+				FA9044F32B4C58720064E296 /* FirebaseAnalyticsSwift */,
+				FA9044F52B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport */,
+				FA9044F72B4C58720064E296 /* FirebaseAppCheck */,
 			);
 			productName = Memeo;
 			productReference = FA97AD6526DB7C5800BD8B83 /* Memeo.app */;
@@ -369,12 +389,13 @@
 			knownRegions = (
 				en,
 				Base,
+				it,
 			);
 			mainGroup = FA97AD5C26DB7C5800BD8B83;
 			packageReferences = (
-				FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
 				FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */,
 				FAEA2F9426EB1D1900FBD5CA /* XCRemoteSwiftPackageReference "giphy-ios-sdk" */,
+				FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = FA97AD6626DB7C5800BD8B83 /* Products */;
 			projectDirPath = "";
@@ -391,12 +412,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
+				FABC8C4A2B4EB0A70077C397 /* InfoPlist.strings in Resources */,
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */,
+				FABC8C4D2B4EB0A70077C397 /* Localizable.strings in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 				FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */,
 				FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */,
-				FA8B79722B4438BA00C8743F /* GoogleService-Info.plist in Resources */,
+				FA7279C02B4B3280000FEDF7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,23 +448,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		C125ACFB92D0A877D77E868E /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Memeo/Pods-Memeo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Memeo/Pods-Memeo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Memeo/Pods-Memeo-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -457,6 +463,7 @@
 				FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */,
 				FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */,
 				FA97AD8D26DB9D5F00BD8B83 /* TrackerEditorView.swift in Sources */,
+				FA7279C22B4B3573000FEDF7 /* UIApplication.swift in Sources */,
 				FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */,
 				FA97AD8F26DBAA2900BD8B83 /* CGPointExtentions.swift in Sources */,
 				FA97AD8B26DB966D00BD8B83 /* TrackerEditorUIView.swift in Sources */,
@@ -481,12 +488,30 @@
 				FA387D8626E81563003D44A3 /* ShareView.swift in Sources */,
 				FA97AD9426DBBF5900BD8B83 /* Timeline.swift in Sources */,
 				FA97AD9A26DC3ECF00BD8B83 /* VisualEffectsView.swift in Sources */,
-				2DBA19D092E48441837C32B2 /* TemplatesList.swift in Sources */,
 				2DBA1CA289D21EFD14FC436F /* ShareViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		FABC8C482B4EB0A70077C397 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FABC8C492B4EB0A70077C397 /* it */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		FABC8C4B2B4EB0A70077C397 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FABC8C4C2B4EB0A70077C397 /* it */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		FA97AD7226DB7C5900BD8B83 /* Debug */ = {
@@ -613,17 +638,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Memeo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				INFOPLIST_KEY_CFBundleDisplayName = Memeo;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -640,17 +667,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Memeo/Memeo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 32;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_ASSET_PATHS = "Memeo/Preview\\ Content";
 				DEVELOPMENT_TEAM = 2E543VYG2P;
 				ENABLE_PREVIEWS = YES;
 				INFOPLIST_FILE = Memeo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				INFOPLIST_KEY_CFBundleDisplayName = Memeo;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -683,12 +712,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */ = {
+		FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Flipboard/FLAnimatedImage.git";
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.16;
+				minimumVersion = 10.19.1;
 			};
 		};
 		FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */ = {
@@ -710,10 +739,35 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FAB7481226E771C70076B9BE /* FLAnimatedImage */ = {
+		FA9044EC2B4C58440064E296 /* GiphyUISDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAB7481126E771C70076B9BE /* XCRemoteSwiftPackageReference "FLAnimatedImage" */;
-			productName = FLAnimatedImage;
+			package = FAEA2F9426EB1D1900FBD5CA /* XCRemoteSwiftPackageReference "giphy-ios-sdk" */;
+			productName = GiphyUISDK;
+		};
+		FA9044EF2B4C58720064E296 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		FA9044F12B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		FA9044F32B4C58720064E296 /* FirebaseAnalyticsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsSwift;
+		};
+		FA9044F52B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		FA9044F72B4C58720064E296 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 		FAB7481526E77CA10076B9BE /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;

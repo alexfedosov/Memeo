@@ -2,35 +2,29 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CLIENT_ID</key>
-	<string>551106166392-n94ajcq1279n3ekv85e3qap6np5rdmn1.apps.googleusercontent.com</string>
-	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.551106166392-n94ajcq1279n3ekv85e3qap6np5rdmn1</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBtWXRdEUBYxrj7mJamM20n3Qc5zHsXYL8</string>
+	<string>AIzaSyAH0ejG4ipVe5sjSRZzDiWlYGyRgqdd_Jo</string>
 	<key>GCM_SENDER_ID</key>
-	<string>551106166392</string>
+	<string>757758058110</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>app.memeo.memeo</string>
 	<key>PROJECT_ID</key>
-	<string>memeo-2cb4c</string>
+	<string>memeo-d6c09</string>
 	<key>STORAGE_BUCKET</key>
-	<string>memeo-2cb4c.appspot.com</string>
+	<string>memeo-d6c09.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<true/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:551106166392:ios:30b47843ca2860f82bb78d</string>
-	<key>ADMOB_APP_ID</key>
-	<string>ca-app-pub-5900049420163800~6148826678</string>
+	<string>1:757758058110:ios:44daf5b56174a4255b822f</string>
 </dict>
 </plist>

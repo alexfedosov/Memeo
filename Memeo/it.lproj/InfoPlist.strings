@@ -1,0 +1,9 @@
+/* Privacy - Camera Usage Description */
+"NSCameraUsageDescription" = "Meme necessita l'accesso alla fotocamera per permetterti di filmare un video e creare un nuovo meme con esso";
+
+/* Privacy - Photo Library Additions Usage Description */
+"NSPhotoLibraryAddUsageDescription" = "Memeo esporterà il video e lo salverà nella tua libreria foto";
+
+/* Privacy - Photo Library Usage Description */
+"NSPhotoLibraryUsageDescription" = "Memeo creerà un nuovo album per i video esportati";
+

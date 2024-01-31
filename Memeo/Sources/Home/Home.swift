@@ -7,11 +7,14 @@
 
 import SwiftUI
 import AVKit
+import StoreKit
 
 struct Home: View {
   @Binding var openUrl: URL?
   @State private var showVideoPicker = false
-  
+  @Environment(\.requestReview) private var requestReview
+  @AppStorage("lastVersionPromptedForReview") var lastVersionPromptedForReview = ""
+
   @StateObject var viewModel = HomeViewModel()
   
   @State var index: Int = 0
@@ -53,6 +56,13 @@ struct Home: View {
         }.padding()
       }
     })
+    .onAppear(perform: {
+        guard let appVersion = UIApplication.appVersion else { return }
+        if lastVersionPromptedForReview != appVersion {
+            presentReview()
+            lastVersionPromptedForReview = appVersion
+        }
+    })
   }
   
   @ViewBuilder
@@ -72,7 +82,7 @@ struct Home: View {
           .background(Color.white.opacity(0.1))
           .cornerRadius(7)
       })
-      GradientBorderButton(text: "Create new", action: {
+      GradientBorderButton(text: String(localized: "Create new"), action: {
         withAnimation {
           showVideoPicker = true
         }
@@ -85,7 +95,7 @@ struct Home: View {
   @ViewBuilder
   func searchGIPHYView() -> some View {
     VStack{
-      TextField("Search GIPHY", text: $searchQuery)
+      TextField(String(localized: "Search GIPHY"), text: $searchQuery)
         .font(.subheadline.bold())
         .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
         .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.1)))
@@ -110,11 +120,6 @@ struct Home: View {
     }
   }
   
-  func templateList() -> some View {
-    TemplateList(templates: viewModel.templates) {
-      viewModel.openTemplate(uuid: $0)
-    }
-  }
   
   @ViewBuilder
   func editorView() -> some View {
@@ -127,6 +132,14 @@ struct Home: View {
       Text("Hello")
     }
   }
+
+  private func presentReview() {
+        Task {
+            // Delay for two seconds to avoid interrupting the person using the app.
+            try await Task.sleep(for: .seconds(2))
+            requestReview()
+        }
+    }
 }
 
 struct Home_Previews: PreviewProvider {

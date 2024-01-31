@@ -28,11 +28,11 @@ struct HelpView: View {
   
   private let slides = [
     Slide(videoFileName: "learn1",
-          title: "Animate position with keyframes",
-          subtitle: "Move timeline to another frame and drag text to the desired position"),
+          title: String(localized: "Animate position with keyframes"),
+          subtitle: String(localized: "Move timeline to another frame and drag text to the desired position")),
     Slide(videoFileName: "learn2",
-          title: "Hide and show text",
-          subtitle: "Use Hide/Show button to toggle text visibility on a specific keyframe")
+          title: String(localized: "Hide and show text"),
+          subtitle: String(localized: "Use Hide/Show button to toggle text visibility on a specific keyframe"))
   ]
   
   private var isLastSlide: Bool {
@@ -59,7 +59,7 @@ struct HelpView: View {
           .font(.system(size: 14))
           .multilineTextAlignment(.center)
           .padding(.top, 8)
-        DialogGradientButton(text: isLastSlide ? "Close" : "One more tip", action: {
+        DialogGradientButton(text: isLastSlide ? String(localized: "Close") : String(localized: "One more tip"), action: {
           if isLastSlide {
             withAnimation {
               isPresented = false
@@ -108,6 +108,7 @@ struct HelpView: View {
 extension View {
   public func presentHelpView(isPresented: Binding<Bool>) -> some View {
     self.modifier(FullscreenModifier(presenting: HelpView(isPresented: isPresented), canCancelByBackgroundTap: true, isPresented: isPresented))
+          .environment(\.locale, .init(identifier: "it"))
   }
 }
 
@@ -118,7 +119,7 @@ struct HelpView_Previews: PreviewProvider {
       .frame(maxHeight: .infinity)
       .presentHelpView(isPresented: .constant(true))
       .previewDevice("iPhone 12 Pro Max")
-    
+
     Rectangle().fill(Color.yellow)
       .ignoresSafeArea()
       .frame(maxHeight: .infinity)

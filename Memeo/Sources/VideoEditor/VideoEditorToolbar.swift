@@ -61,10 +61,12 @@ struct VideoEditorToolbar: View {
           VStack {
             Image(systemName: "textformat").applyToolBarStyle()
             Text("Add text")
+            .lineLimit(2, reservesSpace: true)
               .multilineTextAlignment(.center)
               .foregroundColor(.white)
               .font(.system(size: 10))
               .opacity(0.3)
+              .frame(height: 20)
           }
         }).frame(width: 80)
         Button(action: {
@@ -74,9 +76,11 @@ struct VideoEditorToolbar: View {
             Image(systemName: "minus.circle.fill").applyToolBarStyle()
             Text("Delete keyframe")
               .multilineTextAlignment(.center)
+              .lineLimit(2, reservesSpace: true)
               .foregroundColor(.white)
               .font(.system(size: 10))
               .opacity(0.3)
+              .frame(height: 20)
           }
         }).frame(width: 80)
         Button(action: {
@@ -93,9 +97,11 @@ struct VideoEditorToolbar: View {
             }.modifier(VideoEditorToolBarIcon.Background())
             Text("Copy keyframe")
               .multilineTextAlignment(.center)
+              .lineLimit(2, reservesSpace: true)
               .foregroundColor(.white)
               .font(.system(size: 10))
               .opacity(0.3)
+              .frame(height: 20)
           }
         }).frame(width: 80)
         Button(action: {
@@ -103,11 +109,13 @@ struct VideoEditorToolbar: View {
         }, label: {
           VStack {
             Image(systemName: canFadeIn ? "eye" : "eye.slash").applyToolBarStyle()
-            Text(canFadeIn ? "Show text" : "Hide text")
+            Text(canFadeIn ? String(localized: "Show text") : String(localized: "Hide text"))
+                  .lineLimit(2, reservesSpace: true)
               .multilineTextAlignment(.center)
               .foregroundColor(.white)
               .font(.system(size: 10))
               .opacity(0.3)
+              .frame(height: 20)
           }
         }).frame(width: 80)
       }.padding()

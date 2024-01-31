@@ -41,6 +41,7 @@ extension Document {
                     trackers: [
                       Tracker(id: UUID(),
                               text: "Test tracker",
+                              style: .transparent,
                               position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
                               fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
                       )

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="Memeo/en.lproj/InfoPlist.strings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="15.2" build-num="15C500b"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>Memeo</source>
+        <note>Bundle name</note>
+      </trans-unit>
+      <trans-unit id="Memeo Video Template" xml:space="preserve">
+        <source>Memeo Video Template</source>
+        <note/>
+      </trans-unit>
+      <trans-unit id="NSCameraUsageDescription" xml:space="preserve">
+        <source>Meme needs access to camera to let you film a video and create new meme with it</source>
+        <target>Meme necessita l'accesso alla fotocamera per permetterti di filmare un video e creare un nuovo meme con esso</target>
+        <note>Privacy - Camera Usage Description</note>
+      </trans-unit>
+      <trans-unit id="NSPhotoLibraryAddUsageDescription" xml:space="preserve">
+        <source>Memeo will export video and save it to your photo library</source>
+        <target>Memeo esporterà il video e lo salverà nella tua libreria foto</target>
+        <note>Privacy - Photo Library Additions Usage Description</note>
+      </trans-unit>
+      <trans-unit id="NSPhotoLibraryUsageDescription" xml:space="preserve">
+        <source>Memeo will create a new album for exported videos</source>
+        <target>Memeo creerà un nuovo album per i video esportati</target>
+        <note>Privacy - Photo Library Usage Description</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file original="Memeo/en.lproj/Localizable.strings" source-language="en" target-language="it" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="15.2" build-num="15C500b"/>
+    </header>
+    <body>
+      <trans-unit id="#memeo" xml:space="preserve">
+        <source>#memeo</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="%@/%@" xml:space="preserve">
+        <source>%1$@/%2$@</source>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Add text" xml:space="preserve">
+        <source>Add text</source>
+        <target>Aggiungi testo</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Add video from your photo library to create a new template" xml:space="preserve">
+        <source>Add video from your photo library to create a new template</source>
+        <target>Aggiungi un video dalla tua libreria foto per creare un nuovo modello</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="App version: %@" xml:space="preserve">
+        <source>App version: %@</source>
+        <target>Versione dell'app: %@</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Copy GIF" xml:space="preserve">
+        <source>Copy GIF</source>
+        <target>Copia GIF</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Copy keyframe" xml:space="preserve">
+        <source>Copy keyframe</source>
+        <target>Copia keyframe</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Delete" xml:space="preserve">
+        <source>Delete</source>
+        <target>Elimina</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Delete keyframe" xml:space="preserve">
+        <source>Delete keyframe</source>
+        <target>Elimina keyframe</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Delete text?" xml:space="preserve">
+        <source>Delete text?</source>
+        <target>Eliminare il testo?</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Done" xml:space="preserve">
+        <source>Done</source>
+        <target>Fatto</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Exporting your video" xml:space="preserve">
+        <source>Exporting your video</source>
+        <target>Esportando il tuo video</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Hello" xml:space="preserve">
+        <source>Hello</source>
+        <target>Ciao</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Importing your video" xml:space="preserve">
+        <source>Importing your video</source>
+        <target>Importando il tuo video</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Instagram" xml:space="preserve">
+        <source>Instagram</source>
+        <target>Instagram</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Make your own templates!" xml:space="preserve">
+        <source>Make your own templates!</source>
+        <target>Crea i tuoi modelli!</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="More" xml:space="preserve">
+        <source>More</source>
+        <target>Altro</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Open video from your photo library&#10;to create a new template" xml:space="preserve">
+        <source>Open video from your photo library
+to create a new template</source>
+        <target>Apri video dalla tua libreria foto per creare un nuovo modello</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Save video" xml:space="preserve">
+        <source>Save video</source>
+        <target>Salva video</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Share your meme" xml:space="preserve">
+        <source>Share your meme</source>
+        <target>Condividi il tuo meme</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Thank you for using %@ hashtag!" xml:space="preserve">
+        <source>Thank you for using %@ hashtag!</source>
+        <target>Grazie per aver usato l'hashtag %@!</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="This will delete text and text animation data" xml:space="preserve">
+        <source>This will delete text and text animation data</source>
+        <target>Questo eliminerà il testo e i dati dell'animazione del testo</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="Upload video" xml:space="preserve">
+        <source>Upload video</source>
+        <target>Carica video</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="memeo is a fun passion project that allows you to easily attach text to objects in any video and create funny memes" xml:space="preserve">
+        <source>memeo is a fun passion project that allows you to easily attach text to objects in any video and create funny memes</source>
+        <target>memeo è un divertente progetto di passione che ti permette di attaccare facilmente testo agli oggetti in qualsiasi video e creare meme divertenti</target>
+        <note>No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
