@@ -45,8 +45,6 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -92,53 +90,5 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>LSTypeIsPackage</key>
-			<true/>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.apple.package</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Memeo Video Template</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>app.memeo.memeo</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>memeo</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>LSTypeIsPackage</key>
-			<true/>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>com.apple.package</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>Memeo Video Template</string>
-			<key>UTTypeIconFiles</key>
-			<array/>
-			<key>UTTypeIdentifier</key>
-			<string>app.memeo.memeo</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>memeo</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
 </dict>
 </plist>

@@ -32,7 +32,7 @@ extension AVAssetTrack {
   func frameSize() -> CGSize {
     if orientation().isPortrait {
       return CGSize(
-        width: naturalSize.height,
+        width:  naturalSize.height,
         height: naturalSize.width)
     } else {
       return naturalSize

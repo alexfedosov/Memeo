@@ -50,8 +50,6 @@
 		FABA4CB726EDFDEE00ADAA16 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */; };
 		FABA4CB926EE19EB00ADAA16 /* DialogGradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */; };
 		FABA4CBB26EE1A2400ADAA16 /* FullscreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */; };
-		FABC8C4A2B4EB0A70077C397 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FABC8C482B4EB0A70077C397 /* InfoPlist.strings */; };
-		FABC8C4D2B4EB0A70077C397 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FABC8C4B2B4EB0A70077C397 /* Localizable.strings */; };
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
@@ -104,8 +102,6 @@
 		FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGradientButton.swift; sourceTree = "<group>"; };
 		FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenModifier.swift; sourceTree = "<group>"; };
-		FABC8C492B4EB0A70077C397 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		FABC8C4C2B4EB0A70077C397 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -189,8 +185,6 @@
 				FA97AD7726DB7C9900BD8B83 /* Sources */,
 				FA97AD6C26DB7C5900BD8B83 /* Assets.xcassets */,
 				FA97AD7126DB7C5900BD8B83 /* Info.plist */,
-				FABC8C4B2B4EB0A70077C397 /* Localizable.strings */,
-				FABC8C482B4EB0A70077C397 /* InfoPlist.strings */,
 				FA97AD6E26DB7C5900BD8B83 /* Preview Content */,
 				FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */,
 				FABA4CB226EDFDC500ADAA16 /* learn1.mp4 */,
@@ -375,7 +369,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					FA97AD6426DB7C5800BD8B83 = {
 						CreatedOnToolsVersion = 12.5.1;
@@ -412,10 +406,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA97AD7026DB7C5900BD8B83 /* Preview Assets.xcassets in Resources */,
-				FABC8C4A2B4EB0A70077C397 /* InfoPlist.strings in Resources */,
 				FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */,
 				FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */,
-				FABC8C4D2B4EB0A70077C397 /* Localizable.strings in Resources */,
 				FA97AD6D26DB7C5900BD8B83 /* Assets.xcassets in Resources */,
 				FABA4CB526EDFDC500ADAA16 /* learn2.mp4 in Resources */,
 				FABA4CB426EDFDC500ADAA16 /* learn1.mp4 in Resources */,
@@ -494,30 +486,13 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		FABC8C482B4EB0A70077C397 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				FABC8C492B4EB0A70077C397 /* it */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		FABC8C4B2B4EB0A70077C397 /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				FABC8C4C2B4EB0A70077C397 /* it */,
-			);
-			name = Localizable.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		FA97AD7226DB7C5900BD8B83 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -551,6 +526,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -579,6 +555,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -612,6 +590,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -650,12 +629,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -679,12 +658,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.7;
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
