@@ -22,8 +22,6 @@
 		FA0B8C1B2BB4081A00FFECF5 /* libavdevice.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393282BB407B400D09949 /* libavdevice.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C1C2BB4081B00FFECF5 /* libavcodec.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393252BB407B400D09949 /* libavcodec.xcframework */; };
 		FA0B8C1D2BB4081B00FFECF5 /* libavcodec.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393252BB407B400D09949 /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FA0B8C1E2BB4081C00FFECF5 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; };
-		FA0B8C1F2BB4081D00FFECF5 /* iAd.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C202BB4081E00FFECF5 /* ffmpegkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; };
 		FA0B8C212BB4081E00FFECF5 /* ffmpegkit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA387D8626E81563003D44A3 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA387D8526E81563003D44A3 /* ShareView.swift */; };
@@ -91,7 +89,6 @@
 				FA0B8C192BB4081800FFECF5 /* libavfilter.xcframework in Embed Frameworks */,
 				FA0B8C1B2BB4081A00FFECF5 /* libavdevice.xcframework in Embed Frameworks */,
 				FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */,
-				FA0B8C1F2BB4081D00FFECF5 /* iAd.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -174,7 +171,6 @@
 				FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */,
 				FA0B8C1A2BB4081A00FFECF5 /* libavdevice.xcframework in Frameworks */,
-				FA0B8C1E2BB4081C00FFECF5 /* iAd.framework in Frameworks */,
 				FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */,
 				FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */,
 			);
@@ -661,6 +657,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.8;
+				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;
@@ -689,6 +686,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.8;
+				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = YES;

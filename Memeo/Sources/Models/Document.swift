@@ -5,50 +5,52 @@
 //  Created by Alex on 29.8.2021.
 //
 
-import Foundation
 import AVFoundation
-import UIKit
+import Foundation
 import SwiftUI
+import UIKit
 
 struct Document: Codable {
-  static let defaultFPS = 10
-  
-  var uuid: UUID = UUID()
-  var duration: CFTimeInterval
-  var numberOfKeyframes: Int
-  var trackers: [Tracker]
-  var frameSize: CGSize
-  var mediaURL: URL?
-  var previewURL: URL?
-  var version: Int = 1
-  var fps: Int = 10
+    static let defaultFPS = 10
+
+    var uuid: UUID = UUID()
+    var duration: CFTimeInterval
+    var numberOfKeyframes: Int
+    var trackers: [Tracker]
+    var frameSize: CGSize
+    var mediaURL: URL?
+    var previewURL: URL?
+    var version: Int = 1
+    var fps: Int = 10
 }
 
 extension Document: Hashable {}
 
 extension CGSize: Hashable {
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(width)
-    hasher.combine(height)
-  }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(width)
+        hasher.combine(height)
+    }
 }
 
 extension Document {
-  static func loadPreviewDocument() -> Document {
-    let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
-    return Document(duration: 12.8,
-                    numberOfKeyframes: Int(12.8) * defaultFPS,
-                    trackers: [
-                      Tracker(id: UUID(),
-                              text: "Test tracker",
-                              style: .transparent,
-                              position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
-                              fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
-                      )
-                    ],
-                    frameSize: CGSize(width: 1280, height: 720),
-                    mediaURL: url,
-                    version: 1,
-                    fps: defaultFPS)
-  }
+    static func loadPreviewDocument() -> Document {
+        let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
+        return Document(
+            duration: 12.8,
+            numberOfKeyframes: Int(12.8) * defaultFPS,
+            trackers: [
+                Tracker(
+                    id: UUID(),
+                    text: "Test tracker",
+                    style: .transparent,
+                    position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
+                    fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
+                )
+            ],
+            frameSize: CGSize(width: 1280, height: 720),
+            mediaURL: url,
+            version: 1,
+            fps: defaultFPS)
+    }
 }

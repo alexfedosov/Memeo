@@ -5,9 +5,9 @@
 //  Created by Alex on 29.8.2021.
 //
 
+import CoreGraphics
 import Foundation
 import UIKit
-import CoreGraphics
 
 extension CGPoint: Hashable {
     public func hash(into hasher: inout Hasher) {
@@ -30,9 +30,7 @@ extension Bool: AnimatedValue {
 
 enum TrackerStyle: Int, Codable, Identifiable {
     var id: Int {
-        get {
-            self.rawValue
-        }
+        self.rawValue
     }
 
     case transparent = 0
@@ -81,9 +79,7 @@ struct Tracker: Identifiable, Equatable, Codable, Hashable {
     var fade: Animation<Bool>
 
     var uiText: String {
-        get {
-            let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            return text.count > 0 ? text : "Double tap to edit"
-        }
+        let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        return text.count > 0 ? text : "Double tap to edit"
     }
 }

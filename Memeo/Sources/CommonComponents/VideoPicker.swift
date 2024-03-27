@@ -5,10 +5,10 @@
 //  Created by Alex on 30.8.2021.
 //
 
-import Foundation
 import AVFoundation
-import SwiftUI
+import Foundation
 import MobileCoreServices
+import SwiftUI
 
 class VideoPickerCoordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     @Binding var isShown: Bool
@@ -19,8 +19,10 @@ class VideoPickerCoordinator: NSObject, UINavigationControllerDelegate, UIImageP
         _mediaURL = mediaURL
     }
 
-    func imagePickerController(_ picker: UIImagePickerController,
-                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
         guard let url = info[UIImagePickerController.InfoKey.mediaURL] as? URL else {
             return
         }
@@ -37,8 +39,10 @@ struct VideoPicker: UIViewControllerRepresentable {
     @Binding var isShown: Bool
     @Binding var mediaURL: URL?
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController,
-                                context: UIViewControllerRepresentableContext<VideoPicker>) {
+    func updateUIViewController(
+        _ uiViewController: UIImagePickerController,
+        context: UIViewControllerRepresentableContext<VideoPicker>
+    ) {
     }
 
     func makeCoordinator() -> VideoPickerCoordinator {

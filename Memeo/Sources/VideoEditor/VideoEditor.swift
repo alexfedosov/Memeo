@@ -5,50 +5,57 @@
 //  Created by Alex on 29.8.2021.
 //
 
-import SwiftUI
 import AVFoundation
 import AVKit
 import Combine
+import SwiftUI
 
 struct VideoEditor: View {
     @StateObject var viewModel: VideoEditorViewModel
-    let onClose: () -> ()
+    let onClose: () -> Void
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 VStack {
                     HStack {
-                        Button(action: {
-                            viewModel.cleanDocumentsDirectory()
-                            onClose()
-                        }, label: {
-                            ZStack {
-                                Image(systemName: "xmark")
-                                    .font(.subheadline)
-                                    .foregroundColor(.white)
-                                    .padding()
-                            }
-                        })
+                        Button(
+                            action: {
+                                viewModel.cleanDocumentsDirectory()
+                                onClose()
+                            },
+                            label: {
+                                ZStack {
+                                    Image(systemName: "xmark")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white)
+                                        .padding()
+                                }
+                            })
                         Spacer()
-                        Button(action: {
-                            viewModel.isPlaying = false
-                            withAnimation {
-                                viewModel.showHelp = true
+                        Button(
+                            action: {
+                                viewModel.isPlaying = false
+                                withAnimation {
+                                    viewModel.showHelp = true
+                                }
+                            },
+                            label: {
+                                Image(systemName: "questionmark")
+                                    .font(Font.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(EdgeInsets(top: 9, leading: 12, bottom: 9, trailing: 12))
+                                    .background(Color.white.opacity(0.1))
+                                    .cornerRadius(7)
+                            })
+                        GradientBorderButton(
+                            text: String(localized: "Share!"),
+                            action: {
+                                withAnimation {
+                                    viewModel.share()
+                                }
                             }
-                        }, label: {
-                            Image(systemName: "questionmark")
-                                .font(Font.system(size: 14, weight: .bold))
-                                .foregroundColor(.white.opacity(0.7))
-                                .padding(EdgeInsets(top: 9, leading: 12, bottom: 9, trailing: 12))
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(7)
-                        })
-                        GradientBorderButton(text: String(localized: "Share!"), action: {
-                            withAnimation {
-                                viewModel.share()
-                            }
-                        }).padding(.trailing)
+                        ).padding(.trailing)
                     }
                     Text(viewModel.lastActionDescription ?? "")
                         .frame(height: 12)
@@ -56,16 +63,17 @@ struct VideoEditor: View {
                         .foregroundColor(.white)
                         .opacity(0.7)
                         .transition(AnyTransition.opacity.animation(.easeInOut(duration: 0.3)))
-                        .animation(.none)
                     Spacer()
                     EmptyView()
                     Spacer()
-                    TrackerEditorView(trackers: viewModel.document.trackers,
-                                      numberOfKeyframes: viewModel.document.numberOfKeyframes,
-                                      isPlaying: viewModel.isPlaying,
-                                      selectedTrackerIndex: viewModel.selectedTrackerIndex,
-                                      duration: viewModel.document.duration,
-                                      playerItem: viewModel.videoPlayer.currentItem)
+                    TrackerEditorView(
+                        trackers: viewModel.document.trackers,
+                        numberOfKeyframes: viewModel.document.numberOfKeyframes,
+                        isPlaying: viewModel.isPlaying,
+                        selectedTrackerIndex: viewModel.selectedTrackerIndex,
+                        duration: viewModel.document.duration,
+                        playerItem: viewModel.videoPlayer.currentItem
+                    )
                     .onTrackerTapped({ tracker in
                         viewModel.selectTracker(tracker: tracker)
                     })
@@ -83,8 +91,11 @@ struct VideoEditor: View {
                     Spacer()
                     VStack {
                         timeline()
-                        VideoEditorToolbar(isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe, onSubmitAction: viewModel.submit)
-                            .frame(width: geometry.size.width)
+                        VideoEditorToolbar(
+                            isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe,
+                            onSubmitAction: viewModel.submit
+                        )
+                        .frame(width: geometry.size.width)
                     }
                 }.ignoresSafeArea(.keyboard, edges: .bottom)
                 trackerTextEditor()
@@ -98,12 +109,13 @@ struct VideoEditor: View {
                     .padding()
                 }.opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
                 ZStack {
-                    ShareView(viewModel: ShareViewModel(
-                        isShown: $viewModel.isShowingShareDialog,
-                        videoUrl: viewModel.exportedVideoUrl,
-                        gifURL: viewModel.exportedGifUrl,
-                        frameSize: viewModel.document.frameSize,
-                        muted: viewModel.isShowingInterstitialAd))
+                    ShareView(
+                        viewModel: ShareViewModel(
+                            isShown: $viewModel.isShowingShareDialog,
+                            videoUrl: viewModel.exportedVideoUrl,
+                            gifURL: viewModel.exportedGifUrl,
+                            frameSize: viewModel.document.frameSize,
+                            muted: viewModel.isShowingInterstitialAd))
                 }
                 .presentHelpView(isPresented: $viewModel.showHelp)
             }
@@ -115,19 +127,24 @@ struct VideoEditor: View {
         ZStack {
             HStack {
                 ZStack {
-                    Timeline(currentKeyframe: $viewModel.currentKeyframe,
-                             isPlaying: $viewModel.isPlaying,
-                             numberOfKeyframes: $viewModel.document.numberOfKeyframes,
-                             highlightedKeyframes: viewModel.highlightedKeyframes)
+                    Timeline(
+                        currentKeyframe: $viewModel.currentKeyframe,
+                        isPlaying: $viewModel.isPlaying,
+                        numberOfKeyframes: $viewModel.document.numberOfKeyframes,
+                        highlightedKeyframes: viewModel.highlightedKeyframes)
                     HStack {
-                        LinearGradient(gradient: Gradient(colors: [Color.black, Color.clear]),
-                                       startPoint: .leading,
-                                       endPoint: .trailing)
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.black, Color.clear]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                         .frame(width: 40)
                         Spacer()
-                        LinearGradient(gradient: Gradient(colors: [Color.clear, Color.black]),
-                                       startPoint: .leading,
-                                       endPoint: .trailing)
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.clear, Color.black]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                         .frame(width: 40)
                     }
                 }
@@ -150,8 +167,10 @@ struct VideoEditor: View {
     func trackerTextEditor() -> some View {
         VStack {
             if let index = viewModel.selectedTrackerIndex, viewModel.isEditingText {
-                TrackerTextEditor(text: viewModel.document.trackers[index].text,
-                                  style: viewModel.document.trackers[index].style) { newText, style in
+                TrackerTextEditor(
+                    text: viewModel.document.trackers[index].text,
+                    style: viewModel.document.trackers[index].style
+                ) { newText, style in
                     viewModel.document.trackers[index].text = newText
                     viewModel.document.trackers[index].style = style
                     viewModel.isEditingText = false

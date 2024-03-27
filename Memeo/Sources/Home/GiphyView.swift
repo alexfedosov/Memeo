@@ -5,83 +5,89 @@
 //  Created by Alex on 10.9.2021.
 //
 
-import SwiftUI
-import GiphyUISDK
-import FirebaseAnalytics
 import Combine
+import FirebaseAnalytics
+import GiphyUISDK
+import SwiftUI
 
 struct GiphyView: UIViewControllerRepresentable {
-  @Binding var searchQuery: String
-  @Binding var selectedMedia: GPHMedia?
-  
-  func makeCoordinator() -> Coordinator {
-    Coordinator(selectedMedia: $selectedMedia)
-  }
-  
-  func makeUIViewController(context: Context) -> GiphyGridController {
-    let gridController = GiphyGridController()
-    gridController.cellPadding = 4
-    gridController.delegate = context.coordinator
-    return gridController
-  }
-  
-  func updateUIViewController(_ uiViewController: GiphyGridController, context: Context) {
-    if (context.coordinator.prevSearchString != searchQuery) {
-      if searchQuery.count > 0 {
-        uiViewController.content = GPHContent.search(withQuery: searchQuery, mediaType: .gif, language: .english)
-      } else {
-        uiViewController.content = .trendingGifs
-        uiViewController.rating = .ratedG
-      }
-      uiViewController.update()
-    }
-    context.coordinator.prevSearchString = searchQuery
-  }
+    @Binding var searchQuery: String
+    @Binding var selectedMedia: GPHMedia?
 
-  class Coordinator: NSObject, GPHGridDelegate {
-    var selectedMedia: Binding<GPHMedia?>
-    var searchQuerySubject = PassthroughSubject<String?, Never>()
-    var prevSearchString: String? = nil {
-      didSet {
-        searchQuerySubject.send(prevSearchString)
-      }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(selectedMedia: $selectedMedia)
     }
-    
-    var cancellable: AnyCancellable? = nil
-    
-    init(selectedMedia: Binding<GPHMedia?>) {
-      self.selectedMedia = selectedMedia
-      cancellable = searchQuerySubject
-        .compactMap { $0 }
-        .filter { $0.count > 0 }
-        .receive(on: DispatchQueue.global())
-        .debounce(for: 1, scheduler: DispatchQueue.global())
-        .removeDuplicates()
-        .sink(receiveValue: { value in
-          Analytics.logEvent("search_giphy", parameters: [
-            "query": value
-          ])
-        })
+
+    func makeUIViewController(context: Context) -> GiphyGridController {
+        let gridController = GiphyGridController()
+        gridController.cellPadding = 4
+        gridController.delegate = context.coordinator
+        return gridController
     }
-    
-    @objc func didSelectMedia(media: GPHMedia, cell: UICollectionViewCell) {
-      selectedMedia.wrappedValue = media
-      Analytics.logEvent(AnalyticsEventViewItem, parameters: [
-        AnalyticsParameterItemID: media.id,
-        AnalyticsParameterItemName: media.bitlyUrl ?? media.bitlyGifUrl ?? "",
-        AnalyticsParameterContentType: "GIPHY",
-      ])
+
+    func updateUIViewController(_ uiViewController: GiphyGridController, context: Context) {
+        if context.coordinator.prevSearchString != searchQuery {
+            if searchQuery.count > 0 {
+                uiViewController.content = GPHContent.search(
+                    withQuery: searchQuery, mediaType: .gif, language: .english)
+            } else {
+                uiViewController.content = .trendingGifs
+                uiViewController.rating = .ratedG
+            }
+            uiViewController.update()
+        }
+        context.coordinator.prevSearchString = searchQuery
     }
-    
-    @objc func didScroll(offset: CGFloat) {}
-    @objc func contentDidUpdate(resultCount: Int, error: Error?) {}
-    @objc func didSelectMoreByYou(query: String) {}
-  }
+
+    class Coordinator: NSObject, GPHGridDelegate {
+        var selectedMedia: Binding<GPHMedia?>
+        var searchQuerySubject = PassthroughSubject<String?, Never>()
+        var prevSearchString: String? = nil {
+            didSet {
+                searchQuerySubject.send(prevSearchString)
+            }
+        }
+
+        var cancellable: AnyCancellable? = nil
+
+        init(selectedMedia: Binding<GPHMedia?>) {
+            self.selectedMedia = selectedMedia
+            cancellable =
+                searchQuerySubject
+                .compactMap { $0 }
+                .filter { $0.count > 0 }
+                .receive(on: DispatchQueue.global())
+                .debounce(for: 1, scheduler: DispatchQueue.global())
+                .removeDuplicates()
+                .sink(receiveValue: { value in
+                    Analytics.logEvent(
+                        "search_giphy",
+                        parameters: [
+                            "query": value
+                        ])
+                })
+        }
+
+        @objc func didSelectMedia(media: GPHMedia, cell: UICollectionViewCell) {
+            selectedMedia.wrappedValue = media
+            Analytics.logEvent(
+                AnalyticsEventViewItem,
+                parameters: [
+                    AnalyticsParameterItemID: media.id,
+                    AnalyticsParameterItemName: media.bitlyUrl ?? media.bitlyGifUrl ?? "",
+                    AnalyticsParameterContentType: "GIPHY",
+                ])
+        }
+
+        @objc func didScroll(offset: CGFloat) {}
+        @objc func contentDidUpdate(resultCount: Int, error: Error?) {}
+        @objc func didSelectMoreByYou(query: String) {}
+    }
 }
 
-
 struct GiphyView_Previews: PreviewProvider {
-  static var previews: some View {
-    GiphyView(searchQuery: .constant(""), selectedMedia: .constant(GPHMedia())).frame(maxWidth: .infinity, maxHeight: .infinity)
-  }
+    static var previews: some View {
+        GiphyView(searchQuery: .constant(""), selectedMedia: .constant(GPHMedia())).frame(
+            maxWidth: .infinity, maxHeight: .infinity)
+    }
 }

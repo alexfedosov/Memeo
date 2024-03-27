@@ -5,11 +5,11 @@
 //  Created by Alex on 29.8.2021.
 //
 
-import Foundation
 import AVFoundation
-import SwiftUI
 import Combine
+import Foundation
 import MobileCoreServices
+import SwiftUI
 
 class VideoEditorViewModel: ObservableObject {
     let documentService = DocumentsService()
@@ -42,36 +42,32 @@ class VideoEditorViewModel: ObservableObject {
     var cancellables = Set<AnyCancellable>()
 
     var selectedTracker: Tracker? {
-        get {
-            if let index = selectedTrackerIndex, index < document.trackers.count {
-                return document.trackers[index]
-            } else {
-                return nil
-            }
+        if let index = selectedTrackerIndex, index < document.trackers.count {
+            return document.trackers[index]
+        } else {
+            return nil
         }
     }
 
     var highlightedKeyframes: [Int: KeyframeType] {
-        get {
-            guard let selectedTracker = selectedTracker else {
-                return [:]
-            }
-            var keyframes = [Int: KeyframeType]()
-
-            for key in selectedTracker.position.keyframes.keys {
-                keyframes[key] = .position
-            }
-
-            for (key, value) in selectedTracker.fade.keyframes {
-                keyframes[key] = value == true ? .fadeIn : .fadeOut
-            }
-
-            return keyframes
+        guard let selectedTracker = selectedTracker else {
+            return [:]
         }
+        var keyframes = [Int: KeyframeType]()
+
+        for key in selectedTracker.position.keyframes.keys {
+            keyframes[key] = .position
+        }
+
+        for (key, value) in selectedTracker.fade.keyframes {
+            keyframes[key] = value == true ? .fadeIn : .fadeOut
+        }
+
+        return keyframes
     }
     var canFadeInCurrentKeyframe: Bool {
         guard let selectedTracker = selectedTracker,
-              let prevKey = selectedTracker.fade.keyframes.keys.sorted().last(where: { $0 <= currentKeyframe })
+            let prevKey = selectedTracker.fade.keyframes.keys.sorted().last(where: { $0 <= currentKeyframe })
         else {
             return false
         }
@@ -185,28 +181,30 @@ class VideoEditorViewModel: ObservableObject {
         exportVideoSignal().mapError { $0 as Error }
             .receive(on: RunLoop.main)
             .delay(for: .seconds(1), scheduler: RunLoop.main)
-            .sink(receiveCompletion: { [weak self] completion in
-                guard let self = self else {
-                    return
-                }
-                withAnimation {
-                    self.isExportingVideo = false
-                }
-
-                switch completion {
-                case .finished:
-                    withAnimation {
-                        self.isShowingShareDialog = true
+            .sink(
+                receiveCompletion: { [weak self] completion in
+                    guard let self = self else {
+                        return
                     }
-                case .failure(let error):
-                    print(error)
+                    withAnimation {
+                        self.isExportingVideo = false
+                    }
+
+                    switch completion {
+                    case .finished:
+                        withAnimation {
+                            self.isShowingShareDialog = true
+                        }
+                    case .failure(let error):
+                        print(error)
+                    }
+                },
+                receiveValue: { [weak self] value in
+                    let urls = value
+                    self?.exportedVideoUrl = urls.0
+                    self?.exportedGifUrl = urls.1
                 }
-            },
-                  receiveValue: { [weak self] value in
-                let urls = value
-                self?.exportedVideoUrl = urls.0
-                self?.exportedGifUrl = urls.1
-            })
+            )
             .store(in: &cancellables)
     }
 
@@ -277,7 +275,8 @@ extension VideoEditorViewModel: MediaPlayerDelegate {
         }
         let notRoundedFrameIndex = Double(time.value) / (Double(time.timescale) / Double(document.fps))
         if notRoundedFrameIndex.isFinite {
-            currentKeyframe = min(Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero)), document.numberOfKeyframes - 1)
+            currentKeyframe = min(
+                Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero)), document.numberOfKeyframes - 1)
         }
     }
 
@@ -292,13 +291,15 @@ protocol Help {
 
 extension VideoEditorViewModel {
     private func addTracker() {
-        let animation = Animation<CGPoint>(id: UUID(),
-                                           keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
-                                           key: "position")
+        let animation = Animation<CGPoint>(
+            id: UUID(),
+            keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
+            key: "position")
 
-        var opacity = Animation<Bool>(id: UUID(),
-                                      keyframes: [:],
-                                      key: "opacity")
+        var opacity = Animation<Bool>(
+            id: UUID(),
+            keyframes: [:],
+            key: "opacity")
 
         if currentKeyframe > 0 {
             opacity.keyframes[0] = false
@@ -311,7 +312,8 @@ extension VideoEditorViewModel {
 
     private func removeSelectedTracker() {
         if let index = selectedTrackerIndex,
-           document.trackers.count > index {
+            document.trackers.count > index
+        {
             selectedTrackerIndex = nil
             document.trackers.remove(at: index)
         }
@@ -319,7 +321,8 @@ extension VideoEditorViewModel {
 
     private func deleteCurrentKeyframe() {
         if let index = selectedTrackerIndex,
-           document.trackers.count > index {
+            document.trackers.count > index
+        {
             document.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
             document.trackers[index].fade.keyframes.removeValue(forKey: currentKeyframe)
             goBack(frames: 1)
@@ -328,9 +331,10 @@ extension VideoEditorViewModel {
 
     private func duplicateCurrentKeyframe() {
         if let index = selectedTrackerIndex,
-           document.trackers.count > index,
-           currentKeyframe < document.numberOfKeyframes,
-           let value = document.trackers[index].position.keyframes[currentKeyframe] {
+            document.trackers.count > index,
+            currentKeyframe < document.numberOfKeyframes,
+            let value = document.trackers[index].position.keyframes[currentKeyframe]
+        {
             document.trackers[index].position.keyframes[currentKeyframe + 1] = value
             currentKeyframe += 1
         }
@@ -384,9 +388,9 @@ extension VideoEditorViewModel {
             deleteCurrentKeyframe()
         case .duplicateCurrentKeyframe:
             duplicateCurrentKeyframe()
-        case .goForward(frames: let frames):
+        case .goForward(let frames):
             goForward(frames: frames)
-        case .goBack(frames: let frames):
+        case .goBack(let frames):
             goBack(frames: frames)
         case .removeSelectedTracker:
             removeSelectedTracker()
@@ -411,9 +415,11 @@ extension VideoEditorViewModel {
     func showLastActionDescription(text: String) {
         lastActionDescription = text
         lastActionDescriptionTimer?.invalidate()
-        lastActionDescriptionTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: false, block: { [weak self] _ in
-            self?.lastActionDescription = nil
-        })
+        lastActionDescriptionTimer = Timer.scheduledTimer(
+            withTimeInterval: 2, repeats: false,
+            block: { [weak self] _ in
+                self?.lastActionDescription = nil
+            })
     }
 }
 
@@ -426,9 +432,9 @@ extension VideoEditorViewModel.Action: Help {
             return "Keyframe deleted"
         case .duplicateCurrentKeyframe:
             return "Keyframe duplicated"
-        case .goForward(frames: let frames):
+        case .goForward(let frames):
             return "Jump forward \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
-        case .goBack(frames: let frames):
+        case .goBack(let frames):
             return "Jump back \(frames) \(frames == 1 ? "keyframe" : "keyframes")"
         case .removeSelectedTracker:
             return "Tracker deleted"

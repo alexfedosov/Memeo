@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import UIKit
 import SwiftUI
+import UIKit
 
 protocol CALayerRepresentable {
     associatedtype CALayerType: CALayer
@@ -45,9 +45,11 @@ class TrackerLayer: CALayer {
 
     override func layoutSublayers() {
         super.layoutSublayers()
-        textLabel.frame = bounds
-            .insetBy(dx: touchAreaAround - textLabel.font.pointSize / 2,
-                     dy: touchAreaAround - textLabel.font.pointSize / 2)
+        textLabel.frame =
+            bounds
+            .insetBy(
+                dx: touchAreaAround - textLabel.font.pointSize / 2,
+                dy: touchAreaAround - textLabel.font.pointSize / 2)
     }
 
     func sizeToFit() {
@@ -85,7 +87,8 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
 
         layer.textLabel.backgroundColor = tracker.style.backgroundColor()
         layer.textLabel.textColor = tracker.style.foregroundColor()
-        layer.textLabel.shadowColor = tracker.style == TrackerStyle.transparent ? UIColor.black.withAlphaComponent(0.5) : .clear
+        layer.textLabel.shadowColor =
+            tracker.style == TrackerStyle.transparent ? UIColor.black.withAlphaComponent(0.5) : .clear
 
         layer.sizeToFit()
         CATransaction.commit()
