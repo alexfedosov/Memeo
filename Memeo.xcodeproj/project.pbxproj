@@ -8,7 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		2DBA1CA289D21EFD14FC436F /* ShareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */; };
-		61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */; };
+		FA0B8C0F2BB4081300FFECF5 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393242BB407B400D09949 /* libswscale.xcframework */; };
+		FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393242BB407B400D09949 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C122BB4081400FFECF5 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393222BB407B400D09949 /* libswresample.xcframework */; };
+		FA0B8C132BB4081400FFECF5 /* libswresample.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393222BB407B400D09949 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */; };
+		FA0B8C152BB4081600FFECF5 /* libavutil.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393272BB407B400D09949 /* libavformat.xcframework */; };
+		FA0B8C172BB4081700FFECF5 /* libavformat.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393272BB407B400D09949 /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C182BB4081800FFECF5 /* libavfilter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393262BB407B400D09949 /* libavfilter.xcframework */; };
+		FA0B8C192BB4081800FFECF5 /* libavfilter.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393262BB407B400D09949 /* libavfilter.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C1A2BB4081A00FFECF5 /* libavdevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393282BB407B400D09949 /* libavdevice.xcframework */; };
+		FA0B8C1B2BB4081A00FFECF5 /* libavdevice.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393282BB407B400D09949 /* libavdevice.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C1C2BB4081B00FFECF5 /* libavcodec.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393252BB407B400D09949 /* libavcodec.xcframework */; };
+		FA0B8C1D2BB4081B00FFECF5 /* libavcodec.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393252BB407B400D09949 /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C1E2BB4081C00FFECF5 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; };
+		FA0B8C1F2BB4081D00FFECF5 /* iAd.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA0B8C202BB4081E00FFECF5 /* ffmpegkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; };
+		FA0B8C212BB4081E00FFECF5 /* ffmpegkit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA387D8626E81563003D44A3 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA387D8526E81563003D44A3 /* ShareView.swift */; };
 		FA7279C02B4B3280000FEDF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */; };
 		FA7279C22B4B3573000FEDF7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7279C12B4B3573000FEDF7 /* UIApplication.swift */; };
@@ -53,18 +70,38 @@
 		FADD407D26DD465A000D142B /* previewAsset.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = FADD407C26DD45AF000D142B /* previewAsset.mp4 */; };
 		FADD408226DD46B1000D142B /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD407F26DD46B1000D142B /* VideoPlayerView.swift */; };
 		FADD408326DD46B1000D142B /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADD408026DD46B1000D142B /* VideoPlayer.swift */; };
-		FAEA2F9126EAB3DD00FBD5CA /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */; };
 		FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = FAEA2F9526EB1D1900FBD5CA /* GiphyUISDK */; };
 		FAEA2F9826EB1D5D00FBD5CA /* GiphyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9726EB1D5D00FBD5CA /* GiphyView.swift */; };
 		FAEA2F9A26EB85EF00FBD5CA /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FAEA2F9926EB85EF00FBD5CA /* Launch Screen.storyboard */; };
 		FAEA2F9C26EB908900FBD5CA /* InfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEA2F9B26EB908900FBD5CA /* InfoView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		FA0B8C112BB4081300FFECF5 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				FA0B8C132BB4081400FFECF5 /* libswresample.xcframework in Embed Frameworks */,
+				FA0B8C172BB4081700FFECF5 /* libavformat.xcframework in Embed Frameworks */,
+				FA0B8C212BB4081E00FFECF5 /* ffmpegkit.xcframework in Embed Frameworks */,
+				FA0B8C1D2BB4081B00FFECF5 /* libavcodec.xcframework in Embed Frameworks */,
+				FA0B8C152BB4081600FFECF5 /* libavutil.xcframework in Embed Frameworks */,
+				FA0B8C192BB4081800FFECF5 /* libavfilter.xcframework in Embed Frameworks */,
+				FA0B8C1B2BB4081A00FFECF5 /* libavdevice.xcframework in Embed Frameworks */,
+				FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */,
+				FA0B8C1F2BB4081D00FFECF5 /* iAd.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.debug.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.debug.xcconfig"; sourceTree = "<group>"; };
 		2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareViewModel.swift; sourceTree = "<group>"; };
 		4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Memeo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Memeo.release.xcconfig"; path = "Target Support Files/Pods-Memeo/Pods-Memeo.release.xcconfig"; sourceTree = "<group>"; };
+		FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavutil.xcframework; path = "../../../Downloads/ffmpeg-kit-full-4.5.1-ios-xcframework/libavutil.xcframework"; sourceTree = "<group>"; };
 		FA387D8526E81563003D44A3 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA7279C12B4B3573000FEDF7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
@@ -102,6 +139,13 @@
 		FABA4CB626EDFDEE00ADAA16 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		FABA4CB826EE19EB00ADAA16 /* DialogGradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogGradientButton.swift; sourceTree = "<group>"; };
 		FABA4CBA26EE1A2400ADAA16 /* FullscreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullscreenModifier.swift; sourceTree = "<group>"; };
+		FAD393222BB407B400D09949 /* libswresample.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswresample.xcframework; sourceTree = "<group>"; };
+		FAD393232BB407B400D09949 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = ffmpegkit.xcframework; sourceTree = "<group>"; };
+		FAD393242BB407B400D09949 /* libswscale.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswscale.xcframework; sourceTree = "<group>"; };
+		FAD393252BB407B400D09949 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
+		FAD393262BB407B400D09949 /* libavfilter.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavfilter.xcframework; sourceTree = "<group>"; };
+		FAD393272BB407B400D09949 /* libavformat.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavformat.xcframework; sourceTree = "<group>"; };
+		FAD393282BB407B400D09949 /* libavdevice.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavdevice.xcframework; sourceTree = "<group>"; };
 		FADD407C26DD45AF000D142B /* previewAsset.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = previewAsset.mp4; sourceTree = "<group>"; };
 		FADD407F26DD46B1000D142B /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		FADD408026DD46B1000D142B /* VideoPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
@@ -117,30 +161,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				FA9044ED2B4C58440064E296 /* GiphyUISDK in Frameworks */,
+				FA0B8C0F2BB4081300FFECF5 /* libswscale.xcframework in Frameworks */,
 				FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */,
 				FA9044F02B4C58720064E296 /* FirebaseAnalytics in Frameworks */,
+				FA0B8C202BB4081E00FFECF5 /* ffmpegkit.xcframework in Frameworks */,
+				FA0B8C182BB4081800FFECF5 /* libavfilter.xcframework in Frameworks */,
 				FA9044F22B4C58720064E296 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				FA0B8C1C2BB4081B00FFECF5 /* libavcodec.xcframework in Frameworks */,
+				FA0B8C122BB4081400FFECF5 /* libswresample.xcframework in Frameworks */,
 				FA9044F42B4C58720064E296 /* FirebaseAnalyticsSwift in Frameworks */,
 				FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */,
-				61A5FDF4852A953875A28859 /* Pods_Memeo.framework in Frameworks */,
 				FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */,
-				FAEA2F9126EAB3DD00FBD5CA /* iAd.framework in Frameworks */,
+				FA0B8C1A2BB4081A00FFECF5 /* libavdevice.xcframework in Frameworks */,
+				FA0B8C1E2BB4081C00FFECF5 /* iAd.framework in Frameworks */,
+				FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */,
+				FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		AC9672794C3115E9C6FE5BD2 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */,
-				AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		E9905126DA1F056CA2325082 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,9 +204,9 @@
 		FA97AD5C26DB7C5800BD8B83 = {
 			isa = PBXGroup;
 			children = (
+				FAD393312BB407BA00D09949 /* ffmpegkit */,
 				FA97AD6726DB7C5800BD8B83 /* Memeo */,
 				FA97AD6626DB7C5800BD8B83 /* Products */,
-				AC9672794C3115E9C6FE5BD2 /* Pods */,
 				E9905126DA1F056CA2325082 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -321,6 +363,21 @@
 			path = Help;
 			sourceTree = "<group>";
 		};
+		FAD393312BB407BA00D09949 /* ffmpegkit */ = {
+			isa = PBXGroup;
+			children = (
+				FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */,
+				FAD393232BB407B400D09949 /* ffmpegkit.xcframework */,
+				FAD393252BB407B400D09949 /* libavcodec.xcframework */,
+				FAD393282BB407B400D09949 /* libavdevice.xcframework */,
+				FAD393262BB407B400D09949 /* libavfilter.xcframework */,
+				FAD393272BB407B400D09949 /* libavformat.xcframework */,
+				FAD393222BB407B400D09949 /* libswresample.xcframework */,
+				FAD393242BB407B400D09949 /* libswscale.xcframework */,
+			);
+			path = ffmpegkit;
+			sourceTree = "<group>";
+		};
 		FADD407E26DD46B1000D142B /* VideoView */ = {
 			isa = PBXGroup;
 			children = (
@@ -337,10 +394,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA97AD7426DB7C5900BD8B83 /* Build configuration list for PBXNativeTarget "Memeo" */;
 			buildPhases = (
-				ACF989D2500E3C66B70A2680 /* [CP] Check Pods Manifest.lock */,
 				FA97AD6126DB7C5800BD8B83 /* Sources */,
 				FA97AD6226DB7C5800BD8B83 /* Frameworks */,
 				FA97AD6326DB7C5800BD8B83 /* Resources */,
+				FA0B8C112BB4081300FFECF5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -416,31 +473,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		ACF989D2500E3C66B70A2680 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Memeo-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FA97AD6126DB7C5800BD8B83 /* Sources */ = {
@@ -611,7 +643,6 @@
 		};
 		FA97AD7526DB7C5900BD8B83 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0317F1970EDC8AECA3EDF019 /* Pods-Memeo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -640,7 +671,6 @@
 		};
 		FA97AD7626DB7C5900BD8B83 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AA5C7B136A2735C3DBE4E334 /* Pods-Memeo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
