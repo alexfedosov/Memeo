@@ -30,138 +30,125 @@ class VideoExporter {
         return FileManager().fileExists(atPath: outfileURL.path) ? outfileURL : nil
     }
 
-    func export(document: Document) -> Future<URL, VideoExporterError> {
-        Future { promise in
-            let composition = AVMutableComposition()
-            guard
-                let asset = document.mediaURL != nil ? AVAsset(url: document.mediaURL!) : nil,
-                let compositionVideoTrack = composition.addMutableTrack(
-                    withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
-                let videoTrack = asset.tracks(withMediaType: .video).first
-            else {
-                promise(.failure(.unexpectedError("No video tracks found")))
-                return
+    func export(document: Document) async throws -> URL {
+        guard let assetUrl = document.mediaURL else {
+            throw VideoExporterError.unexpectedError("No video tracks found")
+        }
+
+        let asset = AVAsset(url: assetUrl)
+        let composition = AVMutableComposition()
+        guard
+            let compositionVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
+            let videoTrack = try await asset.loadTracks(withMediaType: .video).first else {
+            throw VideoExporterError.unexpectedError("No video tracks found")
+        }
+
+        let duration = try await asset.load(.duration)
+        let timeRange = CMTimeRange(start: .zero, duration: duration)
+
+        try compositionVideoTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
+        for audioTrack in try await asset.loadTracks(withMediaType: .audio) {
+            if let compositionAudioTrack = composition.addMutableTrack(
+                withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
+            {
+                try compositionAudioTrack.insertTimeRange(timeRange, of: audioTrack, at: .zero)
             }
+        }
 
-            do {
-                let timeRange = CMTimeRange(start: .zero, duration: asset.duration)
-                try compositionVideoTrack.insertTimeRange(timeRange, of: videoTrack, at: .zero)
-                for audioTrack in asset.tracks(withMediaType: .audio) {
-                    if let compositionAudioTrack = composition.addMutableTrack(
-                        withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
-                    {
-                        try compositionAudioTrack.insertTimeRange(timeRange, of: audioTrack, at: .zero)
-                    }
-                }
-            } catch {
-                promise(.failure(.unexpectedError(error.localizedDescription)))
-                return
-            }
+        compositionVideoTrack.preferredTransform = try await videoTrack.load(.preferredTransform)
+        var videoSize: CGSize = try await videoTrack.frameSize()
+        let videoTrackScaling = max(640 / videoSize.width, 1)
+        videoSize = CGSize(width: videoSize.width * videoTrackScaling, height: videoSize.height * videoTrackScaling)
+        let frameRect = CGRect(origin: .zero, size: videoSize)
 
-            compositionVideoTrack.preferredTransform = videoTrack.preferredTransform
-            var videoSize: CGSize = videoTrack.frameSize()
-            let videoTrackScaling = max(640 / videoSize.width, 1)
-            videoSize = CGSize(width: videoSize.width * videoTrackScaling, height: videoSize.height * videoTrackScaling)
-            let frameRect = CGRect(origin: .zero, size: videoSize)
+        let scaling = await frameRect.width / UIScreen.main.bounds.width
 
-            let scaling = frameRect.width / UIScreen.main.bounds.width
+        let videoLayer = CALayer()
+        videoLayer.frame = frameRect
 
-            let videoLayer = CALayer()
-            videoLayer.frame = frameRect
+        let outputLayer = CALayer()
+        outputLayer.frame = frameRect
+        outputLayer.addSublayer(videoLayer)
 
-            let outputLayer = CALayer()
-            outputLayer.frame = frameRect
-            outputLayer.addSublayer(videoLayer)
+        let view = await TrackersEditorUIView(frame: frameRect)
+        await view.updateTrackers(
+            newTrackers: document.trackers, numberOfKeyframes: document.numberOfKeyframes, isPlaying: true,
+            duration: composition.duration.seconds, selectedTrackerIndex: nil)
 
-            let view = TrackersEditorUIView(frame: frameRect)
-            view.updateTrackers(
-                newTrackers: document.trackers, numberOfKeyframes: document.numberOfKeyframes, isPlaying: true,
-                duration: composition.duration.seconds, selectedTrackerIndex: nil)
-            view.layer.sublayers?.forEach({ layer in
+        if let sublayers = await view.layer.sublayers {
+            for layer in sublayers {
                 layer.removeFromSuperlayer()
                 layer.shouldRasterize = true
-                layer.rasterizationScale = UIScreen.main.scale
+                layer.rasterizationScale = await UIScreen.main.scale
                 layer.isGeometryFlipped = true
                 layer.add(
                     self.makeLayerScalingAnimation(scaleFactor: scaling, duration: composition.duration.seconds),
                     forKey: "scale")
                 outputLayer.addSublayer(layer)
-            })
-            outputLayer.isGeometryFlipped = true
-            outputLayer.addSublayer(view.layer)
-
-            //      if let image = UIImage(named: "watermark") {
-            //        let watermark = CALayer()
-            //        let aspect: CGFloat = image.size.width / image.size.height
-            //        watermark.contents = image.cgImage
-            //        watermark.contentsGravity = .resizeAspect
-            //        let width = frameRect.width / 6
-            //        let height = width / aspect
-            //        let padding = height / 2
-            //        watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
-            //          y: frameRect.height - height - padding),
-            //          size: CGSize(width: width, height: height))
-            //        outputLayer.addSublayer(watermark)
-            //      }
-
-            let videoComposition = AVMutableVideoComposition()
-            videoComposition.renderScale = 1.0
-            videoComposition.renderSize = frameRect.size
-            videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
-            videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(
-                postProcessingAsVideoLayer: videoLayer, in: outputLayer)
-
-            let instruction = AVMutableVideoCompositionInstruction()
-            instruction.timeRange = CMTimeRange(start: .zero, duration: composition.duration)
-            videoComposition.instructions = [instruction]
-
-            let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: compositionVideoTrack)
-            let finalTransform = videoTrack.preferredTransform.scaledBy(x: videoTrackScaling, y: videoTrackScaling)
-            layerInstruction.setTransform(finalTransform, at: .zero)
-            instruction.layerInstructions = [layerInstruction]
-
-            guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
-            else {
-                promise(.failure(.unexpectedError("Cannot create export session")))
-                return
             }
 
-            let videoName = "memeo-meme"
-            var exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
-                .appendingPathComponent(videoName)
-                .appendingPathExtension("mp4")
+        }
+        outputLayer.isGeometryFlipped = true
+        await outputLayer.addSublayer(view.layer)
 
-            if FileManager().fileExists(atPath: exportURL.path) {
-                do {
-                    try FileManager().removeItem(at: exportURL)
-                    print("file removed")
-                } catch {
-                    exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
-                        .appendingPathComponent(UUID().uuidString)
-                        .appendingPathExtension("mp4")
-                    print("saving under generated url")
-                }
-            }
+        if let image = UIImage(named: "watermark") {
+            let watermark = CALayer()
+            let aspect: CGFloat = image.size.width / image.size.height
+            watermark.contents = image.cgImage
+            watermark.contentsGravity = .resizeAspect
+            let width = frameRect.width / 6
+            let height = width / aspect
+            let padding = height / 2
+            watermark.frame = CGRect(origin: CGPoint(x: frameRect.width - width - padding,
+                                                     y: frameRect.height - height - padding),
+                                     size: CGSize(width: width, height: height))
+            outputLayer.addSublayer(watermark)
+        }
 
-            export.videoComposition = videoComposition
-            export.outputFileType = .mp4
-            export.outputURL = exportURL
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderScale = 1.0
+        videoComposition.renderSize = frameRect.size
+        videoComposition.frameDuration = CMTime(value: 1, timescale: 30)
+        videoComposition.animationTool = AVVideoCompositionCoreAnimationTool(
+            postProcessingAsVideoLayer: videoLayer, in: outputLayer)
 
-            export.exportAsynchronously {
-                DispatchQueue.main.async {
-                    switch export.status {
-                    case .completed:
-                        promise(.success(exportURL))
-                        print(exportURL)
-                    default:
-                        print("Something went wrong during export.")
-                        print(export.error ?? "unknown error")
-                        promise(.failure(.unexpectedError(export.error?.localizedDescription ?? "unknown error")))
-                        break
-                    }
-                }
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: composition.duration)
+        videoComposition.instructions = [instruction]
+
+        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: compositionVideoTrack)
+        let finalTransform = compositionVideoTrack.preferredTransform.scaledBy(x: videoTrackScaling, y: videoTrackScaling)
+        layerInstruction.setTransform(finalTransform, at: .zero)
+        instruction.layerInstructions = [layerInstruction]
+
+        guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
+        else {
+            throw VideoExporterError.unexpectedError("Cannot create export session")
+        }
+
+        let videoName = "memeo-meme"
+        var exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(videoName)
+            .appendingPathExtension("mp4")
+
+        if FileManager().fileExists(atPath: exportURL.path) {
+            do {
+                try FileManager().removeItem(at: exportURL)
+                print("file removed")
+            } catch {
+                exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+                    .appendingPathComponent(UUID().uuidString)
+                    .appendingPathExtension("mp4")
+                print("saving under generated url")
             }
         }
+
+        export.videoComposition = videoComposition
+        export.outputFileType = .mp4
+        export.outputURL = exportURL
+
+        await export.export()
+        return exportURL
     }
 
     func makeLayerScalingAnimation(scaleFactor: CGFloat, duration: CFTimeInterval) -> CAAnimation {
@@ -191,11 +178,11 @@ class VideoExporter {
                         return
                     }
                     if created,
-                        let collectionFetchResult = placeholder.map({
-                            PHAssetCollection.fetchAssetCollections(
-                                withLocalIdentifiers: [$0.localIdentifier], options: nil)
-                        }),
-                        let album = collectionFetchResult.firstObject
+                       let collectionFetchResult = placeholder.map({
+                           PHAssetCollection.fetchAssetCollections(
+                            withLocalIdentifiers: [$0.localIdentifier], options: nil)
+                       }),
+                       let album = collectionFetchResult.firstObject
                     {
                         promise(.success(album))
                     } else {

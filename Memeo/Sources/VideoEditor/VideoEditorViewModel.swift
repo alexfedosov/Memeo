@@ -11,6 +11,7 @@ import Foundation
 import MobileCoreServices
 import SwiftUI
 
+@MainActor
 class VideoEditorViewModel: ObservableObject {
     let documentService = DocumentsService()
 
@@ -173,91 +174,51 @@ class VideoEditorViewModel: ObservableObject {
         document.trackers[index].position.keyframes[currentKeyframe] = point
     }
 
-    func share() {
+    func share() async throws {
         isPlaying = false
         withAnimation {
             self.isExportingVideo = true
         }
-        exportVideoSignal().mapError { $0 as Error }
-            .receive(on: RunLoop.main)
-            .delay(for: .seconds(1), scheduler: RunLoop.main)
-            .sink(
-                receiveCompletion: { [weak self] completion in
-                    guard let self = self else {
-                        return
-                    }
-                    withAnimation {
-                        self.isExportingVideo = false
-                    }
-
-                    switch completion {
-                    case .finished:
-                        withAnimation {
-                            self.isShowingShareDialog = true
-                        }
-                    case .failure(let error):
-                        print(error)
-                    }
-                },
-                receiveValue: { [weak self] value in
-                    let urls = value
-                    self?.exportedVideoUrl = urls.0
-                    self?.exportedGifUrl = urls.1
-                }
-            )
-            .store(in: &cancellables)
-    }
-
-    func exportVideoSignal() -> AnyPublisher<(URL, URL?), VideoExporterError> {
-        if let videoUrl = exportedVideoUrl {
-            return Just((videoUrl, exportedGifUrl)).setFailureType(to: VideoExporterError.self).eraseToAnyPublisher()
+        defer {
+            withAnimation {
+                self.isExportingVideo = false
+            }
         }
 
-        return Just(())
-            .side { [weak self] in
-                withAnimation {
-                    self?.isExportingVideo = true
-                }
-            }
-            .receive(on: DispatchQueue.global())
-            .compactMap { [weak self] _ in
-                guard let self = self else {
-                    return nil
-                }
-                return (self.videoExporter, self.document)
-            }
-            .flatMap { (exporter: VideoExporter, document: Document) in
-                exporter.export(document: document)
-                    .receive(on: DispatchQueue.global())
-                    .map { url in
-                        (url, document.duration < 10 ? exporter.exportGif(url: url, trim: false) : nil)
-                    }
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
+        (exportedVideoUrl, exportedGifUrl) = try await exportVideoSignal()
+        withAnimation {
+            self.isShowingShareDialog = true
+        }
     }
 
-    //  func exportTemplate() {
-    //    self?.sharingStep = .shareDialog
-    //    withAnimation {
-    //      showExportingVideoModal = true
-    //    }
-    //    documentService
-    //      .save(document: document)
-    //      .subscribe(on: DispatchQueue.global())
-    //      .receive(on: DispatchQueue.main)
-    //      .sink { [weak self] completion in
-    //        self?.isExportingVideo = false
-    //        self?.showExportingVideoModal = false
-    //      } receiveValue: { url in
-    //        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-    //        UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-    //      }.store(in: &cancellables)
-    //  }
+    func exportVideoSignal() async throws -> (URL, URL?) {
+        if let videoUrl = exportedVideoUrl {
+            return (videoUrl, exportedGifUrl)
+        }
+
+        let url = try await videoExporter.export(document: document)
+        let gifUrl = document.duration < 10 ? videoExporter.exportGif(url: url, trim: false) : nil
+        return (url, gifUrl)
+    }
 
     func cleanDocumentsDirectory() {
         DispatchQueue.global().async {
             DocumentsService().cleanDocumentsDirectory()
+        }
+    }
+}
+
+extension Future where Failure == Error {
+    convenience init(operation: @escaping () async throws -> Output) {
+        self.init { promise in
+            Task {
+                do {
+                    let output = try await operation()
+                    promise(.success(output))
+                } catch {
+                    promise(.failure(error))
+                }
+            }
         }
     }
 }

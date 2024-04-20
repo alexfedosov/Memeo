@@ -49,7 +49,11 @@ struct Home: View {
                     }.padding()
                 }
             }
-            .navigationDestination(isPresented: $viewModel.showVideoEditor) {
+            .navigationDestination(isPresented: .init(get: {
+                viewModel.videoEditorViewModel != nil
+            }, set: {
+                viewModel.videoEditorViewModel = $0 ? viewModel.videoEditorViewModel : nil
+            })) {
                 editorView()
             }
         }
@@ -91,7 +95,13 @@ struct Home: View {
                     }
                 }
             ).fullScreenCover(isPresented: $showVideoPicker) {
-                VideoPicker(isShown: $showVideoPicker, mediaURL: $viewModel.selectedAssetUrl)
+                VideoPicker(isShown: $showVideoPicker,
+                            mediaURL: .init(get: { nil }, set: { url in
+                    guard let url = url else { return }
+                    Task {
+                        try await viewModel.create(from: .url(url))
+                    }
+                }))
             }
         }.frame(height: 44).padding(8)
     }
@@ -103,7 +113,12 @@ struct Home: View {
                 .font(.subheadline.bold())
                 .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.1)))
-            GiphyView(searchQuery: $searchQuery, selectedMedia: $viewModel.selectedGIPHYMedia)
+            GiphyView(searchQuery: $searchQuery, selectedMedia: .init(get: { nil }, set: { media in
+                guard let media = media else { return }
+                Task {
+                    try await viewModel.create(from:.giphy(media))
+                }
+            }))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

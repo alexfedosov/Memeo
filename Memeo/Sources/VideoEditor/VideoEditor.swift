@@ -51,8 +51,8 @@ struct VideoEditor: View {
                         GradientBorderButton(
                             text: String(localized: "Share!"),
                             action: {
-                                withAnimation {
-                                    viewModel.share()
+                                Task {
+                                    try? await viewModel.share()
                                 }
                             }
                         ).padding(.trailing)
