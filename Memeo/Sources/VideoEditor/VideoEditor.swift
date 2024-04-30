@@ -9,9 +9,12 @@ import AVFoundation
 import AVKit
 import Combine
 import SwiftUI
+import RevenueCat
+import RevenueCatUI
 
 struct VideoEditor: View {
     @StateObject var viewModel: VideoEditorViewModel
+    @State var displayPaywall = false
     let onClose: () -> Void
 
     var body: some View {
@@ -52,7 +55,11 @@ struct VideoEditor: View {
                             text: String(localized: "Share!"),
                             action: {
                                 Task {
-                                    try? await viewModel.share()
+                                    let customerInfo = try? await Purchases.shared.customerInfo()
+                                    displayPaywall = customerInfo?.activeSubscriptions.isEmpty ?? true
+                                    if !displayPaywall {
+                                        try? await viewModel.share()
+                                    }
                                 }
                             }
                         ).padding(.trailing)
@@ -118,6 +125,9 @@ struct VideoEditor: View {
                             muted: viewModel.isShowingInterstitialAd))
                 }
                 .presentHelpView(isPresented: $viewModel.showHelp)
+            }
+            .sheet(isPresented: $displayPaywall) {
+                PaywallView(displayCloseButton: true)
             }
         }
     }

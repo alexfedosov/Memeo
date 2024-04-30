@@ -8,6 +8,9 @@
 import Firebase
 import GiphyUISDK
 import SwiftUI
+import RevenueCat
+import RevenueCatUI
+import FirebaseAnalytics
 
 @main
 struct MemeoApp: App {
@@ -16,6 +19,8 @@ struct MemeoApp: App {
     init() {
         FirebaseApp.configure()
         Giphy.configure(apiKey: "Y1yEr5cD6XeiWadQrhG7BpoQZMDmQYe8")
+        Purchases.logLevel = .debug
+        Purchases.configure(withAPIKey: "appl_yOZceRdNqzNTNLHDYaPsyqTWeTM")
     }
 
     var body: some Scene {
@@ -28,6 +33,19 @@ struct MemeoApp: App {
                 openUrl = url
             })
             .colorScheme(.dark)
+            .presentPaywallIfNeeded(
+                requiredEntitlementIdentifier: "pro",
+                purchaseCompleted: { customerInfo in
+                    print("Purchase completed: \(customerInfo.entitlements)")
+                    Analytics.logEvent(
+                        AnalyticsEventPurchase,
+                        parameters: [
+                            AnalyticsParameterDestination: "Unlock Pro"
+                        ])
+                },
+                restoreCompleted: { customerInfo in
+                }
+            )
         }
     }
 }

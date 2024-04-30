@@ -184,7 +184,6 @@ class VideoEditorViewModel: ObservableObject {
                 self.isExportingVideo = false
             }
         }
-
         (exportedVideoUrl, exportedGifUrl) = try await exportVideoSignal()
         withAnimation {
             self.isShowingShareDialog = true

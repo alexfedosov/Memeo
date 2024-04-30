@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		2DBA1CA289D21EFD14FC436F /* ShareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */; };
+		FA00CED72BE1642F0090CE0C /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA00CED62BE1642F0090CE0C /* StoreKit.framework */; };
+		FA00CEE32BE164DF0090CE0C /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = FA00CEE22BE164DF0090CE0C /* RevenueCat */; };
+		FA00CEE52BE164DF0090CE0C /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = FA00CEE42BE164DF0090CE0C /* RevenueCatUI */; };
 		FA0B8C0F2BB4081300FFECF5 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393242BB407B400D09949 /* libswscale.xcframework */; };
 		FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393242BB407B400D09949 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C122BB4081400FFECF5 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393222BB407B400D09949 /* libswresample.xcframework */; };
@@ -98,6 +101,7 @@
 /* Begin PBXFileReference section */
 		2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareViewModel.swift; sourceTree = "<group>"; };
 		4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Memeo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA00CED62BE1642F0090CE0C /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavutil.xcframework; path = "../../../Downloads/ffmpeg-kit-full-4.5.1-ios-xcframework/libavutil.xcframework"; sourceTree = "<group>"; };
 		FA387D8526E81563003D44A3 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -159,6 +163,7 @@
 			files = (
 				FA9044ED2B4C58440064E296 /* GiphyUISDK in Frameworks */,
 				FA0B8C0F2BB4081300FFECF5 /* libswscale.xcframework in Frameworks */,
+				FA00CEE52BE164DF0090CE0C /* RevenueCatUI in Frameworks */,
 				FAEA2F9626EB1D1900FBD5CA /* GiphyUISDK in Frameworks */,
 				FA9044F02B4C58720064E296 /* FirebaseAnalytics in Frameworks */,
 				FA0B8C202BB4081E00FFECF5 /* ffmpegkit.xcframework in Frameworks */,
@@ -171,6 +176,8 @@
 				FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */,
 				FA0B8C1A2BB4081A00FFECF5 /* libavdevice.xcframework in Frameworks */,
+				FA00CEE32BE164DF0090CE0C /* RevenueCat in Frameworks */,
+				FA00CED72BE1642F0090CE0C /* StoreKit.framework in Frameworks */,
 				FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */,
 				FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */,
 			);
@@ -182,6 +189,7 @@
 		E9905126DA1F056CA2325082 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FA00CED62BE1642F0090CE0C /* StoreKit.framework */,
 				FAEA2F9026EAB3DD00FBD5CA /* iAd.framework */,
 				4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */,
 			);
@@ -409,6 +417,8 @@
 				FA9044F32B4C58720064E296 /* FirebaseAnalyticsSwift */,
 				FA9044F52B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport */,
 				FA9044F72B4C58720064E296 /* FirebaseAppCheck */,
+				FA00CEE22BE164DF0090CE0C /* RevenueCat */,
+				FA00CEE42BE164DF0090CE0C /* RevenueCatUI */,
 			);
 			productName = Memeo;
 			productReference = FA97AD6526DB7C5800BD8B83 /* Memeo.app */;
@@ -443,6 +453,7 @@
 				FAB7481426E77CA10076B9BE /* XCRemoteSwiftPackageReference "SnapKit" */,
 				FAEA2F9426EB1D1900FBD5CA /* XCRemoteSwiftPackageReference "giphy-ios-sdk" */,
 				FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				FA00CEE12BE164DF0090CE0C /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 			);
 			productRefGroup = FA97AD6626DB7C5800BD8B83 /* Products */;
 			projectDirPath = "";
@@ -656,7 +667,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -688,7 +699,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
 				PRODUCT_BUNDLE_IDENTIFIER = app.memeo.memeo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -725,6 +736,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		FA00CEE12BE164DF0090CE0C /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.41.1;
+			};
+		};
 		FA9044EE2B4C58720064E296 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -752,6 +771,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		FA00CEE22BE164DF0090CE0C /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA00CEE12BE164DF0090CE0C /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCat;
+		};
+		FA00CEE42BE164DF0090CE0C /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA00CEE12BE164DF0090CE0C /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
+			productName = RevenueCatUI;
+		};
 		FA9044EC2B4C58440064E296 /* GiphyUISDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FAEA2F9426EB1D1900FBD5CA /* XCRemoteSwiftPackageReference "giphy-ios-sdk" */;
