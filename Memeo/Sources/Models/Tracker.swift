@@ -70,10 +70,48 @@ enum TrackerStyle: Int, Codable, Identifiable {
     }
 }
 
+enum TrackerSize: Int, Codable, Identifiable {
+    var id: Int {
+        self.rawValue
+    }
+
+    case extrasmall = 10
+    case small = 14
+    case medium = 18
+    case large = 20
+    case extralarge = 24
+
+    func styleName() -> String {
+        switch self {
+        case .extrasmall: "Extra small"
+        case .small: "Small"
+        case .medium: "Medium"
+        case .large: "Large"
+        case .extralarge: "Extra large"
+        }
+    }
+
+    mutating func toggle() {
+        switch self {
+        case .extrasmall:
+            self = .small
+        case .small:
+            self = .medium
+        case .medium:
+            self = .large
+        case .large:
+            self = .extralarge
+        case .extralarge:
+            self = .extrasmall
+        }
+    }
+}
+
 struct Tracker: Identifiable, Equatable, Codable, Hashable {
     var id: UUID
     var text: String
     var style: TrackerStyle
+    var size: TrackerSize
 
     var position: Animation<CGPoint>
     var fade: Animation<Bool>

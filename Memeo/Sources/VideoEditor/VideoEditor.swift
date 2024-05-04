@@ -179,10 +179,12 @@ struct VideoEditor: View {
             if let index = viewModel.selectedTrackerIndex, viewModel.isEditingText {
                 TrackerTextEditor(
                     text: viewModel.document.trackers[index].text,
-                    style: viewModel.document.trackers[index].style
-                ) { newText, style in
-                    viewModel.document.trackers[index].text = newText
-                    viewModel.document.trackers[index].style = style
+                    style: viewModel.document.trackers[index].style,
+                    size: viewModel.document.trackers[index].size
+                ) { result in
+                    viewModel.document.trackers[index].text = result.text
+                    viewModel.document.trackers[index].style = result.style
+                    viewModel.document.trackers[index].size = result.size
                     viewModel.isEditingText = false
                 } onDeleteTracker: {
                     viewModel.isEditingText = false

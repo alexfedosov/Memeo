@@ -265,7 +265,7 @@ extension VideoEditorViewModel {
             opacity.keyframes[0] = false
             opacity.keyframes[currentKeyframe] = true
         }
-        let tracker = Tracker(id: UUID(), text: "", style: .transparent, position: animation, fade: opacity)
+        let tracker = Tracker(id: UUID(), text: "", style: .transparent, size: .small, position: animation, fade: opacity)
         document.trackers.append(tracker)
         selectedTrackerIndex = document.trackers.count - 1
     }

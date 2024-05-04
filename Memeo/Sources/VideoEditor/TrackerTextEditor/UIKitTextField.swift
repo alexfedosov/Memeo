@@ -40,6 +40,9 @@ struct UIKitTextField: UIViewRepresentable {
         case true: uiView.becomeFirstResponder()
         case false: uiView.resignFirstResponder()
         }
+        UIView.animate(withDuration: 300) {
+            configuration(uiView)
+        }
     }
 
     public func makeCoordinator() -> Coordinator {

@@ -8,39 +8,28 @@
 import Foundation
 import SwiftUI
 
+struct TrackerTextEditorResult {
+    let text: String
+    let style: TrackerStyle
+    let size: TrackerSize
+}
+
 struct TrackerTextEditor: View {
     @State var text: String
     @State var style: TrackerStyle
+    @State var size: TrackerSize
     @State var isTextFieldFocused = true
-    let onFinishEditing: (String, TrackerStyle) -> Void
+    let onFinishEditing: (TrackerTextEditorResult) -> Void
     let onDeleteTracker: () -> Void
     @State var showRemoveConfirmation = false
 
     let styles = [TrackerStyle.transparent, TrackerStyle.black, TrackerStyle.white]
+    let sizes = [TrackerSize.small, TrackerSize.medium, TrackerSize.large, TrackerSize.extralarge]
 
     var body: some View {
         VStack {
             HStack {
-                Button(
-                    action: {
-                        withAnimation {
-                            style.toggle()
-                        }
-                    },
-                    label: {
-                        HStack {
-                            Text(style.styleName())
-                                .foregroundColor(Color(uiColor: style.foregroundColor()))
-                        }
-                        .padding()
-                        .background(
-                            Rectangle()
-                                .fill(Color(uiColor: style.backgroundColor()))
-                                .background(.thinMaterial).clipShape(.capsule)
-
-                        )
-                    }
-                ).padding()
+                Spacer()
                 Button(
                     action: {
                         withAnimation {
@@ -48,16 +37,15 @@ struct TrackerTextEditor: View {
                         }
                     },
                     label: {
-                        HStack {
-                            Image(systemName: "trash")
-                                .foregroundColor(.white)
-                        }
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: .infinity).fill(Color.red))
+                        Image(systemName: "trash")
                     }
-                ).padding()
+                )
+                .padding(8)
+                .foregroundColor(.white)
+                .background(Color.red).clipShape(.rect(cornerRadius: 8))
             }
             .font(.system(size: 14, weight: .bold))
+            .padding()
             Spacer()
             VStack {
                 UIKitTextField(
@@ -65,7 +53,7 @@ struct TrackerTextEditor: View {
                     isFirstResponder: $isTextFieldFocused
                 ) { textField in
                     textField.textAlignment = .center
-                    textField.font = .systemFont(ofSize: 16, weight: .bold)
+                    textField.font = .systemFont(ofSize: CGFloat(size.rawValue + 1), weight: .bold)
                     textField.autocorrectionType = .no
                     textField.autocapitalizationType = .none
                 }
@@ -75,10 +63,49 @@ struct TrackerTextEditor: View {
             HStack {
                 Button(
                     action: {
+                        withAnimation {
+                            style.toggle()
+                        }
+                    },
+                    label: {
+                        Text(style.styleName())
+                            .foregroundColor(Color(uiColor: style.foregroundColor()))
+                            .padding(8)
+                            .background(
+                                Rectangle()
+                                    .fill(Color(uiColor: style.backgroundColor()))
+                                    .background(.thinMaterial).clipShape(.rect(cornerRadius: 8))
+                        )
+                    }
+                )
+                Button(
+                    action: {
+                        withAnimation {
+                            size.toggle()
+                        }
+                    },
+                    label: {
+                        Text(size.styleName())
+                            .foregroundColor(Color(uiColor: .white))
+                            .padding(8)
+                            .background(
+                                Rectangle()
+                                    .fill(Color(uiColor: .black))
+                                    .background(.thinMaterial).clipShape(.rect(cornerRadius: 8))
+
+                            )
+                    }
+                )
+            }
+            .font(.system(size: 14, weight: .bold))
+            .padding(.horizontal)
+            HStack {
+                Button(
+                    action: {
                         isTextFieldFocused = false
                         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
                         DispatchQueue.main.async {
-                            onFinishEditing(text, style)
+                            onFinishEditing(.init(text: text, style: style, size: size))
                         }
                     },
                     label: {
@@ -121,7 +148,8 @@ struct TrackerTextEditor_Previews: PreviewProvider {
         TrackerTextEditor(
             text: "Tracker 1",
             style: .transparent,
-            onFinishEditing: { _, _ in },
+            size: .small,
+            onFinishEditing: { _ in },
             onDeleteTracker: {}
         )
         .background(Color.black)

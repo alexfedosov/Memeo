@@ -89,6 +89,7 @@ struct TrackerLayerRepresentable: CALayerRepresentable {
         layer.textLabel.textColor = tracker.style.foregroundColor()
         layer.textLabel.shadowColor =
             tracker.style == TrackerStyle.transparent ? UIColor.black.withAlphaComponent(0.5) : .clear
+        layer.textLabel.font = .boldSystemFont(ofSize: CGFloat(tracker.size.rawValue))
 
         layer.sizeToFit()
         CATransaction.commit()

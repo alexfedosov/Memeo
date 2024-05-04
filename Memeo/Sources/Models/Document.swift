@@ -44,6 +44,7 @@ extension Document {
                     id: UUID(),
                     text: "Test tracker",
                     style: .transparent,
+                    size: .small,
                     position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
                     fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
                 )
