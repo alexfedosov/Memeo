@@ -261,11 +261,17 @@ extension VideoEditorViewModel {
             keyframes: [:],
             key: "opacity")
 
+        let rotation = Animation<Double>(
+            id: UUID(),
+            keyframes: [:],
+            key: "rotation"
+        )
+
         if currentKeyframe > 0 {
             opacity.keyframes[0] = false
             opacity.keyframes[currentKeyframe] = true
         }
-        let tracker = Tracker(id: UUID(), text: "", style: .transparent, size: .small, position: animation, fade: opacity)
+        let tracker = Tracker(id: UUID(), text: "", style: .transparent, size: .small, position: animation, fade: opacity, rotation: rotation)
         document.trackers.append(tracker)
         selectedTrackerIndex = document.trackers.count - 1
     }

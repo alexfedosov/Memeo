@@ -28,6 +28,12 @@ extension Bool: AnimatedValue {
     }
 }
 
+extension Double: AnimatedValue {
+    func toAnimated() -> Any {
+        self
+    }
+}
+
 enum TrackerStyle: Int, Codable, Identifiable {
     var id: Int {
         self.rawValue
@@ -115,6 +121,7 @@ struct Tracker: Identifiable, Equatable, Codable, Hashable {
 
     var position: Animation<CGPoint>
     var fade: Animation<Bool>
+    var rotation: Animation<Double>
 
     var uiText: String {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -46,7 +46,8 @@ extension Document {
                     style: .transparent,
                     size: .small,
                     position: Animation<CGPoint>(id: UUID(), keyframes: [0: CGPoint(x: 0.5, y: 0.5)], key: "position"),
-                    fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity")
+                    fade: Animation<Bool>(id: UUID(), keyframes: [:], key: "opacity"),
+                    rotation: Animation<Double>(id: UUID(), keyframes: [:], key: "rotation")
                 )
             ],
             frameSize: CGSize(width: 1280, height: 720),
