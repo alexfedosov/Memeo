@@ -55,11 +55,11 @@ struct VideoEditor: View {
                             text: String(localized: "Share!"),
                             action: {
                                 Task {
-                                    let customerInfo = try? await Purchases.shared.customerInfo()
-                                    displayPaywall = customerInfo?.activeSubscriptions.isEmpty ?? true
-                                    if !displayPaywall {
+//                                    let customerInfo = try? await Purchases.shared.customerInfo()
+//                                    displayPaywall = customerInfo?.activeSubscriptions.isEmpty ?? true
+//                                    if !displayPaywall {
                                         try? await viewModel.share()
-                                    }
+//                                    }
                                 }
                             }
                         ).padding(.trailing)
