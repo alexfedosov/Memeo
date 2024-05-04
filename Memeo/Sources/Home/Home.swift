@@ -80,7 +80,7 @@ struct Home: View {
                     }
                 },
                 label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "gear")
                         .font(Font.system(size: 14, weight: .bold))
                         .foregroundColor(.white.opacity(0.7))
                         .padding(9)

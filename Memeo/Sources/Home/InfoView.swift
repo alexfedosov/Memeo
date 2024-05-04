@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import RevenueCat
 
 struct InfoView: View {
     @Binding var isPresented: Bool
+    @State var restoringSubscriptions = false
+    @State var showRestoredPurchasesDialog: Bool = false
 
     var body: some View {
         VStack {
@@ -35,6 +38,16 @@ struct InfoView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 150, height: 30)
                 }.padding(24)
+
+                DialogGradientButton(text: restoringSubscriptions ? "Restoring, just a second..." : "Restore purchases") {
+                    Task {
+                        restoringSubscriptions = true
+                        _ = try await Purchases.shared.restorePurchases()
+                        showRestoredPurchasesDialog = true
+                        restoringSubscriptions = false
+                    }
+                }
+
                 DialogGradientButton(
                     text: "Close",
                     action: {
@@ -48,6 +61,14 @@ struct InfoView: View {
             .background(VisualEffectView(effect: UIBlurEffect(style: .dark)))
             .cornerRadius(16)
             .padding()
+            .alert("Done!", isPresented: $showRestoredPurchasesDialog) {
+                Button("Close") {
+                    showRestoredPurchasesDialog = false
+                }
+            } message: {
+                Text("We have checked and restored all in-app purchases and active subscriptions")
+            }
+
         }
     }
 }
