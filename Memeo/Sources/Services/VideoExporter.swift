@@ -30,6 +30,23 @@ class VideoExporter {
         return FileManager().fileExists(atPath: outfileURL.path) ? outfileURL : nil
     }
 
+    func export(image: UIImage) -> URL? {
+        let data = image.pngData() ?? image.jpegData(compressionQuality: 1)
+        let format = image.pngData() != nil ? ".png" : ".jpeg"
+
+        guard let data = data else { return nil }
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, format))
+        guard let _ = try? data.write(to: url) else { return nil }
+
+        let width = image.size.width
+        let height = image.size.height
+        let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, ".mp4")
+        let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
+        let command = " -framerate 30 -i \(url.path) -t 1 -pix_fmt yuv420p -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
+        let _ = FFmpegKit.execute(command)
+        return FileManager().fileExists(atPath: outfileURL.path) ? outfileURL : nil
+    }
+
     func export(document: Document) async throws -> URL {
         guard let assetUrl = document.mediaURL else {
             throw VideoExporterError.unexpectedError("No video tracks found")

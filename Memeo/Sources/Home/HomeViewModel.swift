@@ -12,6 +12,7 @@ import SwiftUI
 
 enum Source {
     case url(URL)
+    case image(UIImage)
     case giphy(GPHMedia)
 }
 
@@ -28,6 +29,7 @@ class HomeViewModel: ObservableObject {
         let documentService = DocumentsService()
         let document = switch source {
         case .url(let url): try await documentService.create(fromMedia: url)
+        case .image(let image): try await documentService.create(fromImage: image)
         case .giphy(let giphy): try await documentService.create(fromGIPHY: giphy)
         }
         videoEditorViewModel = VideoEditorViewModel(document: document)

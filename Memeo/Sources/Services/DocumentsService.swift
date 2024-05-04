@@ -55,6 +55,13 @@ class DocumentsService {
             mediaURL: assetUrl)
     }
 
+    func create(fromImage image: UIImage) async throws -> Document {
+        guard let url = VideoExporter().export(image: image) else {
+            throw DocumentServiceError.unexpectedError
+        }
+        return try await create(fromMedia: url, copyToDocumentsDir: true)
+    }
+
     func create(fromGIPHY media: GPHMedia) async throws -> Document {
         guard
             let importURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)

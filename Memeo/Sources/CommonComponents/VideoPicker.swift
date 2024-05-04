@@ -10,24 +10,40 @@ import Foundation
 import MobileCoreServices
 import SwiftUI
 
+enum MediaPickerResult {
+    case image(UIImage)
+    case videoUrl(URL)
+}
+
 class VideoPickerCoordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     @Binding var isShown: Bool
-    @Binding var mediaURL: URL?
+    @Binding var result: MediaPickerResult?
 
-    init(isShown: Binding<Bool>, mediaURL: Binding<URL?>) {
+    init(isShown: Binding<Bool>, result: Binding<MediaPickerResult?>) {
         _isShown = isShown
-        _mediaURL = mediaURL
+        _result = result
     }
 
     func imagePickerController(
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
-        guard let url = info[UIImagePickerController.InfoKey.mediaURL] as? URL else {
-            return
+        defer {
+            isShown = false
         }
-        mediaURL = url
-        isShown = false
+
+        guard let identifier = info[UIImagePickerController.InfoKey.mediaType] as? String else { return }
+        switch identifier {
+        case UTType.image.identifier:
+            let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage
+            let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
+            guard let image = editedImage ?? originalImage else { return }
+            result = .image(image)
+        case UTType.movie.identifier:
+            guard let url = info[UIImagePickerController.InfoKey.mediaURL] as? URL else { return }
+            result = .videoUrl(url)
+        default: print("Unsupported media type \(identifier)")
+        }
     }
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -37,7 +53,7 @@ class VideoPickerCoordinator: NSObject, UINavigationControllerDelegate, UIImageP
 
 struct VideoPicker: UIViewControllerRepresentable {
     @Binding var isShown: Bool
-    @Binding var mediaURL: URL?
+    @Binding var result: MediaPickerResult?
 
     func updateUIViewController(
         _ uiViewController: UIImagePickerController,
@@ -46,7 +62,7 @@ struct VideoPicker: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> VideoPickerCoordinator {
-        VideoPickerCoordinator(isShown: $isShown, mediaURL: $mediaURL)
+        VideoPickerCoordinator(isShown: $isShown, result: $result)
     }
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<VideoPicker>) -> UIImagePickerController {

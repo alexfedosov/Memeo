@@ -96,10 +96,13 @@ struct Home: View {
                 }
             ).fullScreenCover(isPresented: $showVideoPicker) {
                 VideoPicker(isShown: $showVideoPicker,
-                            mediaURL: .init(get: { nil }, set: { url in
-                    guard let url = url else { return }
+                            result: .init(get: { nil }, set: { result in
+                    guard let result = result else { return }
                     Task {
-                        try await viewModel.create(from: .url(url))
+                        switch result {
+                        case .image(let image): try await viewModel.create(from: .image(image))
+                        case .videoUrl(let url): try await viewModel.create(from: .url(url))
+                        }
                     }
                 }))
             }

@@ -193,6 +193,38 @@ struct VideoEditor: View {
     }
 }
 
+struct GradientBorderButton: View {
+    let text: String
+    let action: () -> Void
+
+    let gradientColors = [
+        Color(red: 50 / 255, green: 197 / 255, blue: 1),
+        Color(red: 182 / 255, green: 32 / 255, blue: 224 / 255),
+        Color(red: 247 / 255, green: 181 / 255, blue: 0),
+    ]
+
+    var body: some View {
+        Button(
+            action: action,
+            label: {
+                Text(text)
+                    .foregroundColor(.white)
+                    .font(Font.system(size: 14, weight: .bold))
+                    .padding(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    .cornerRadius(7)
+            }
+        ).background(
+            RoundedRectangle(cornerRadius: 7)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: gradientColors.reversed()),
+                        startPoint: .bottomLeading,
+                        endPoint: .topTrailing))
+        )
+    }
+}
+
+
 struct ContentView_Previews: PreviewProvider {
     static var model = VideoEditorViewModel.preview
     static var previews: some View {
