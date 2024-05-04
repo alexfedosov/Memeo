@@ -67,12 +67,13 @@ class DocumentsService {
             let importURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
                 .first?
                 .appendingPathComponent("giphy-\(media.id)")
-                .appendingPathExtension(".mp4"),
+                .appendingPathExtension("mp4"),
             let urlString = media.url(rendition: .fixedWidth, fileType: .mp4),
             let url = URL(string: urlString)
         else {
             throw DocumentServiceError.unexpectedError
         }
+        print(media.availableMp4Url())
 
         if !FileManager.default.fileExists(atPath: importURL.path) {
             let (data, _) = try await URLSession.shared.data(from: url)

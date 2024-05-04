@@ -8,6 +8,8 @@
 import AVKit
 import StoreKit
 import SwiftUI
+import RevenueCat
+import RevenueCatUI
 
 struct Home: View {
     @Binding var openUrl: URL?
@@ -26,6 +28,8 @@ struct Home: View {
     @State private var searchQuery: String = ""
 
     @State private var showSettings: Bool = false
+    @State var displayPaywall = false
+    @State var hasSubscription = true
 
     func animatedValueForTab(_ index: Int) -> Double {
         let offset: CGFloat = -normalizedOffset
@@ -37,6 +41,46 @@ struct Home: View {
         NavigationStack {
             VStack {
                 navigationBar()
+                if !hasSubscription {
+                    VStack(alignment: .leading) {
+                        Text("Unlock templates search, extra GIF categories, sharing and more")
+                            .font(.subheadline)
+                            .bold()
+                        Button {
+                            displayPaywall = true
+                        } label: {
+                            HStack {
+                                Spacer()
+                                Image(systemName: "wand.and.stars")
+                                Text("Try")
+                                Text("Memeo Pro").fontWeight(.heavy)
+                                Spacer()
+                            }
+                            .padding(8)
+                            .background()
+                            .clipShape(RoundedRectangle(cornerSize: CGSize(width: 6, height: 6)))
+                            .padding(2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 7)
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                Color(red: 50 / 255, green: 197 / 255, blue: 1),
+                                                Color(red: 182 / 255, green: 32 / 255, blue: 224 / 255),
+                                                Color(red: 247 / 255, green: 181 / 255, blue: 0),
+                                            ]
+                                                .reversed()),
+                                            startPoint: .bottomLeading,
+                                            endPoint: .topTrailing))
+                            )
+                        }
+                        .tint(.white)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 16)
+                    .background(.thickMaterial)
+                    .padding(.horizontal, 8)
+                }
                 searchGIPHYView().padding([.horizontal, .top], 8)
             }
             .navigationDestination(isPresented: $viewModel.isImportingVideo) {
@@ -60,12 +104,26 @@ struct Home: View {
         .toolbar(.hidden)
         .presentInfoView(isPresented: $showSettings)
         .onAppear(perform: {
+            Task {
+                let customerInfo = try? await Purchases.shared.customerInfo()
+                hasSubscription = !(customerInfo?.activeSubscriptions.isEmpty ?? true)
+            }
+
             guard let appVersion = UIApplication.appVersion else { return }
             if lastVersionPromptedForReview != appVersion {
                 presentReview()
                 lastVersionPromptedForReview = appVersion
             }
         })
+        .sheet(isPresented: $displayPaywall) {
+            PaywallView(displayCloseButton: true)
+                .onRestoreCompleted({ _ in
+                    hasSubscription = true
+                })
+                .onPurchaseCompleted { _ in
+                    hasSubscription = true
+                }
+        }
     }
 
     @ViewBuilder
@@ -100,8 +158,8 @@ struct Home: View {
                     guard let result = result else { return }
                     Task {
                         switch result {
-                        case .image(let image): try await viewModel.create(from: .image(image))
-                        case .videoUrl(let url): try await viewModel.create(from: .url(url))
+                        case .image(let image): await viewModel.create(from: .image(image))
+                        case .videoUrl(let url): await viewModel.create(from: .url(url))
                         }
                     }
                 }))
@@ -112,17 +170,64 @@ struct Home: View {
     @ViewBuilder
     func searchGIPHYView() -> some View {
         VStack {
-            TextField(String(localized: "Search GIPHY"), text: $searchQuery)
-                .font(.subheadline.bold())
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                .background(RoundedRectangle(cornerRadius: 4).fill(Color.white.opacity(0.1)))
+            if hasSubscription {
+                TextField(String(localized: "Search"), text: $searchQuery)
+                    .font(.subheadline.bold())
+                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+            } else {
+                Button {
+                    displayPaywall = true
+                } label: {
+                    HStack {
+                        Text(String(localized: "Search"))
+                        Spacer()
+                        HStack {
+                            Text(String(localized: "with memeo pro"))
+                            Image(systemName: "lock")
+                        }.font(.system(size: 12, weight: .black))
+                    }
+                    .font(.subheadline.bold())
+                    .opacity(0.3)
+                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+                }.tint(.white)
+            }
+            ScrollView(.horizontal) {
+                HStack {
+                    ForEach(["trending", "cats", "dogs", "bad day (pro)", "monday (pro)", "morning (pro)", "coffee (pro)", "workout (pro)", "music (pro)", "movie (pro)", "news (pro)", "waiting (pro)", "bro (pro)"], id: \.self) { q in
+                        let hasPro = q.hasSuffix(" (pro)")
+                        let label = hasPro ? String(q.dropLast(6)) : q
+                        Button {
+                            if hasPro && !hasSubscription {
+                                displayPaywall = true
+                            } else {
+                                searchQuery = label == "trending" ? "" : label
+                            }
+                        } label: {
+                            HStack(spacing: 2) {
+                                Text(label)
+                                if hasPro && !hasSubscription {
+                                    Image(systemName: "lock")
+                                }
+                            }
+                            .font(.system(size: 14))
+                            .padding(8)
+                            .tint(.white)
+                            .background(.thinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        }
+                    }
+                }.padding(.bottom, 8)
+            }
             GiphyView(searchQuery: $searchQuery, selectedMedia: .init(get: { nil }, set: { media in
                 guard let media = media else { return }
                 Task {
-                    try await viewModel.create(from:.giphy(media))
+                    await viewModel.create(from: .giphy(media))
                 }
             }))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .ignoresSafeArea(.all, edges: .bottom)
         }
     }
 
@@ -166,6 +271,6 @@ struct Home: View {
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
         Home(openUrl: .constant(nil))
-        Home(openUrl: .constant(nil)).previewDevice("iPhone 12 mini")
+//        Home(openUrl: .constant(nil)).previewDevice("iPhone 12 mini")
     }
 }
