@@ -31,12 +31,6 @@ struct Home: View {
     @State var displayPaywall = false
     @State var hasSubscription = true
 
-    func animatedValueForTab(_ index: Int) -> Double {
-        let offset: CGFloat = -normalizedOffset
-        let diff = max(offset, CGFloat(index)) - min(offset, CGFloat(index))
-        return Double(min(1, max(0.5, 1 - diff)))
-    }
-
     var body: some View {
         NavigationStack {
             VStack {
