@@ -74,7 +74,19 @@ struct Home: View {
                     .background(.thickMaterial)
                     .padding(.horizontal, 8)
                 }
-                searchGIPHYView().padding([.horizontal, .top], 8)
+                GiphySelectorView(
+                    hasSubscription: hasSubscription,
+                    searchQuery: $searchQuery,
+                    displayPaywall: $displayPaywall,
+                    onSelectMedia: { media in
+                        guard let media = media else { return }
+                        Task {
+                            await viewModel.create(from: .giphy(media), viewModelFactory: coordinator?.createVideoEditorViewModel)
+                        }
+                    }
+                )
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
             }
             .navigationDestination(isPresented: Binding(
                 get: { viewModel.isImportingVideo },
@@ -163,69 +175,6 @@ struct Home: View {
         }.frame(height: 44).padding(8)
     }
 
-    @ViewBuilder
-    func searchGIPHYView() -> some View {
-        VStack {
-            if hasSubscription {
-                TextField(String(localized: "Search"), text: $searchQuery)
-                    .font(.subheadline.bold())
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-            } else {
-                Button {
-                    displayPaywall = true
-                } label: {
-                    HStack {
-                        Text(String(localized: "Search"))
-                        Spacer()
-                        HStack {
-                            Text(String(localized: "with memeo pro"))
-                            Image(systemName: "lock")
-                        }.font(.system(size: 12, weight: .black))
-                    }
-                    .font(.subheadline.bold())
-                    .opacity(0.3)
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-                }.tint(.white)
-            }
-            ScrollView(.horizontal) {
-                HStack {
-                    ForEach(["trending", "cats", "dogs", "bad day (pro)", "monday (pro)", "morning (pro)", "coffee (pro)", "workout (pro)", "music (pro)", "movie (pro)", "news (pro)", "waiting (pro)", "bro (pro)"], id: \.self) { q in
-                        let hasPro = q.hasSuffix(" (pro)")
-                        let label = hasPro ? String(q.dropLast(6)) : q
-                        Button {
-                            if hasPro && !hasSubscription {
-                                displayPaywall = true
-                            } else {
-                                searchQuery = label == "trending" ? "" : label
-                            }
-                        } label: {
-                            HStack(spacing: 2) {
-                                Text(label)
-                                if hasPro && !hasSubscription {
-                                    Image(systemName: "lock")
-                                }
-                            }
-                            .font(.system(size: 14))
-                            .padding(8)
-                            .tint(.white)
-                            .background(.thinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                    }
-                }.padding(.bottom, 8)
-            }
-            GiphyView(searchQuery: $searchQuery, selectedMedia: .init(get: { nil }, set: { media in
-                guard let media = media else { return }
-                Task {
-                    await viewModel.create(from: .giphy(media), viewModelFactory: coordinator?.createVideoEditorViewModel)
-                }
-            }))
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea(.all, edges: .bottom)
-        }
-    }
 
     func emptyView() -> some View {
         VStack {

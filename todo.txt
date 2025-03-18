@@ -169,10 +169,10 @@
    - [x] Access in child views with: `@EnvironmentObject private var viewModel: VideoEditorViewModel`
    - [x] Handle backward compatibility with both initialization patterns
 
--[ ] Split large views (like VideoEditor.swift) into smaller, composable components
-   - [ ] Extract VideoEditor.swift toolbar section into dedicated `VideoEditorToolbar.swift` view
-   - [ ] Create separate `GiphySelectorView.swift` component from `searchGIPHYView()` method in Home.swift
-   - [ ] Implement container views that compose these smaller components using `@ViewBuilder`
+-[x] Split large views (like VideoEditor.swift) into smaller, composable components
+   - [x] Extract VideoEditor.swift toolbar section into dedicated `VideoEditorToolbar.swift` view
+   - [x] Create separate `GiphySelectorView.swift` component from `searchGIPHYView()` method in Home.swift
+   - [x] Implement container views that compose these smaller components using `@ViewBuilder`
 
 -[ ] Update to use ViewBuilder's result builders more effectively for complex views
    - [ ] Refactor complex view hierarchies with named view builders:
