@@ -20,6 +20,20 @@ The app is being refactored to follow a proper MVVM (Model-View-ViewModel) archi
 3. **Models**:
    - Document, Tracker, and Animation are the primary models
 
+### Coordinator and Factory Pattern
+
+The app uses a Coordinator pattern with a ViewModelFactory for better dependency management:
+
+1. **ViewModelFactory Protocol**:
+   - Defines methods to create ViewModels: `func makeHomeViewModel() -> HomeViewModel`
+   - Concrete implementation manages dependencies: `AppViewModelFactory`
+   - Enables testability through dependency injection
+
+2. **AppCoordinator**:
+   - Central place for managing navigation and app state
+   - Creates ViewModels through the factory
+   - Handles app lifecycle and navigation between screens
+
 ## Project Structure
 
 - `/Memeo/Sources/Home/` - Home screen implementation

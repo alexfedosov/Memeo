@@ -7,11 +7,11 @@
    - [x] Replace direct state in Home.swift with: `@ObservedObject var viewModel: HomeViewModel`
    - [ ] Move business logic from VideoEditor.swift into VideoEditorViewModel.swift using the same pattern
 
--[ ] Move ViewModel initialization from views to a separate factory/coordinator pattern
-   - [ ] Create a ViewModelFactory protocol: `protocol ViewModelFactory { func makeHomeViewModel() -> HomeViewModel }`
-   - [ ] Implement a concrete factory: `class AppViewModelFactory: ViewModelFactory { func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: resolver.resolve()) } }`
-   - [ ] Create a Coordinator class in `/Memeo/Sources/MemeoApp.swift` to handle navigation state and view creation
-   - [ ] Inject ViewModelFactory into Coordinator to create all ViewModels consistently
+-[x] Move ViewModel initialization from views to a separate factory/coordinator pattern
+   - [x] Create a ViewModelFactory protocol: `protocol ViewModelFactory { func makeHomeViewModel() -> HomeViewModel }`
+   - [x] Implement a concrete factory: `class AppViewModelFactory: ViewModelFactory { func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: resolver.resolve()) } }`
+   - [x] Create a Coordinator class in `/Memeo/Sources/MemeoApp.swift` to handle navigation state and view creation
+   - [x] Inject ViewModelFactory into Coordinator to create all ViewModels consistently
 
 -[ ] Reorganize file structure to better separate features, models, and utilities
    - [ ] Create a Features directory with subdirectories for Home, VideoEditor, etc.

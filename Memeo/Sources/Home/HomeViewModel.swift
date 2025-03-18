@@ -33,7 +33,7 @@ class HomeViewModel: ObservableObject {
     }
     
     @MainActor
-    func create(from source: Source) async {
+    func create(from source: Source, viewModelFactory: ((Document) -> VideoEditorViewModel)? = nil) async {
         isImportingVideo = true
         error = nil
         do {
@@ -42,7 +42,14 @@ class HomeViewModel: ObservableObject {
             case .image(let image): try await documentsService.create(fromImage: image)
             case .giphy(let giphy): try await documentsService.create(fromGIPHY: giphy)
             }
-            setVideoEditorViewModel(VideoEditorViewModel(document: document))
+            
+            if let factory = viewModelFactory {
+                // Use the factory function provided by coordinator
+                setVideoEditorViewModel(factory(document))
+            } else {
+                // Fallback to direct creation if no factory is provided
+                setVideoEditorViewModel(VideoEditorViewModel(document: document))
+            }
         } catch {
             self.error = error
         }

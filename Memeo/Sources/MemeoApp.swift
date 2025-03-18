@@ -14,24 +14,31 @@ import FirebaseAnalytics
 
 @main
 struct MemeoApp: App {
-    @State var openUrl: URL?
-    @StateObject private var homeViewModel = HomeViewModel()
-
+    @StateObject private var coordinator: AppCoordinator
+    
     init() {
+        // Configure third-party services
         FirebaseApp.configure()
         Giphy.configure(apiKey: "Y1yEr5cD6XeiWadQrhG7BpoQZMDmQYe8")
         Purchases.logLevel = .debug
         Purchases.configure(withAPIKey: "appl_yOZceRdNqzNTNLHDYaPsyqTWeTM")
+        
+        // Create factory and coordinator
+        let documentsService = DocumentsService()
+        let viewModelFactory = AppViewModelFactory(documentsService: documentsService)
+        let coordinator = AppCoordinator(viewModelFactory: viewModelFactory)
+        
+        _coordinator = StateObject(wrappedValue: coordinator)
     }
 
     var body: some Scene {
         WindowGroup {
             ZStack {
                 Rectangle().fill(Color.black).ignoresSafeArea()
-                Home(openUrl: $openUrl, viewModel: homeViewModel)
+                Home(openUrl: $coordinator.openUrl, viewModel: coordinator.homeViewModel, coordinator: coordinator)
             }
             .onOpenURL(perform: { url in
-                openUrl = url
+                coordinator.handleOpenURL(url: url)
             })
             .colorScheme(.dark)
             .presentPaywallIfNeeded(

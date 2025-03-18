@@ -18,6 +18,7 @@ struct Home: View {
     @AppStorage("lastVersionPromptedForReview") var lastVersionPromptedForReview = ""
 
     @ObservedObject var viewModel: HomeViewModel
+    var coordinator: AppCoordinator?
     
     @State var index: Int = 0
     @State var isDragging: Bool = false
@@ -31,9 +32,10 @@ struct Home: View {
     @State var displayPaywall = false
     @State var hasSubscription = true
     
-    init(openUrl: Binding<URL?>, viewModel: HomeViewModel) {
+    init(openUrl: Binding<URL?>, viewModel: HomeViewModel, coordinator: AppCoordinator? = nil) {
         self._openUrl = openUrl
         self.viewModel = viewModel
+        self.coordinator = coordinator
     }
 
     var body: some View {
@@ -160,8 +162,8 @@ struct Home: View {
                     guard let result = result else { return }
                     Task {
                         switch result {
-                        case .image(let image): await viewModel.create(from: .image(image))
-                        case .videoUrl(let url): await viewModel.create(from: .url(url))
+                        case .image(let image): await viewModel.create(from: .image(image), viewModelFactory: coordinator?.createVideoEditorViewModel)
+                        case .videoUrl(let url): await viewModel.create(from: .url(url), viewModelFactory: coordinator?.createVideoEditorViewModel)
                         }
                     }
                 }))
@@ -225,7 +227,7 @@ struct Home: View {
             GiphyView(searchQuery: $searchQuery, selectedMedia: .init(get: { nil }, set: { media in
                 guard let media = media else { return }
                 Task {
-                    await viewModel.create(from: .giphy(media))
+                    await viewModel.create(from: .giphy(media), viewModelFactory: coordinator?.createVideoEditorViewModel)
                 }
             }))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -272,8 +274,11 @@ struct Home: View {
 
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
-        let viewModel = HomeViewModel()
-        Home(openUrl: .constant(nil), viewModel: viewModel)
-//        Home(openUrl: .constant(nil), viewModel: viewModel).previewDevice("iPhone 12 mini")
+        let documentsService = DocumentsService()
+        let factory = AppViewModelFactory(documentsService: documentsService)
+        let coordinator = AppCoordinator(viewModelFactory: factory)
+        
+        Home(openUrl: .constant(nil), viewModel: coordinator.homeViewModel, coordinator: coordinator)
+//        Home(openUrl: .constant(nil), viewModel: coordinator.homeViewModel, coordinator: coordinator).previewDevice("iPhone 12 mini")
     }
 }
