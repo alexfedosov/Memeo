@@ -26,7 +26,7 @@ class HomeViewModel: ObservableObject {
     
     private let documentsService: DocumentsService
     
-    init(documentsService: DocumentsService = DocumentsService()) {
+    init(documentsService: DocumentsService) {
         self.documentsService = documentsService
         Task { @MainActor in
             await loadDocuments()
@@ -48,8 +48,10 @@ class HomeViewModel: ObservableObject {
                 // Use the factory function provided by coordinator
                 setVideoEditorViewModel(factory(document))
             } else {
-                // Fallback to direct creation if no factory is provided
-                setVideoEditorViewModel(VideoEditorViewModel(document: document))
+                // Create services directly as a fallback
+                let docService = DocumentsService()
+                let videoExport = VideoExporter()
+                setVideoEditorViewModel(VideoEditorViewModel(document: document, documentService: docService, videoExporter: videoExport))
             }
         } catch {
             self.error = error

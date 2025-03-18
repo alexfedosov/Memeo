@@ -18,8 +18,8 @@
    - [x] Move timeline files (`/Memeo/Sources/VideoEditor/Timeline/Timeline.swift` and `TimelineView.swift`) into Features/VideoEditor/Timeline directory
    - [x] Move all models into structured Models directory with subdirectories for domain models, DTOs, etc.
 
--[ ] Create a centralized dependency injection system instead of directly instantiating services
-   - [ ] Create `/Memeo/Sources/Services/DependencyContainer.swift` with this implementation:
+-[x] Create a centralized dependency injection system instead of directly instantiating services
+   - [x] Create `/Memeo/Sources/Services/DependencyContainer.swift` with this implementation:
      ```swift
      final class DependencyContainer {
          static let shared = DependencyContainer()
@@ -37,18 +37,18 @@
          }
      }
      ```
-   - [ ] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
-   - [ ] Inject dependencies through initializers: `init(documentService: DocumentsService = DependencyContainer.shared.resolve())`
+   - [x] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
+   - [x] Update ViewModelFactory to use DependencyContainer: `func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: dependencyContainer.resolve()) }`
 
--[ ] Consolidate duplicated view components and utilities into reusable modules
-   - [ ] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles
-   - [ ] Extract gradient definitions into a `GradientFactory.swift` with static functions like `static func primaryGradient() -> LinearGradient`
-   - [ ] Create `/Memeo/Sources/Utils/VideoProcessing.swift` with shared video processing functions
+-[x] Consolidate duplicated view components and utilities into reusable modules
+   - [x] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles
+   - [x] Extract gradient definitions into a `GradientFactory.swift` with static functions like `static func primaryGradient() -> LinearGradient`
+   - [x] Create `/Memeo/Sources/Utils/VideoProcessing.swift` with shared video processing functions
 
 ## Modern Swift Syntax and Best Practices
--[ ] Replace manually-created Hashable implementations with automatic synthesis
-   - [ ] In `/Memeo/Sources/Models/Tracker.swift`, remove manual `hash(into:)` implementation and let compiler synthesize it
-   - [ ] Create proper Hashable extension for CGPoint in CGPointExtensions.swift:
+-[x] Replace manually-created Hashable implementations with automatic synthesis
+   - [x] In `/Memeo/Sources/Models/Domain/Tracker.swift`, remove manual `hash(into:)` implementation and let compiler synthesize it
+   - [x] Create proper Hashable extension for CGPoint in CoreGraphicsExtensions.swift:
      ```swift
      extension CGPoint: Hashable {
          public func hash(into hasher: inout Hasher) {
@@ -57,12 +57,12 @@
          }
      }
      ```
-   - [ ] Remove any other redundant Hashable implementations that Swift can synthesize automatically
+   - [x] Remove any other redundant Hashable implementations that Swift can synthesize automatically
 
--[ ] Use `@frozen` for enums that won't change like `TrackerStyle` and `TrackerSize`
-   - [ ] Add `@frozen` annotation to TrackerStyle enum in `/Memeo/Sources/Models/Tracker.swift`: `@frozen enum TrackerStyle: String, Codable, CaseIterable {`
-   - [ ] Add `@frozen` annotation to TrackerSize enum: `@frozen enum TrackerSize: String, Codable, CaseIterable {`
-   - [ ] Add appropriate documentation explaining why these enums are frozen (ABI stability)
+-[x] Use `@frozen` for enums that won't change like `TrackerStyle` and `TrackerSize`
+   - [x] Add `@frozen` annotation to TrackerStyle enum in `/Memeo/Sources/Models/Domain/Tracker.swift`: `@frozen enum TrackerStyle: Int, Codable, CaseIterable {`
+   - [x] Add `@frozen` annotation to TrackerSize enum: `@frozen enum TrackerSize: Int, Codable, CaseIterable {`
+   - [x] Add appropriate documentation explaining why these enums are frozen (ABI stability)
 
 -[ ] Replace `Identifiable` protocol implementations with `@identifiable` macro
    - [ ] Update Animation model in `/Memeo/Sources/Models/Animation.swift` to use `@identifiable` macro:

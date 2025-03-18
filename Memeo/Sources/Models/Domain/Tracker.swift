@@ -10,13 +10,6 @@ import CoreGraphics
 import Foundation
 import UIKit
 
-extension CGPoint: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(x)
-        hasher.combine(y)
-    }
-}
-
 extension CGPoint: AnimatedValue {
     func toAnimated() -> Any {
         self
@@ -35,7 +28,9 @@ extension Double: AnimatedValue {
     }
 }
 
-enum TrackerStyle: Int, Codable, Identifiable {
+/// A frozen enumeration of tracker styles for ABI stability.
+/// The style determines the background and foreground colors of the tracker.
+@frozen enum TrackerStyle: Int, Codable, Identifiable, CaseIterable {
     var id: Int {
         self.rawValue
     }
@@ -77,7 +72,9 @@ enum TrackerStyle: Int, Codable, Identifiable {
     }
 }
 
-enum TrackerSize: Int, Codable, Identifiable {
+/// A frozen enumeration of tracker size options for ABI stability.
+/// The size determines the font size of the tracker text in points.
+@frozen enum TrackerSize: Int, Codable, Identifiable, CaseIterable {
     var id: Int {
         self.rawValue
     }

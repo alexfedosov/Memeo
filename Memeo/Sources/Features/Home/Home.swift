@@ -64,16 +64,7 @@ struct Home: View {
                             .padding(2)
                             .background(
                                 RoundedRectangle(cornerRadius: 7)
-                                    .fill(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                Color(red: 50 / 255, green: 197 / 255, blue: 1),
-                                                Color(red: 182 / 255, green: 32 / 255, blue: 224 / 255),
-                                                Color(red: 247 / 255, green: 181 / 255, blue: 0),
-                                            ]
-                                                .reversed()),
-                                            startPoint: .bottomLeading,
-                                            endPoint: .topTrailing))
+                                    .fill(GradientFactory.primaryGradient())
                             )
                         }
                         .tint(.white)
@@ -150,7 +141,7 @@ struct Home: View {
                         .background(Color.white.opacity(0.1))
                         .cornerRadius(7)
                 })
-            GradientBorderButton(
+            MemeoButton.standard(
                 text: String(localized: "Create new"),
                 action: {
                     withAnimation {
@@ -275,11 +266,9 @@ struct Home: View {
 
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
-        let documentsService = DocumentsService()
-        let factory = AppViewModelFactory(documentsService: documentsService)
+        let factory = AppViewModelFactory()
         let coordinator = AppCoordinator(viewModelFactory: factory)
         
         Home(openUrl: .constant(nil), viewModel: coordinator.homeViewModel, coordinator: coordinator)
-//        Home(openUrl: .constant(nil), viewModel: coordinator.homeViewModel, coordinator: coordinator).previewDevice("iPhone 12 mini")
     }
 }

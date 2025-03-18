@@ -25,13 +25,9 @@ struct Document: Codable {
     var fps: Int = 10
 }
 
-extension Document: Hashable {}
-
-extension CGSize: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(width)
-        hasher.combine(height)
-    }
+extension Document: Hashable {
+    // Swift can automatically synthesize hash(into:) and == for structs
+    // when all properties are Hashable
 }
 
 extension Document {
