@@ -174,8 +174,8 @@
    - [x] Create separate `GiphySelectorView.swift` component from `searchGIPHYView()` method in Home.swift
    - [x] Implement container views that compose these smaller components using `@ViewBuilder`
 
--[ ] Update to use ViewBuilder's result builders more effectively for complex views
-   - [ ] Refactor complex view hierarchies with named view builders:
+-[x] Update to use ViewBuilder's result builders more effectively for complex views
+   - [x] Refactor complex view hierarchies with named view builders:
      ```swift
      @ViewBuilder
      private func toolbarContent() -> some View {
@@ -186,8 +186,8 @@
          }
      }
      ```
-   - [ ] Use generic view builders for reusable UI patterns
-   - [ ] Implement conditional view builders that adapt to different states
+   - [x] Use generic view builders for reusable UI patterns
+   - [x] Implement conditional view builders that adapt to different states
 
 -[ ] Replace nested ZStacks and VStacks with more semantic layout containers
    - [ ] Replace grid-like layouts with LazyVGrid:

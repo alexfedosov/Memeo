@@ -43,37 +43,7 @@ struct Home: View {
         NavigationStack {
             VStack {
                 navigationBar()
-                if !hasSubscription {
-                    VStack(alignment: .leading) {
-                        Text("Unlock templates search, extra GIF categories, sharing and more")
-                            .font(.subheadline)
-                            .bold()
-                        Button {
-                            displayPaywall = true
-                        } label: {
-                            HStack {
-                                Spacer()
-                                Image(systemName: "wand.and.stars")
-                                Text("Try")
-                                Text("Memeo Pro").fontWeight(.heavy)
-                                Spacer()
-                            }
-                            .padding(8)
-                            .background()
-                            .clipShape(RoundedRectangle(cornerSize: CGSize(width: 6, height: 6)))
-                            .padding(2)
-                            .background(
-                                RoundedRectangle(cornerRadius: 7)
-                                    .fill(GradientFactory.primaryGradient())
-                            )
-                        }
-                        .tint(.white)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 16)
-                    .background(.thickMaterial)
-                    .padding(.horizontal, 8)
-                }
+                subscriptionBannerView()
                 GiphySelectorView(
                     hasSubscription: hasSubscription,
                     searchQuery: $searchQuery,
@@ -88,49 +58,101 @@ struct Home: View {
                 .padding(.horizontal, 8)
                 .padding(.top, 8)
             }
-            .navigationDestination(isPresented: Binding(
-                get: { viewModel.isImportingVideo },
-                set: { _ in } // We don't need to set it from here
-            )) {
-                ZStack {
-                    VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-                        .ignoresSafeArea()
-                    HStack {
-                        Text("Importing your video").font(.title3)
-                        ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-                    }.padding()
-                }
+            .navigationDestination(isPresented: importingVideoBinding()) {
+                importingVideoOverlay()
             }
-            .navigationDestination(isPresented: .init(get: {
-                viewModel.videoEditorViewModel != nil
-            }, set: {
-                viewModel.setVideoEditorViewModel($0 ? viewModel.videoEditorViewModel : nil)
-            })) {
+            .navigationDestination(isPresented: videoEditorBinding()) {
                 editorView()
             }
         }
         .toolbar(.hidden)
         .presentInfoView(isPresented: $showSettings)
-        .onAppear(perform: {
-            Task {
-                let customerInfo = try? await Purchases.shared.customerInfo()
-                hasSubscription = !(customerInfo?.activeSubscriptions.isEmpty ?? true)
-            }
-
-            guard let appVersion = UIApplication.appVersion else { return }
-            if lastVersionPromptedForReview != appVersion {
-                presentReview()
-                lastVersionPromptedForReview = appVersion
-            }
-        })
+        .onAppear(perform: onAppearHandler)
         .sheet(isPresented: $displayPaywall) {
-            PaywallView(displayCloseButton: true)
-                .onRestoreCompleted({ _ in
-                    hasSubscription = true
-                })
-                .onPurchaseCompleted { _ in
-                    hasSubscription = true
+            paywallView()
+        }
+    }
+    
+    @ViewBuilder
+    private func subscriptionBannerView() -> some View {
+        if !hasSubscription {
+            VStack(alignment: .leading) {
+                Text("Unlock templates search, extra GIF categories, sharing and more")
+                    .font(.subheadline)
+                    .bold()
+                Button {
+                    displayPaywall = true
+                } label: {
+                    proButtonLabel()
                 }
+                .tint(.white)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 16)
+            .background(.thickMaterial)
+            .padding(.horizontal, 8)
+        }
+    }
+    
+    @ViewBuilder
+    private func proButtonLabel() -> some View {
+        HStack {
+            Spacer()
+            Image(systemName: "wand.and.stars")
+            Text("Try")
+            Text("Memeo Pro").fontWeight(.heavy)
+            Spacer()
+        }
+        .padding(8)
+        .background()
+        .clipShape(RoundedRectangle(cornerSize: CGSize(width: 6, height: 6)))
+        .padding(2)
+        .background(
+            RoundedRectangle(cornerRadius: 7)
+                .fill(GradientFactory.primaryGradient())
+        )
+    }
+    
+    @ViewBuilder
+    private func importingVideoOverlay() -> some View {
+        ViewBuilders.loadingOverlay(text: "Importing your video")
+    }
+    
+    @ViewBuilder
+    private func paywallView() -> some View {
+        PaywallView(displayCloseButton: true)
+            .onRestoreCompleted({ _ in
+                hasSubscription = true
+            })
+            .onPurchaseCompleted { _ in
+                hasSubscription = true
+            }
+    }
+    
+    private func importingVideoBinding() -> Binding<Bool> {
+        Binding(
+            get: { viewModel.isImportingVideo },
+            set: { _ in } // We don't need to set it from here
+        )
+    }
+    
+    private func videoEditorBinding() -> Binding<Bool> {
+        .init(
+            get: { viewModel.videoEditorViewModel != nil },
+            set: { viewModel.setVideoEditorViewModel($0 ? viewModel.videoEditorViewModel : nil) }
+        )
+    }
+    
+    private func onAppearHandler() {
+        Task {
+            let customerInfo = try? await Purchases.shared.customerInfo()
+            hasSubscription = !(customerInfo?.activeSubscriptions.isEmpty ?? true)
+        }
+
+        guard let appVersion = UIApplication.appVersion else { return }
+        if lastVersionPromptedForReview != appVersion {
+            presentReview()
+            lastVersionPromptedForReview = appVersion
         }
     }
 
@@ -177,18 +199,13 @@ struct Home: View {
 
 
     func emptyView() -> some View {
-        VStack {
-            Spacer()
-            Text("Make your own templates!")
-                .font(.headline)
-                .foregroundColor(Color.white)
-                .padding()
-            Text("Add video from your photo library to create a new template")
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white.opacity(0.5))
-                .frame(maxWidth: 300)
-            Spacer()
+        ViewBuilders.emptyState(
+            systemName: "video.badge.plus",
+            message: "Make your own templates!\nAdd video from your photo library to create a new template"
+        ) {
+            MemeoButton.standard(text: "Add Video", action: {
+                showVideoPicker = true
+            })
         }
     }
 
