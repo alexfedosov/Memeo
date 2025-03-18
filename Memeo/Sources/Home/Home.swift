@@ -17,8 +17,8 @@ struct Home: View {
     @Environment(\.requestReview) private var requestReview
     @AppStorage("lastVersionPromptedForReview") var lastVersionPromptedForReview = ""
 
-    @StateObject var viewModel = HomeViewModel()
-
+    @ObservedObject var viewModel: HomeViewModel
+    
     @State var index: Int = 0
     @State var isDragging: Bool = false
     @GestureState private var dragOffset: CGFloat = 0
@@ -30,6 +30,11 @@ struct Home: View {
     @State private var showSettings: Bool = false
     @State var displayPaywall = false
     @State var hasSubscription = true
+    
+    init(openUrl: Binding<URL?>, viewModel: HomeViewModel = HomeViewModel()) {
+        self._openUrl = openUrl
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         NavigationStack {
@@ -90,7 +95,7 @@ struct Home: View {
             .navigationDestination(isPresented: .init(get: {
                 viewModel.videoEditorViewModel != nil
             }, set: {
-                viewModel.videoEditorViewModel = $0 ? viewModel.videoEditorViewModel : nil
+                viewModel.setVideoEditorViewModel($0 ? viewModel.videoEditorViewModel : nil)
             })) {
                 editorView()
             }
@@ -244,8 +249,8 @@ struct Home: View {
     @ViewBuilder
     func editorView() -> some View {
         if let model = viewModel.videoEditorViewModel {
-            VideoEditor(viewModel: model) { [weak viewModel] in
-                viewModel?.videoEditorViewModel = nil
+            VideoEditor(viewModel: model) {
+                viewModel.setVideoEditorViewModel(nil)
             }
             .navigationBarHidden(true)
         } else {
@@ -264,7 +269,7 @@ struct Home: View {
 
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
-        Home(openUrl: .constant(nil))
-//        Home(openUrl: .constant(nil)).previewDevice("iPhone 12 mini")
+        Home(openUrl: .constant(nil), viewModel: HomeViewModel())
+//        Home(openUrl: .constant(nil), viewModel: HomeViewModel()).previewDevice("iPhone 12 mini")
     }
 }

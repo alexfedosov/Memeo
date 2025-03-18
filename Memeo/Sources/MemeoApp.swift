@@ -27,7 +27,7 @@ struct MemeoApp: App {
         WindowGroup {
             ZStack {
                 Rectangle().fill(Color.black).ignoresSafeArea()
-                Home(openUrl: $openUrl)
+                Home(openUrl: $openUrl, viewModel: HomeViewModel())
             }
             .onOpenURL(perform: { url in
                 openUrl = url

@@ -1,0 +1,1428 @@
+# Memeo App Improvement Opportunities
+
+## Code Architecture and Organization
+-[x] Implement a proper MVVM architecture consistently across all view components
+   - [x] Refactor `/Memeo/Sources/Home/Home.swift` to move presentation logic into HomeViewModel - add @Published properties with private(set) for state
+   - [x] Apply this pattern in HomeViewModel.swift: `@Published private(set) var documents: [Document] = []`
+   - [x] Replace direct state in Home.swift with: `@ObservedObject var viewModel: HomeViewModel`
+   - [ ] Move business logic from VideoEditor.swift into VideoEditorViewModel.swift using the same pattern
+
+-[ ] Move ViewModel initialization from views to a separate factory/coordinator pattern
+   - [ ] Create a ViewModelFactory protocol: `protocol ViewModelFactory { func makeHomeViewModel() -> HomeViewModel }`
+   - [ ] Implement a concrete factory: `class AppViewModelFactory: ViewModelFactory { func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: resolver.resolve()) } }`
+   - [ ] Create a Coordinator class in `/Memeo/Sources/MemeoApp.swift` to handle navigation state and view creation
+   - [ ] Inject ViewModelFactory into Coordinator to create all ViewModels consistently
+
+-[ ] Reorganize file structure to better separate features, models, and utilities
+   - [ ] Create a Features directory with subdirectories for Home, VideoEditor, etc.
+   - [ ] Move timeline files (`/Memeo/Sources/VideoEditor/Timeline/Timeline.swift` and `TimelineView.swift`) into Features/VideoEditor/Timeline directory
+   - [ ] Move all models into structured Models directory with subdirectories for domain models, DTOs, etc.
+
+-[ ] Create a centralized dependency injection system instead of directly instantiating services
+   - [ ] Create `/Memeo/Sources/Services/DependencyContainer.swift` with this implementation:
+     ```swift
+     final class DependencyContainer {
+         static let shared = DependencyContainer()
+         private var services: [String: Any] = [:]
+         
+         func register<T>(_ service: T) {
+             services[String(describing: T.self)] = service
+         }
+         
+         func resolve<T>() -> T {
+             guard let service = services[String(describing: T.self)] as? T else {
+                 fatalError("Service \(T.self) not registered")
+             }
+             return service
+         }
+     }
+     ```
+   - [ ] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
+   - [ ] Inject dependencies through initializers: `init(documentService: DocumentsService = DependencyContainer.shared.resolve())`
+
+-[ ] Consolidate duplicated view components and utilities into reusable modules
+   - [ ] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles
+   - [ ] Extract gradient definitions into a `GradientFactory.swift` with static functions like `static func primaryGradient() -> LinearGradient`
+   - [ ] Create `/Memeo/Sources/Utils/VideoProcessing.swift` with shared video processing functions
+
+## Modern Swift Syntax and Best Practices
+-[ ] Replace manually-created Hashable implementations with automatic synthesis
+   - [ ] In `/Memeo/Sources/Models/Tracker.swift`, remove manual `hash(into:)` implementation and let compiler synthesize it
+   - [ ] Create proper Hashable extension for CGPoint in CGPointExtensions.swift:
+     ```swift
+     extension CGPoint: Hashable {
+         public func hash(into hasher: inout Hasher) {
+             hasher.combine(x)
+             hasher.combine(y)
+         }
+     }
+     ```
+   - [ ] Remove any other redundant Hashable implementations that Swift can synthesize automatically
+
+-[ ] Use `@frozen` for enums that won't change like `TrackerStyle` and `TrackerSize`
+   - [ ] Add `@frozen` annotation to TrackerStyle enum in `/Memeo/Sources/Models/Tracker.swift`: `@frozen enum TrackerStyle: String, Codable, CaseIterable {`
+   - [ ] Add `@frozen` annotation to TrackerSize enum: `@frozen enum TrackerSize: String, Codable, CaseIterable {`
+   - [ ] Add appropriate documentation explaining why these enums are frozen (ABI stability)
+
+-[ ] Replace `Identifiable` protocol implementations with `@identifiable` macro
+   - [ ] Update Animation model in `/Memeo/Sources/Models/Animation.swift` to use `@identifiable` macro:
+     ```swift
+     @identifiable(id: UUID)
+     struct Animation: Codable {
+         var id: UUID
+         // Other properties
+     }
+     ```
+   - [ ] Apply the same pattern to Document and Tracker models
+   - [ ] Make sure to import the Observation framework if needed
+
+-[ ] Utilize Swift 5.5+ async/await consistently throughout the codebase
+   - [ ] Refactor `/Memeo/Sources/Services/VideoExporter.swift` to use async/await:
+     ```swift
+     // Replace:
+     func exportVideo(withDocument document: Document, completion: @escaping (Result<URL, Error>) -> Void) {
+         // Implementation
+     }
+     
+     // With:
+     func exportVideo(withDocument document: Document) async throws -> URL {
+         try await withCheckedThrowingContinuation { continuation in
+             // Implementation
+             // Call continuation.resume(returning: url) on success
+             // Call continuation.resume(throwing: error) on failure
+         }
+     }
+     ```
+   - [ ] Update DocumentsService.swift methods to use async/await pattern for all file operations
+   - [ ] Use Task {} for handling async calls in SwiftUI views
+
+-[ ] Replace `.sink` Combine calls with modern Swift concurrency when appropriate
+   - [ ] In `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift` (lines 97-107), replace:
+     ```swift
+     $selectedTracker
+         .sink { [weak self] tracker in
+             // Handle tracker changes
+         }
+         .store(in: &cancellables)
+     ```
+     
+     With:
+     ```swift
+     private var task: Task<Void, Never>?
+     
+     task = Task { [weak self] in
+         for await tracker in $selectedTracker.values {
+             guard let self = self else { return }
+             // Handle tracker changes
+         }
+     }
+     ```
+   - [ ] Cancel tasks in deinit: `deinit { task?.cancel() }`
+   - [ ] Use TaskGroup for concurrent operations that were previously using Combine
+
+-[ ] Use property wrappers like `@Published` more consistently across ViewModels
+   - [ ] Add `@Published private(set)` to all state properties in `/Memeo/Sources/Home/HomeViewModel.swift`
+   - [ ] Add appropriate `@Published` wrappers to VideoEditorViewModel.swift state properties with proper access control
+   - [ ] Use `@State` for view-local state, `@ObservedObject` for injected ViewModels, and `@EnvironmentObject` for shared ViewModels
+
+## SwiftUI Improvements
+-[ ] Replace custom GradientBorderButton with SwiftUI's native ButtonStyle protocol
+   - [ ] Create a proper ButtonStyle in `/Memeo/Sources/CommonComponents/DialogGradientButton.swift`:
+     ```swift
+     struct GradientButtonStyle: ButtonStyle {
+         var gradientColors: [Color] = [.blue, .purple]
+         var textColor: Color = .white
+         var cornerRadius: CGFloat = 15
+         
+         func makeBody(configuration: Configuration) -> some View {
+             configuration.label
+                 .padding()
+                 .foregroundColor(textColor)
+                 .background(
+                     LinearGradient(
+                         gradient: Gradient(colors: gradientColors),
+                         startPoint: .leading,
+                         endPoint: .trailing
+                     )
+                 )
+                 .cornerRadius(cornerRadius)
+                 .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                 .animation(.spring(), value: configuration.isPressed)
+         }
+     }
+     ```
+   - [ ] Update usage: `Button("Save Changes") { saveChanges() }.buttonStyle(GradientButtonStyle())`
+   - [ ] Replace all custom button implementations with the styled version
+
+-[ ] Avoid direct UIKit interop in favor of SwiftUI components where possible
+   - [ ] Replace UILabel with SwiftUI Text in `/Memeo/Sources/VideoEditor/TrackerEditor/TrackerLayerRepresentable.swift`
+   - [ ] Replace UITextField with SwiftUI TextField + FocusState in TrackerTextEditor
+   - [ ] Replace UIBlurEffect with SwiftUI .blur() modifier in VideoEditor.swift: `.blur(radius: 10)`
+
+-[ ] Use SwiftUI's environment objects instead of passing ViewModels through init
+   - [ ] Define environment key in a central location:
+     ```swift
+     struct VideoEditorViewModelKey: EnvironmentKey {
+         static let defaultValue: VideoEditorViewModel = VideoEditorViewModel()
+     }
+     
+     extension EnvironmentValues {
+         var videoEditorViewModel: VideoEditorViewModel {
+             get { self[VideoEditorViewModelKey.self] }
+             set { self[VideoEditorViewModelKey.self] = newValue }
+         }
+     }
+     ```
+   - [ ] Inject in parent view: `.environmentObject(videoEditorViewModel)`
+   - [ ] Access in child views with: `@EnvironmentObject var viewModel: VideoEditorViewModel`
+
+-[ ] Split large views (like VideoEditor.swift) into smaller, composable components
+   - [ ] Extract VideoEditor.swift toolbar section into dedicated `VideoEditorToolbar.swift` view
+   - [ ] Create separate `GiphySelectorView.swift` component from `searchGIPHYView()` method in Home.swift
+   - [ ] Implement container views that compose these smaller components using `@ViewBuilder`
+
+-[ ] Update to use ViewBuilder's result builders more effectively for complex views
+   - [ ] Refactor complex view hierarchies with named view builders:
+     ```swift
+     @ViewBuilder
+     private func toolbarContent() -> some View {
+         HStack {
+             Button(...) { }
+             Spacer()
+             Button(...) { }
+         }
+     }
+     ```
+   - [ ] Use generic view builders for reusable UI patterns
+   - [ ] Implement conditional view builders that adapt to different states
+
+-[ ] Replace nested ZStacks and VStacks with more semantic layout containers
+   - [ ] Replace grid-like layouts with LazyVGrid:
+     ```swift
+     LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
+         ForEach(items) { item in
+             ItemView(item: item)
+         }
+     }
+     ```
+   - [ ] Use List instead of ScrollView + VStack for scrollable lists of items
+   - [ ] Apply container views with proper semantic meaning (Form, GroupBox, etc.)
+
+## Performance Optimization
+-[ ] Implement lazy loading for video previews and thumbnails
+   - [ ] Create a LazyImageView component:
+     ```swift
+     struct LazyImageView: View {
+         let url: URL?
+         let placeholderImage: Image
+         @State private var image: UIImage? = nil
+         @State private var isLoading = true
+         
+         var body: some View {
+             Group {
+                 if let image = image {
+                     Image(uiImage: image)
+                         .resizable()
+                         .aspectRatio(contentMode: .fill)
+                 } else {
+                     placeholderImage
+                         .resizable()
+                         .aspectRatio(contentMode: .fill)
+                         .overlay(
+                             ProgressView()
+                                 .progressViewStyle(.circular)
+                                 .opacity(isLoading ? 1 : 0)
+                         )
+                 }
+             }
+             .onAppear {
+                 loadImage()
+             }
+         }
+         
+         private func loadImage() {
+             guard let url = url else { return }
+             isLoading = true
+             
+             Task {
+                 do {
+                     let (data, _) = try await URLSession.shared.data(from: url)
+                     if let loadedImage = UIImage(data: data) {
+                         await MainActor.run {
+                             image = loadedImage
+                             isLoading = false
+                         }
+                     }
+                 } catch {
+                     print("Error loading image: \(error)")
+                     await MainActor.run {
+                         isLoading = false
+                     }
+                 }
+             }
+         }
+     }
+     ```
+   - [ ] Implement image caching with NSCache for Timeline.swift frame thumbnails
+   - [ ] Add placeholder images during loading states
+
+-[ ] Optimize CALayer animations in VideoExporter.swift to reduce memory usage
+   - [ ] Refactor animation rendering to use smaller buffers in `/Memeo/Sources/Services/VideoExporter.swift`
+   - [ ] Implement progressive rendering with smaller chunk sizes:
+     ```swift
+     func renderVideoChunks(document: Document, chunkSize: Int = 30) async throws -> URL {
+         // Render video in chunks of 30 frames
+         // Process each chunk separately to reduce memory usage
+     }
+     ```
+   - [ ] Add memory high-water mark check to release resources during export
+
+-[ ] Cache processed video frames for timeline scrubbing performance
+   - [ ] Implement LRU (Least Recently Used) cache for frames in Timeline.swift:
+     ```swift
+     class FrameCache {
+         private let cache = NSCache<NSString, UIImage>()
+         private let maxSize = 30 // Max number of frames to cache
+         
+         func cacheFrame(_ image: UIImage, at time: CMTime) {
+             let key = NSString(string: "\(time.seconds)")
+             cache.setObject(image, forKey: key)
+         }
+         
+         func frame(at time: CMTime) -> UIImage? {
+             let key = NSString(string: "\(time.seconds)")
+             return cache.object(forKey: key)
+         }
+         
+         func clear() {
+             cache.removeAllObjects()
+         }
+     }
+     ```
+   - [ ] Add memory pressure handler to clear cache when system memory is low
+   - [ ] Generate lower resolution thumbnails (e.g., 240p) for scrubbing vs full resolution for editing
+
+-[ ] Implement background processing for video export operations
+   - [ ] Use Task with detached context in `/Memeo/Sources/Services/VideoExporter.swift`:
+     ```swift
+     func exportVideo(document: Document) async throws -> URL {
+         return try await Task.detached(priority: .userInitiated) {
+             // FFmpeg processing here
+             // Return the URL of the exported video
+         }.value
+     }
+     ```
+   - [ ] Implement progress reporting with AsyncStream:
+     ```swift
+     func exportVideoWithProgress(document: Document) -> (task: Task<URL, Error>, progress: AsyncStream<Double>) {
+         var progressContinuation: AsyncStream<Double>.Continuation?
+         let progress = AsyncStream<Double> { continuation in
+             progressContinuation = continuation
+         }
+         
+         let task = Task {
+             // Implement export with periodic calls to:
+             progressContinuation?.yield(0.5) // 50% complete
+             // ...
+             progressContinuation?.finish()
+             return finalURL
+         }
+         
+         return (task, progress)
+     }
+     ```
+   - [ ] Add Task cancellation support throughout the export pipeline
+
+-[ ] Use `@MainActor` consistently for UI updates across all ViewModels
+   - [ ] Add `@MainActor` annotation to VideoEditorViewModel class:
+     ```swift
+     @MainActor
+     final class VideoEditorViewModel: ObservableObject {
+         // Now all methods run on the main actor by default
+     }
+     ```
+   - [ ] For non-@MainActor classes, mark UI methods explicitly:
+     ```swift
+     @MainActor
+     func updateUI(with result: ProcessingResult) {
+         // UI updates here
+     }
+     ```
+   - [ ] Use Task { await ... } for calls to @MainActor methods from non-main threads
+
+-[ ] Optimize video processing by using more efficient ffmpeg commands
+   - [ ] Update FFmpeg commands in `/Memeo/Sources/Services/VideoExporter.swift` to use hardware acceleration:
+     ```swift
+     let command = "-hwaccel videotoolbox -i \(inputPath) -vcodec h264_videotoolbox -preset fast -b:v 3M \(outputPath)"
+     ```
+   - [ ] Apply more efficient codec parameters based on device capabilities
+   - [ ] Implement two-pass encoding for better quality/size ratio for final exports
+
+## Memory Management
+-[ ] Add proper resource cleanup in deinitializers for all view controllers
+   - [ ] Add deinitializer to VideoEditorViewModel:
+     ```swift
+     deinit {
+         player?.pause()
+         player = nil
+         playerItem?.cancelPendingSeeks()
+         playerItem = nil
+         // Clean up any other resources
+         Task {
+             await cleanupTemporaryFiles()
+         }
+     }
+     ```
+   - [ ] Ensure AVPlayer instances have explicit player.pause() and nil assignment
+   - [ ] Create a TemporaryFileManager to track and clean up temp files consistently
+
+-[ ] Fix potential memory leaks in Combine subscription chains by storing cancellables
+   - [ ] Add cancellable storage in `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift`:
+     ```swift
+     final class VideoEditorViewModel: ObservableObject {
+         private var cancellables = Set<AnyCancellable>()
+         
+         init() {
+             setupSubscriptions()
+         }
+         
+         private func setupSubscriptions() {
+             $selectedTracker
+                 .sink { [weak self] tracker in
+                     // Implementation
+                 }
+                 .store(in: &cancellables)
+         }
+         
+         deinit {
+             cancellables.forEach { $0.cancel() }
+             cancellables.removeAll()
+         }
+     }
+     ```
+   - [ ] Add cancellation in onDisappear for view-scoped subscriptions
+   - [ ] Test for memory leaks with Instruments to verify fixes
+
+-[ ] Implement better error handling and resource cleanup in video export functions
+   - [ ] Use defer blocks for cleanup in `/Memeo/Sources/Services/VideoExporter.swift`:
+     ```swift
+     func processVideo() async throws -> URL {
+         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+         defer {
+             try? FileManager.default.removeItem(at: tempURL)
+         }
+         
+         // Video processing logic
+     }
+     ```
+   - [ ] Implement try-catch-finally pattern with defer for resource cleanup
+   - [ ] Create a ResourceHandle class that implements AutoCloseable pattern for resources
+
+-[ ] Use weak self in closures consistently to prevent retain cycles
+   - [ ] Fix closures in `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift` (lines 89-95):
+     ```swift
+     // Change from:
+     button.addAction(UIAction { _ in
+         self.handleAction()
+     }, for: .touchUpInside)
+     
+     // To:
+     button.addAction(UIAction { [weak self] _ in
+         guard let self = self else { return }
+         self.handleAction()
+     }, for: .touchUpInside)
+     ```
+   - [ ] Audit all closures with static analyzer to find potential retain cycles
+   - [ ] Add explicit [weak self] in all appropriate async contexts and callbacks
+
+-[ ] Fix cleanDocumentsDirectory method to only delete temporary files, not all files
+   - [ ] Update `/Memeo/Sources/Services/DocumentsService.swift` cleanDocumentsDirectory() (line 86-93):
+     ```swift
+     func cleanDocumentsDirectory() {
+         let fileManager = FileManager.default
+         let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+         
+         do {
+             let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
+             
+             // Only delete files with temp prefix or in temp directory
+             let tempFiles = fileURLs.filter { 
+                 $0.lastPathComponent.hasPrefix("temp_") || 
+                 $0.pathComponents.contains("Temporary") 
+             }
+             
+             for fileURL in tempFiles {
+                 try fileManager.removeItem(at: fileURL)
+             }
+         } catch {
+             print("Error cleaning documents directory: \(error)")
+         }
+     }
+     ```
+   - [ ] Create a dedicated temp directory for all temporary files
+   - [ ] Implement file expiration based on creation date (older than 24 hours)
+
+## Error Handling
+-[ ] Implement structured error handling with proper propagation
+   - [ ] Create domain-specific error types in a new file `/Memeo/Sources/Models/AppError.swift`:
+     ```swift
+     enum DocumentError: Error, LocalizedError {
+         case fileNotFound(String)
+         case invalidData
+         case saveFailed(Error)
+         case loadFailed(Error)
+         case exportFailed(Error)
+         
+         var errorDescription: String? {
+             switch self {
+             case .fileNotFound(let path):
+                 return "File not found at \(path)"
+             case .invalidData:
+                 return "The file contains invalid data"
+             case .saveFailed(let error):
+                 return "Failed to save file: \(error.localizedDescription)"
+             case .loadFailed(let error):
+                 return "Failed to load file: \(error.localizedDescription)"
+             case .exportFailed(let error):
+                 return "Failed to export video: \(error.localizedDescription)"
+             }
+         }
+     }
+     ```
+   - [ ] Update services to use these specific error types
+   - [ ] Implement do-catch blocks with rethrows using appropriate error context
+
+-[ ] Add user-friendly error messages and recovery options
+   - [ ] Create an ErrorView component:
+     ```swift
+     struct ErrorView: View {
+         let error: Error
+         let retryAction: (() -> Void)?
+         
+         var body: some View {
+             VStack(spacing: 16) {
+                 Image(systemName: "exclamationmark.triangle")
+                     .font(.system(size: 48))
+                     .foregroundColor(.red)
+                 
+                 Text("Error")
+                     .font(.headline)
+                 
+                 Text(error.localizedDescription)
+                     .multilineTextAlignment(.center)
+                 
+                 if let retryAction = retryAction {
+                     Button("Try Again") {
+                         retryAction()
+                     }
+                     .buttonStyle(.borderedProminent)
+                 }
+             }
+             .padding()
+             .background(Color(.systemBackground))
+             .cornerRadius(12)
+             .shadow(radius: 4)
+         }
+     }
+     ```
+   - [ ] Add recovery suggestions for each error type with helpful instructions
+   - [ ] Implement retry logic with exponential backoff for network operations
+
+-[ ] Replace print statements with proper logging system
+   - [ ] Create a Logger.swift file with severity levels:
+     ```swift
+     enum LogLevel: Int {
+         case debug = 0
+         case info = 1
+         case warning = 2
+         case error = 3
+         
+         var emoji: String {
+             switch self {
+             case .debug: return "🔍"
+             case .info: return "ℹ️"
+             case .warning: return "⚠️"
+             case .error: return "❌"
+             }
+         }
+     }
+     
+     struct Logger {
+         static var minimumLogLevel: LogLevel = .debug
+         
+         static func log(_ message: String, level: LogLevel = .info, file: String = #file, function: String = #function, line: Int = #line) {
+             if level.rawValue >= minimumLogLevel.rawValue {
+                 let fileName = URL(fileURLWithPath: file).lastPathComponent
+                 print("\(level.emoji) [\(fileName):\(line)] \(function) - \(message)")
+             }
+         }
+         
+         static func debug(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+             log(message, level: .debug, file: file, function: function, line: line)
+         }
+         
+         static func info(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+             log(message, level: .info, file: file, function: function, line: line)
+         }
+         
+         static func warning(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+             log(message, level: .warning, file: file, function: function, line: line)
+         }
+         
+         static func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
+             log(message, level: .error, file: file, function: function, line: line)
+         }
+     }
+     ```
+   - [ ] Replace print statements with `Logger.info("Message")`
+   - [ ] Add context information to log messages (file, line, function)
+
+-[ ] Add retry mechanisms for failed network operations
+   - [ ] Implement generic retry function with exponential backoff:
+     ```swift
+     func retry<T>(
+         times: Int = 3,
+         initialDelay: TimeInterval = 1.0,
+         factor: Double = 2.0,
+         operation: @escaping () async throws -> T
+     ) async throws -> T {
+         var currentDelay = initialDelay
+         var remainingAttempts = times
+         
+         while true {
+             do {
+                 return try await operation()
+             } catch {
+                 remainingAttempts -= 1
+                 if remainingAttempts == 0 {
+                     throw error
+                 }
+                 
+                 try await Task.sleep(nanoseconds: UInt64(currentDelay * 1_000_000_000))
+                 currentDelay *= factor
+             }
+         }
+     }
+     ```
+   - [ ] Add NetworkMonitor class to detect network status changes
+   - [ ] Implement retry for all Giphy and network-dependent operations
+
+-[ ] Add proper error handling for file I/O operations in DocumentsService.swift
+   - [ ] Improve error context in `/Memeo/Sources/Services/DocumentsService.swift` (line 35):
+     ```swift
+     func saveDocument(_ document: Document) async throws {
+         do {
+             let data = try JSONEncoder().encode(document)
+             let fileURL = try documentURL(for: document.id)
+             try data.write(to: fileURL, options: .atomic)
+         } catch let encodingError as EncodingError {
+             throw DocumentError.invalidData
+         } catch {
+             throw DocumentError.saveFailed(error)
+         }
+     }
+     ```
+   - [ ] Create specific file operation error types with meaningful messages
+   - [ ] Implement recovery strategy for common file system errors (file locked, disk full)
+
+-[ ] Implement better error handling for FFmpeg operations
+   - [ ] Parse FFmpeg output for known error patterns:
+     ```swift
+     func parseFFmpegError(_ output: String) -> Error {
+         if output.contains("No such file or directory") {
+             return FFmpegError.fileNotFound
+         } else if output.contains("Invalid data found when processing input") {
+             return FFmpegError.invalidInputData
+         } else if output.contains("Permission denied") {
+             return FFmpegError.permissionDenied
+         } else {
+             return FFmpegError.unknown(output)
+         }
+     }
+     ```
+   - [ ] Create FFmpegError enum with specific error cases and troubleshooting info
+   - [ ] Capture and log the full FFmpeg output for debugging purposes
+
+## UI/UX Improvements
+-[ ] Create a more consistent UI component library with shared styles
+   - [ ] Define a DesignSystem.swift file:
+     ```swift
+     enum DesignSystem {
+         enum Colors {
+             static let primary = Color("PrimaryColor")
+             static let secondary = Color("SecondaryColor")
+             static let background = Color("BackgroundColor") 
+             static let text = Color("TextColor")
+             static let error = Color("ErrorColor")
+         }
+         
+         enum Spacing {
+             static let small: CGFloat = 8
+             static let medium: CGFloat = 16
+             static let large: CGFloat = 24
+             static let extraLarge: CGFloat = 32
+         }
+         
+         enum FontSize {
+             static let small: CGFloat = 12
+             static let body: CGFloat = 16
+             static let title: CGFloat = 20
+             static let largeTitle: CGFloat = 28
+         }
+         
+         enum ViewModifiers {
+             struct PrimaryButtonStyle: ViewModifier {
+                 func body(content: Content) -> some View {
+                     content
+                         .padding()
+                         .background(Colors.primary)
+                         .foregroundColor(.white)
+                         .cornerRadius(8)
+                 }
+             }
+         }
+     }
+     ```
+   - [ ] Create shared view modifiers for common styling patterns
+   - [ ] Apply consistent spacing, fonts, and colors throughout app components
+
+-[ ] Implement dark mode support throughout the application
+   - [ ] Add Color assets with light/dark variants in Assets.xcassets:
+     ```
+     In Assets.xcassets:
+     - Create new Color Set named "PrimaryColor"
+     - Set "Any Appearance" color to hex #4A90E2
+     - Set "Dark Appearance" color to hex #62A1EB
+     ```
+   - [ ] Replace hardcoded Color(.blue) with DesignSystem.Colors.primary
+   - [ ] Test all screens with Appearance toggle in Simulator (Command+Shift+A)
+
+-[ ] Add accessibility support for all UI components
+   - [ ] Add accessibility labels to all interactive elements:
+     ```swift
+     Button("Save") { saveChanges() }
+         .accessibilityLabel("Save changes")
+         .accessibilityHint("Saves your current work")
+     ```
+   - [ ] Implement VoiceOver descriptions for video timeline with frame information
+   - [ ] Use the Accessibility Inspector in Xcode to verify accessibility
+
+-[ ] Implement proper keyboard handling for text input fields
+   - [ ] Use FocusState for keyboard management:
+     ```swift
+     enum Field: Hashable {
+         case title
+         case description
+     }
+     
+     @FocusState private var focusedField: Field?
+     
+     var body: some View {
+         VStack {
+             TextField("Title", text: $title)
+                 .focused($focusedField, equals: .title)
+             
+             TextField("Description", text: $description)
+                 .focused($focusedField, equals: .description)
+             
+             Button("Save") {
+                 focusedField = nil // Dismiss keyboard
+                 saveChanges()
+             }
+         }
+         .toolbar {
+             ToolbarItem(placement: .keyboard) {
+                 Button("Done") {
+                     focusedField = nil
+                 }
+             }
+         }
+     }
+     ```
+   - [ ] Add keyboard shortcuts for common editing operations
+   - [ ] Improve text editing experience with proper input accessory views
+
+-[ ] Replace generic UI elements with custom branded components
+   - [ ] Create MemeoButton component with consistent branding:
+     ```swift
+     struct MemeoButton: View {
+         let title: String
+         let action: () -> Void
+         var style: MemeoButtonStyle = .primary
+         
+         var body: some View {
+             Button(action: action) {
+                 Text(title)
+                     .frame(maxWidth: style == .full ? .infinity : nil)
+                     .padding(.vertical, 12)
+                     .padding(.horizontal, style == .full ? 16 : 24)
+             }
+             .background(style.backgroundColor)
+             .foregroundColor(style.textColor)
+             .cornerRadius(8)
+         }
+         
+         enum MemeoButtonStyle {
+             case primary, secondary, outline, destructive, full
+             
+             var backgroundColor: Color {
+                 switch self {
+                 case .primary: return DesignSystem.Colors.primary
+                 case .secondary: return DesignSystem.Colors.secondary
+                 case .outline: return Color.clear
+                 case .destructive: return Color.red
+                 case .full: return DesignSystem.Colors.primary
+                 }
+             }
+             
+             var textColor: Color {
+                 switch self {
+                 case .outline: return DesignSystem.Colors.primary
+                 default: return Color.white
+                 }
+             }
+         }
+     }
+     ```
+   - [ ] Replace standard SwiftUI Button elements with branded components
+   - [ ] Create consistent styling for all input controls (sliders, text fields)
+
+-[ ] Improve layout adaptability across different device sizes
+   - [ ] Use GeometryReader for responsive layouts:
+     ```swift
+     GeometryReader { geometry in
+         if geometry.size.width > 500 {
+             HStack {
+                 previewView
+                 controlsView
+             }
+         } else {
+             VStack {
+                 previewView
+                 controlsView
+             }
+         }
+     }
+     ```
+   - [ ] Create device size categories (compact, regular, large) for layout decisions
+   - [ ] Use relative sizing with geometry.size multipliers instead of fixed dimensions
+
+## Dependencies Management
+-[ ] Move API keys to a secure configuration file rather than hardcoding in MemeoApp.swift
+   - [ ] Create a Configuration.swift file:
+     ```swift
+     enum Configuration {
+         enum Keys {
+             static let giphyApiKey: String = {
+                 guard let key = Bundle.main.infoDictionary?["GIPHY_API_KEY"] as? String,
+                       !key.isEmpty else {
+                     fatalError("GIPHY_API_KEY not set in Info.plist")
+                 }
+                 return key
+             }()
+             
+             static let revenueCatApiKey: String = {
+                 guard let key = Bundle.main.infoDictionary?["REVENUECAT_API_KEY"] as? String,
+                       !key.isEmpty else {
+                     fatalError("REVENUECAT_API_KEY not set in Info.plist")
+                 }
+                 return key
+             }()
+         }
+     }
+     ```
+   - [ ] Update Info.plist to include these keys (using build configuration variables)
+   - [ ] Reference keys through Configuration: `Purchases.configure(withAPIKey: Configuration.Keys.revenueCatApiKey)`
+
+-[ ] Update FFmpegKit integration to use more modern Swift package management
+   - [ ] Replace framework with Swift Package dependency for FFmpegKit
+   - [ ] Update Package.swift with FFmpegKit dependency:
+     ```swift
+     dependencies: [
+         .package(url: "https://github.com/arthenica/ffmpeg-kit", from: "5.1.0")
+     ]
+     ```
+   - [ ] Create a wrapper service class that abstracts away FFmpeg implementation details
+
+-[ ] Create abstractions around third-party libraries to facilitate future updates
+   - [ ] Create a VideoProcessingService protocol:
+     ```swift
+     protocol VideoProcessingService {
+         func exportVideo(input: URL, output: URL, options: VideoExportOptions) async throws -> URL
+         func generateThumbnail(from videoURL: URL, at time: TimeInterval) async throws -> UIImage
+         func extractFrames(from videoURL: URL, count: Int) async throws -> [UIImage]
+     }
+     
+     struct FFmpegVideoProcessingService: VideoProcessingService {
+         // Implementation using FFmpegKit
+     }
+     ```
+   - [ ] Implement a MediaInfoService to abstract FFprobeKit functionality
+   - [ ] Create a test version of these services for unit testing
+
+-[ ] Consolidate GiphyUISDK usage through a service layer for better testability
+   - [ ] Create a GiphyService protocol:
+     ```swift
+     protocol GiphyService {
+         func search(query: String, limit: Int) async throws -> [GiphyMedia]
+         func trending(limit: Int) async throws -> [GiphyMedia]
+         func getMedia(by id: String) async throws -> GiphyMedia?
+     }
+     
+     class GiphyUISDKService: GiphyService {
+         // Implementation using GiphyUISDK
+     }
+     
+     class MockGiphyService: GiphyService {
+         // Mock implementation for testing
+     }
+     ```
+   - [ ] Extract all Giphy-related code from views into this service
+   - [ ] Inject GiphyService through dependency injection
+
+-[ ] Refactor RevenueCat integration to allow for easier testing and mocking
+   - [ ] Create a SubscriptionService protocol:
+     ```swift
+     protocol SubscriptionService {
+         func checkSubscriptionStatus() async -> SubscriptionStatus
+         func purchaseSubscription(productId: String) async throws -> SubscriptionStatus
+         func restorePurchases() async throws -> SubscriptionStatus
+     }
+     
+     enum SubscriptionStatus {
+         case active(expirationDate: Date)
+         case expired(lastActiveDate: Date?)
+         case none
+     }
+     
+     class RevenueCatSubscriptionService: SubscriptionService {
+         // Implementation using RevenueCat
+     }
+     
+     class MockSubscriptionService: SubscriptionService {
+         // Mock implementation for testing
+     }
+     ```
+   - [ ] Extract all subscription code from views into this service
+   - [ ] Register service in dependency container for proper DI
+
+## Testing and Quality Assurance
+-[ ] Add unit tests for core business logic and ViewModels
+   - [ ] Create `/MemeoTests/ViewModels/VideoEditorViewModelTests.swift`:
+     ```swift
+     import XCTest
+     @testable import Memeo
+     
+     final class VideoEditorViewModelTests: XCTestCase {
+         var sut: VideoEditorViewModel!
+         var mockDocumentsService: MockDocumentsService!
+         var mockVideoExporter: MockVideoExporter!
+         
+         override func setUp() {
+             super.setUp()
+             mockDocumentsService = MockDocumentsService()
+             mockVideoExporter = MockVideoExporter()
+             sut = VideoEditorViewModel(
+                 documentsService: mockDocumentsService,
+                 videoExporter: mockVideoExporter
+             )
+         }
+         
+         override func tearDown() {
+             sut = nil
+             mockDocumentsService = nil
+             mockVideoExporter = nil
+             super.tearDown()
+         }
+         
+         func testAddTrackerIncreasesTrackerCount() {
+             // Given
+             let initialCount = sut.document.trackers.count
+             
+             // When
+             sut.addTracker(at: CGPoint(x: 100, y: 100))
+             
+             // Then
+             XCTAssertEqual(sut.document.trackers.count, initialCount + 1)
+         }
+     }
+     ```
+   - [ ] Add tests for DocumentsService with mock file system
+   - [ ] Create test doubles for dependencies to isolate unit tests
+
+-[ ] Implement UI testing for critical user flows
+   - [ ] Create UITests target and implement basic tests:
+     ```swift
+     import XCTest
+     
+     final class MemeoUITests: XCTestCase {
+         var app: XCUIApplication!
+         
+         override func setUp() {
+             super.setUp()
+             continueAfterFailure = false
+             app = XCUIApplication()
+             app.launchArguments = ["UI-TESTING"]
+             app.launch()
+         }
+         
+         func testVideoImportFlow() {
+             // Test the video import process
+             app.buttons["Import Video"].tap()
+             
+             // Mock camera roll selection (might need custom implementation)
+             let firstVideo = app.cells.element(boundBy: 0)
+             XCTAssertTrue(firstVideo.waitForExistence(timeout: 5))
+             firstVideo.tap()
+             
+             // Verify the editor screen appears
+             XCTAssertTrue(app.buttons["Add Tracker"].waitForExistence(timeout: 5))
+         }
+     }
+     ```
+   - [ ] Add UI tests for tracker creation and editing workflow
+   - [ ] Implement video export flow testing with test videos
+
+-[ ] Add snapshot testing for UI components
+   - [ ] Set up SnapshotTesting library:
+     ```swift
+     import XCTest
+     import SnapshotTesting
+     @testable import Memeo
+     
+     final class ButtonSnapshotTests: XCTestCase {
+         func testGradientButtonStyles() {
+             let buttonStyles = [
+                 "primary": GradientButtonStyle(gradientColors: [.blue, .purple]),
+                 "secondary": GradientButtonStyle(gradientColors: [.green, .blue]),
+                 "destructive": GradientButtonStyle(gradientColors: [.red, .orange])
+             ]
+             
+             for (name, style) in buttonStyles {
+                 let button = Button("Test Button") {}
+                     .buttonStyle(style)
+                     .frame(width: 200, height: 50)
+                 
+                 assertSnapshot(matching: button, as: .image, named: name)
+             }
+         }
+     }
+     ```
+   - [ ] Create snapshot tests for key UI components in different states
+   - [ ] Test components in light and dark mode to ensure proper appearance
+
+-[ ] Create mock services for network operations to facilitate testing
+   - [ ] Implement MockDocumentsService:
+     ```swift
+     class MockDocumentsService: DocumentsService {
+         var documents: [Document] = []
+         var shouldFailOnSave = false
+         var shouldFailOnLoad = false
+         
+         override func loadDocuments() async throws -> [Document] {
+             if shouldFailOnLoad {
+                 throw DocumentError.loadFailed(NSError(domain: "test", code: 1))
+             }
+             return documents
+         }
+         
+         override func saveDocument(_ document: Document) async throws {
+             if shouldFailOnSave {
+                 throw DocumentError.saveFailed(NSError(domain: "test", code: 2))
+             }
+             
+             if let index = documents.firstIndex(where: { $0.id == document.id }) {
+                 documents[index] = document
+             } else {
+                 documents.append(document)
+             }
+         }
+     }
+     ```
+   - [ ] Create MockVideoExporter with predictable behavior for tests
+   - [ ] Implement network mocks for Giphy and RevenueCat that return test data
+
+-[ ] Implement performance benchmarks for video processing operations
+   - [ ] Create performance test suite:
+     ```swift
+     import XCTest
+     @testable import Memeo
+     
+     final class VideoPerformanceTests: XCTestCase {
+         var videoExporter: VideoExporter!
+         
+         override func setUp() {
+             super.setUp()
+             videoExporter = VideoExporter()
+         }
+         
+         func testVideoExportPerformance() {
+             let document = Document.sample // Create sample document
+             
+             measure {
+                 let expectation = expectation(description: "Video export")
+                 
+                 Task {
+                     do {
+                         _ = try await videoExporter.exportVideo(withDocument: document)
+                         expectation.fulfill()
+                     } catch {
+                         XCTFail("Export failed: \(error)")
+                     }
+                 }
+                 
+                 wait(for: [expectation], timeout: 30.0)
+             }
+         }
+     }
+     ```
+   - [ ] Measure timeline scrubbing performance with different cache sizes
+   - [ ] Monitor memory usage with MetricKit during video processing operations
+
+## Security and Privacy
+-[ ] Implement proper permission handling for photo library access
+   - [ ] Create a PermissionService to centralize request logic:
+     ```swift
+     enum PermissionType {
+         case photoLibrary
+         case camera
+         case microphone
+     }
+     
+     enum PermissionStatus {
+         case authorized
+         case denied
+         case restricted
+         case notDetermined
+     }
+     
+     class PermissionService {
+         func requestPermission(for type: PermissionType) async -> PermissionStatus {
+             switch type {
+             case .photoLibrary:
+                 return await requestPhotoLibraryPermission()
+             case .camera:
+                 return await requestCameraPermission()
+             case .microphone:
+                 return await requestMicrophonePermission()
+             }
+         }
+         
+         private func requestPhotoLibraryPermission() async -> PermissionStatus {
+             // Implementation using PHPhotoLibrary
+         }
+     }
+     ```
+   - [ ] Create educational UI explaining why permissions are needed
+   - [ ] Implement graceful fallback when permissions are denied
+
+-[ ] Secure API keys and credentials using keychain or similar secure storage
+   - [ ] Implement a KeychainService for secure storage:
+     ```swift
+     class KeychainService {
+         enum KeychainError: Error {
+             case itemNotFound
+             case duplicateItem
+             case unexpectedStatus(OSStatus)
+         }
+         
+         func saveAPIKey(_ key: String, forService service: String) throws {
+             // Implementation using Security framework
+         }
+         
+         func getAPIKey(forService service: String) throws -> String {
+             // Implementation using Security framework
+         }
+     }
+     ```
+   - [ ] Move API keys from Configuration to KeychainService
+   - [ ] Add secure string handling to prevent keys from appearing in logs
+
+-[ ] Add data validation for user inputs
+   - [ ] Implement input validation for tracker text:
+     ```swift
+     func validate(trackerText: String) -> ValidationResult {
+         if trackerText.isEmpty {
+             return .failure("Text cannot be empty")
+         }
+         
+         if trackerText.count > 100 {
+             return .failure("Text is too long (max 100 characters)")
+         }
+         
+         return .success
+     }
+     
+     enum ValidationResult {
+         case success
+         case failure(String)
+     }
+     ```
+   - [ ] Add sanitization for all user-provided inputs
+   - [ ] Implement file validation for imported media
+
+-[ ] Implement content validation for imported media
+   - [ ] Add video format validation:
+     ```swift
+     func validateVideo(at url: URL) async throws -> VideoValidationResult {
+         let asset = AVAsset(url: url)
+         
+         // Check duration
+         let duration = try await asset.load(.duration).seconds
+         if duration > 300 { // 5 minutes max
+             throw VideoValidationError.durationTooLong(duration)
+         }
+         
+         // Check dimensions
+         guard let track = try await asset.loadTracks(withMediaType: .video).first else {
+             throw VideoValidationError.noVideoTrack
+         }
+         
+         let size = try await track.load(.naturalSize)
+         if size.width < 640 || size.height < 360 {
+             throw VideoValidationError.resolutionTooLow(size)
+         }
+         
+         return VideoValidationResult(
+             duration: duration,
+             size: size,
+             fileSize: try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
+         )
+     }
+     ```
+   - [ ] Add checks for supported video codecs
+   - [ ] Implement user-friendly error messages for unsupported media
+
+-[ ] Add proper privacy descriptions in Info.plist
+   - [ ] Update Info.plist with detailed purpose strings:
+     ```xml
+     <key>NSPhotoLibraryUsageDescription</key>
+     <string>Memeo needs access to your photo library to import videos that you want to edit and add trackers to.</string>
+     
+     <key>NSCameraUsageDescription</key>
+     <string>Memeo needs camera access to capture new videos that you can enhance with trackers and animations.</string>
+     
+     <key>NSMicrophoneUsageDescription</key>
+     <string>Memeo needs microphone access to record audio when capturing new videos.</string>
+     ```
+   - [ ] Add privacy policy link in app settings
+   - [ ] Ensure all permission requests have clear explanations
+
+## Code Maintenance
+-[ ] Update documentation for all public methods and complex logic
+   - [ ] Add proper DocC documentation comments:
+     ```swift
+     /// Exports a video with the provided document
+     /// - Parameter document: The document containing video editing metadata
+     /// - Returns: The URL of the exported video
+     /// - Throws: `VideoExportError` if export fails
+     ///
+     /// This method renders trackers, animations, and effects defined in the document
+     /// onto the source video. The export process involves multiple steps:
+     /// 1. Extracting frames from the source video
+     /// 2. Rendering overlays on each frame
+     /// 3. Encoding the modified frames back into a video
+     ///
+     /// ```swift
+     /// do {
+     ///     let url = try await videoExporter.exportVideo(document: myDocument)
+     ///     // Handle successful export
+     /// } catch {
+     ///     // Handle error
+     /// }
+     /// ```
+     func exportVideo(document: Document) async throws -> URL {
+         // Implementation
+     }
+     ```
+   - [ ] Document all complex video processing algorithms
+   - [ ] Add usage examples for key components in documentation comments
+
+-[ ] Fix inconsistent naming conventions (e.g., "EditorDocument.swift" vs "Document.swift")
+   - [ ] Rename files to follow consistent SwiftUI view naming:
+     - View files should end with "View" (e.g., "VideoEditorView.swift")
+     - ViewModels should end with "ViewModel" (e.g., "VideoEditorViewModel.swift")
+     - Model files should be named after the primary type (e.g., "Document.swift")
+   - [ ] Ensure consistent casing conventions throughout the codebase
+   - [ ] Follow Apple's Swift API Design Guidelines for naming
+
+-[ ] Remove print debugging statements and replace with structured logging
+   - [ ] Remove all print statements from HomeViewModel.swift
+   - [ ] Use the Logger implementation provided earlier:
+     ```swift
+     // Instead of:
+     print("Error loading documents: \(error)")
+     
+     // Use:
+     Logger.error("Failed to load documents: \(error.localizedDescription)")
+     ```
+   - [ ] Configure log levels based on build configuration (debug vs release)
+
+-[ ] Fix file headers to be consistent across the codebase
+   - [ ] Create a standard file header template:
+     ```swift
+     //
+     //  FileName.swift
+     //  Memeo
+     //
+     //  Created by [Author] on [Date].
+     //  Copyright © [Year] Memeo. All rights reserved.
+     //
+     ```
+   - [ ] Apply header to all source files
+   - [ ] Add appropriate copyright information
+
+-[ ] Add proper attribution for third-party code and assets
+   - [ ] Create an Attributions.md file listing all libraries and assets
+   - [ ] Add an AttributionsView to display credits in the app
+   - [ ] Include license information in the project documentation
+
+## Feature Improvements
+-[ ] Implement proper localization system instead of using hardcoded strings
+   - [ ] Extract all hardcoded strings to Localizable.strings:
+     ```
+     /* Home screen */
+     "home.title" = "My Videos";
+     "home.empty.message" = "No videos yet. Create your first video!";
+     "home.create.button" = "Create New";
+     
+     /* Video Editor */
+     "editor.add.tracker" = "Add Tracker";
+     "editor.export" = "Export";
+     "editor.cancel" = "Cancel";
+     ```
+   - [ ] Use SwiftUI's localization support:
+     ```swift
+     Text("home.title", comment: "Title for the home screen")
+     Button(String(localized: "editor.export")) {
+         exportVideo()
+     }
+     ```
+   - [ ] Implement proper pluralization with stringsdict for numeric content
+
+-[ ] Add proper background task handling for long-running video exports
+   - [ ] Implement background task handling:
+     ```swift
+     func beginVideoExport(document: Document) async throws -> URL {
+         // Register background task
+         let backgroundTaskID = UIApplication.shared.beginBackgroundTask {
+             // This closure is called if the task is about to be terminated
+             // Clean up resources and cancel export
+             exportCancellation?.cancel()
+             UIApplication.shared.endBackgroundTask(backgroundTaskID)
+         }
+         
+         do {
+             // Start export process
+             let result = try await videoExporter.exportVideo(document: document)
+             
+             // Export completed successfully
+             UIApplication.shared.endBackgroundTask(backgroundTaskID)
+             return result
+         } catch {
+             // Export failed
+             UIApplication.shared.endBackgroundTask(backgroundTaskID)
+             throw error
+         }
+     }
+     ```
+   - [ ] Add progress notification support using UNUserNotificationCenter
+   - [ ] Handle app suspension by saving intermediate export state
+
+-[ ] Implement more robust state restoration for app lifecycle events
+   - [ ] Save editing state when app enters background:
+     ```swift
+     @main
+     struct MemeoApp: App {
+         @Environment(\.scenePhase) private var scenePhase
+         @StateObject private var appState = AppState()
+         
+         var body: some Scene {
+             WindowGroup {
+                 ContentView()
+                     .environmentObject(appState)
+                     .onChange(of: scenePhase) { newPhase in
+                         switch newPhase {
+                         case .active:
+                             appState.appDidBecomeActive()
+                         case .background:
+                             Task {
+                                 await appState.saveState()
+                             }
+                         case .inactive:
+                             break
+                         @unknown default:
+                             break
+                         }
+                     }
+             }
+         }
+     }
+     ```
+   - [ ] Implement state serialization and restoration for editing sessions
+   - [ ] Handle interruptions by automatically saving draft versions
+
+-[ ] Add analytics for tracking user engagement and feature usage
+   - [ ] Create a privacy-focused analytics service:
+     ```swift
+     protocol AnalyticsService {
+         func trackScreen(_ screenName: String)
+         func trackEvent(_ eventName: String, parameters: [String: Any]?)
+         func setUserProperty(_ property: String, value: Any?)
+         func setOptOut(_ optOut: Bool)
+     }
+     
+     class AppAnalyticsService: AnalyticsService {
+         private let isOptedOut: Bool
+         
+         init() {
+             // Check user preferences for opt-out
+             self.isOptedOut = UserDefaults.standard.bool(forKey: "analytics_opt_out")
+         }
+         
+         func trackScreen(_ screenName: String) {
+             guard !isOptedOut else { return }
+             // Implementation
+         }
+         
+         // Other methods
+     }
+     ```
+   - [ ] Add key event tracking for important user actions
+   - [ ] Implement opt-out mechanism in app settings
+
+-[ ] Implement a more scalable animation system that supports more properties
+   - [ ] Create an enhanced animation system:
+     ```swift
+     struct AnimationProperty: Codable, Hashable {
+         enum PropertyType: String, Codable {
+             case position, scale, rotation, opacity, textColor, backgroundColor
+         }
+         
+         let type: PropertyType
+         let keyframes: [Keyframe]
+         
+         struct Keyframe: Codable, Hashable {
+             let time: TimeInterval
+             let value: PropertyValue
+             let easingFunction: EasingFunction
+             
+             enum EasingFunction: String, Codable {
+                 case linear, easeIn, easeOut, easeInOut, bounce
+             }
+         }
+         
+         enum PropertyValue: Codable, Hashable {
+             case point(CGPoint)
+             case scalar(CGFloat)
+             case angle(CGFloat)
+             case color(ColorComponents)
+             
+             struct ColorComponents: Codable, Hashable {
+                 let red, green, blue, alpha: CGFloat
+             }
+         }
+     }
+     ```
+   - [ ] Add support for keyframe interpolation with easing functions
+   - [ ] Create preset animations for common effects (e.g., bounce, fade, slide)
