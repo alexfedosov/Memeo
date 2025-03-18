@@ -88,7 +88,11 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
    - Moved models to Domain directory for clearer structure
    - Updated file headers to indicate new organization
 
-4. [ ] Create a centralized dependency injection system
+4. ✅ Create a centralized dependency injection system
+   - Created DependencyContainer.swift with register/resolve methods
+   - Updated MemeoApp.swift to register all services
+   - Updated ViewModelFactory to use the DependencyContainer
+   - Removed default parameter values from ViewModel initializers
 
 5. [ ] Consolidate duplicated view components and utilities
 

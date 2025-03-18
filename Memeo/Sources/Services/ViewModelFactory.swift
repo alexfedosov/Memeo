@@ -18,17 +18,21 @@ protocol ViewModelFactory {
 
 /// Concrete implementation of ViewModelFactory that creates ViewModels with proper dependencies
 class AppViewModelFactory: ViewModelFactory {
-    private let documentsService: DocumentsService
+    private let dependencyContainer: DependencyContainer
     
-    init(documentsService: DocumentsService = DocumentsService()) {
-        self.documentsService = documentsService
+    init(dependencyContainer: DependencyContainer = DependencyContainer.shared) {
+        self.dependencyContainer = dependencyContainer
     }
     
     func makeHomeViewModel() -> HomeViewModel {
-        return HomeViewModel(documentsService: documentsService)
+        return HomeViewModel(documentsService: dependencyContainer.resolve())
     }
     
     @MainActor func makeVideoEditorViewModel(document: Document) -> VideoEditorViewModel {
-        return VideoEditorViewModel(document: document)
+        return VideoEditorViewModel(
+            document: document,
+            documentService: dependencyContainer.resolve(),
+            videoExporter: dependencyContainer.resolve()
+        )
     }
 }

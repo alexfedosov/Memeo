@@ -23,9 +23,15 @@ struct MemeoApp: App {
         Purchases.logLevel = .debug
         Purchases.configure(withAPIKey: "appl_yOZceRdNqzNTNLHDYaPsyqTWeTM")
         
+        // Set up dependency container
+        let dependencyContainer = DependencyContainer.shared
+        
+        // Register services
+        dependencyContainer.register(DocumentsService())
+        dependencyContainer.register(VideoExporter())
+        
         // Create factory and coordinator
-        let documentsService = DocumentsService()
-        let viewModelFactory = AppViewModelFactory(documentsService: documentsService)
+        let viewModelFactory = AppViewModelFactory(dependencyContainer: dependencyContainer)
         let coordinator = AppCoordinator(viewModelFactory: viewModelFactory)
         
         _coordinator = StateObject(wrappedValue: coordinator)

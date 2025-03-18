@@ -276,7 +276,7 @@ struct Home: View {
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
         let documentsService = DocumentsService()
-        let factory = AppViewModelFactory(documentsService: documentsService)
+        let factory = AppViewModelFactory()
         let coordinator = AppCoordinator(viewModelFactory: factory)
         
         Home(openUrl: .constant(nil), viewModel: coordinator.homeViewModel, coordinator: coordinator)

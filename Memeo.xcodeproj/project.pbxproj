@@ -62,6 +62,7 @@
 		FA1E372B2D89AF7800928D62 /* ShareViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1E36F12D89AF7800928D62 /* ShareViewModel.swift */; };
 		FA1E372C2D89AF7800928D62 /* FullscreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1E36D32D89AF7800928D62 /* FullscreenModifier.swift */; };
 		FA1E372D2D89AF7800928D62 /* ViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1E36E82D89AF7800928D62 /* ViewModelFactory.swift */; };
+		FA1E372F2D89B1D300928D62 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1E372E2D89B1D300928D62 /* DependencyContainer.swift */; };
 		FA7279C02B4B3280000FEDF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */; };
 		FA9044ED2B4C58440064E296 /* GiphyUISDK in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044EC2B4C58440064E296 /* GiphyUISDK */; };
 		FA9044F02B4C58720064E296 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA9044EF2B4C58720064E296 /* FirebaseAnalytics */; };
@@ -140,6 +141,7 @@
 		FA1E37042D89AF7800928D62 /* VideoEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoEditorViewModel.swift; sourceTree = "<group>"; };
 		FA1E37062D89AF7800928D62 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		FA1E37072D89AF7800928D62 /* MemeoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemeoApp.swift; sourceTree = "<group>"; };
+		FA1E372E2D89B1D300928D62 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
 		FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA7F03F926E0100400323E19 /* Memeo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Memeo.entitlements; sourceTree = "<group>"; };
 		FA97AD6526DB7C5800BD8B83 /* Memeo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memeo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -268,6 +270,7 @@
 		FA1E36E92D89AF7800928D62 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FA1E372E2D89B1D300928D62 /* DependencyContainer.swift */,
 				FA1E36E62D89AF7800928D62 /* DocumentsService.swift */,
 				FA1E36E72D89AF7800928D62 /* VideoExporter.swift */,
 				FA1E36E82D89AF7800928D62 /* ViewModelFactory.swift */,
@@ -529,6 +532,7 @@
 				FA1E37142D89AF7800928D62 /* MemeoApp.swift in Sources */,
 				FA1E37152D89AF7800928D62 /* ShareView.swift in Sources */,
 				FA1E37162D89AF7800928D62 /* AspectFitModifier.swift in Sources */,
+				FA1E372F2D89B1D300928D62 /* DependencyContainer.swift in Sources */,
 				FA1E37172D89AF7800928D62 /* Timeline.swift in Sources */,
 				FA1E37182D89AF7800928D62 /* Document.swift in Sources */,
 				FA1E37192D89AF7800928D62 /* UIKitTextField.swift in Sources */,

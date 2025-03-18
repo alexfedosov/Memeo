@@ -18,8 +18,8 @@
    - [x] Move timeline files (`/Memeo/Sources/VideoEditor/Timeline/Timeline.swift` and `TimelineView.swift`) into Features/VideoEditor/Timeline directory
    - [x] Move all models into structured Models directory with subdirectories for domain models, DTOs, etc.
 
--[ ] Create a centralized dependency injection system instead of directly instantiating services
-   - [ ] Create `/Memeo/Sources/Services/DependencyContainer.swift` with this implementation:
+-[x] Create a centralized dependency injection system instead of directly instantiating services
+   - [x] Create `/Memeo/Sources/Services/DependencyContainer.swift` with this implementation:
      ```swift
      final class DependencyContainer {
          static let shared = DependencyContainer()
@@ -37,8 +37,8 @@
          }
      }
      ```
-   - [ ] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
-   - [ ] Inject dependencies through initializers: `init(documentService: DocumentsService = DependencyContainer.shared.resolve())`
+   - [x] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
+   - [x] Update ViewModelFactory to use DependencyContainer: `func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: dependencyContainer.resolve()) }`
 
 -[ ] Consolidate duplicated view components and utilities into reusable modules
    - [ ] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles

@@ -77,7 +77,7 @@ class VideoEditorViewModel: ObservableObject {
     }
 
     // MARK: - Initialization
-    init(document: Document, documentService: DocumentsService = DocumentsService(), videoExporter: VideoExporter = VideoExporter()) {
+    init(document: Document, documentService: DocumentsService, videoExporter: VideoExporter) {
         self.document = document
         self.documentService = documentService
         self.videoExporter = videoExporter
@@ -432,7 +432,13 @@ class VideoEditorViewModel: ObservableObject {
 // MARK: - Preview Helper
 extension VideoEditorViewModel {
     static var preview: VideoEditorViewModel {
-        VideoEditorViewModel(document: Document.loadPreviewDocument())
+        let documentsService = DocumentsService()
+        let videoExporter = VideoExporter()
+        return VideoEditorViewModel(
+            document: Document.loadPreviewDocument(),
+            documentService: documentsService,
+            videoExporter: videoExporter
+        )
     }
 }
 
