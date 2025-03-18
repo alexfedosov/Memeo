@@ -15,6 +15,7 @@ import FirebaseAnalytics
 @main
 struct MemeoApp: App {
     @State var openUrl: URL?
+    @StateObject private var homeViewModel = HomeViewModel()
 
     init() {
         FirebaseApp.configure()
@@ -27,7 +28,7 @@ struct MemeoApp: App {
         WindowGroup {
             ZStack {
                 Rectangle().fill(Color.black).ignoresSafeArea()
-                Home(openUrl: $openUrl, viewModel: HomeViewModel())
+                Home(openUrl: $openUrl, viewModel: homeViewModel)
             }
             .onOpenURL(perform: { url in
                 openUrl = url

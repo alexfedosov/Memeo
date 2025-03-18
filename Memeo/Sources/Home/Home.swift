@@ -31,7 +31,7 @@ struct Home: View {
     @State var displayPaywall = false
     @State var hasSubscription = true
     
-    init(openUrl: Binding<URL?>, viewModel: HomeViewModel = HomeViewModel()) {
+    init(openUrl: Binding<URL?>, viewModel: HomeViewModel) {
         self._openUrl = openUrl
         self.viewModel = viewModel
     }
@@ -82,7 +82,10 @@ struct Home: View {
                 }
                 searchGIPHYView().padding([.horizontal, .top], 8)
             }
-            .navigationDestination(isPresented: $viewModel.isImportingVideo) {
+            .navigationDestination(isPresented: Binding(
+                get: { viewModel.isImportingVideo },
+                set: { _ in } // We don't need to set it from here
+            )) {
                 ZStack {
                     VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
                         .ignoresSafeArea()
@@ -269,7 +272,8 @@ struct Home: View {
 
 struct Home_Previews: PreviewProvider {
     static var previews: some View {
-        Home(openUrl: .constant(nil), viewModel: HomeViewModel())
-//        Home(openUrl: .constant(nil), viewModel: HomeViewModel()).previewDevice("iPhone 12 mini")
+        let viewModel = HomeViewModel()
+        Home(openUrl: .constant(nil), viewModel: viewModel)
+//        Home(openUrl: .constant(nil), viewModel: viewModel).previewDevice("iPhone 12 mini")
     }
 }

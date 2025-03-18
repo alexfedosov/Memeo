@@ -16,11 +16,10 @@ enum Source {
     case giphy(GPHMedia)
 }
 
-@MainActor
 class HomeViewModel: ObservableObject {
     // Published properties with private(set) for state
     @Published private(set) var videoEditorViewModel: VideoEditorViewModel? = nil
-    @Published private(set) var isImportingVideo = false
+    @Published var isImportingVideo = false // Keep this mutable for binding
     @Published private(set) var documents: [Document] = []
     @Published private(set) var error: Error? = nil
     
@@ -28,11 +27,12 @@ class HomeViewModel: ObservableObject {
     
     init(documentsService: DocumentsService = DocumentsService()) {
         self.documentsService = documentsService
-        Task {
+        Task { @MainActor in
             await loadDocuments()
         }
     }
     
+    @MainActor
     func create(from source: Source) async {
         isImportingVideo = true
         error = nil
@@ -49,6 +49,7 @@ class HomeViewModel: ObservableObject {
         isImportingVideo = false
     }
     
+    @MainActor
     private func loadDocuments() async {
         do {
             // This would be the implementation if DocumentsService had a loadDocuments method
@@ -59,6 +60,7 @@ class HomeViewModel: ObservableObject {
     }
     
     // Methods to modify state
+    @MainActor
     func setVideoEditorViewModel(_ viewModel: VideoEditorViewModel?) {
         videoEditorViewModel = viewModel
     }
