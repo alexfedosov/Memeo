@@ -3,6 +3,7 @@
 //  Memeo
 //
 //  Created by Alex on 29.8.2021.
+//  Moved to Models/Domain structure
 //
 
 import AVKit

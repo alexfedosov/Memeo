@@ -36,9 +36,14 @@ The app uses a Coordinator pattern with a ViewModelFactory for better dependency
 
 ## Project Structure
 
-- `/Memeo/Sources/Home/` - Home screen implementation
-- `/Memeo/Sources/VideoEditor/` - Video editor implementation
+The project follows a feature-based organization with domain-driven design principles:
+
+- `/Memeo/Sources/Features/` - Feature modules organized by domain
+  - `/Home/` - Home screen implementation
+  - `/VideoEditor/` - Video editor implementation
+    - `/Timeline/` - Timeline-specific components
 - `/Memeo/Sources/Models/` - Model definitions
+  - `/Domain/` - Core business domain models
 - `/Memeo/Sources/Services/` - Services for data handling
 - `/Memeo/Sources/Utils/` - Utility extensions and helpers
 - `/Memeo/Sources/CommonComponents/` - Reusable UI components
@@ -78,7 +83,10 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
 
 2. ✅ Move ViewModel initialization to a factory/coordinator pattern
 
-3. [ ] Reorganize file structure to better separate features
+3. ✅ Reorganize file structure to better separate features
+   - Created Features directory with sub-directories for each feature
+   - Moved models to Domain directory for clearer structure
+   - Updated file headers to indicate new organization
 
 4. [ ] Create a centralized dependency injection system
 

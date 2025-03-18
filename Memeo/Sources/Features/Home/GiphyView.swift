@@ -3,6 +3,7 @@
 //  Memeo
 //
 //  Created by Alex on 10.9.2021.
+//  Moved to Features/Home structure
 //
 
 import Combine
