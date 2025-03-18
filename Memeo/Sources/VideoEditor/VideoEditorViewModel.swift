@@ -317,7 +317,7 @@ class VideoEditorViewModel: ObservableObject {
         }
 
         let url = try await videoExporter.export(document: document)
-        let gifUrl = document.duration < 10 ? videoExporter.exportGif(url: url, trim: false) : nil
+        let gifUrl = document.duration < 10 ? try await videoExporter.exportGif(url: url, trim: false) : nil
         return (url, gifUrl)
     }
     

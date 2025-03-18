@@ -8,7 +8,7 @@
 import Foundation
 
 /// Protocol defining factory methods for creating ViewModels
-protocol ViewModelFactory {
+@MainActor protocol ViewModelFactory {
     /// Creates a HomeViewModel instance
     func makeHomeViewModel() -> HomeViewModel
     
@@ -17,7 +17,7 @@ protocol ViewModelFactory {
 }
 
 /// Concrete implementation of ViewModelFactory that creates ViewModels with proper dependencies
-class AppViewModelFactory: ViewModelFactory {
+@MainActor class AppViewModelFactory: ViewModelFactory {
     private let dependencyContainer: DependencyContainer
     
     init(dependencyContainer: DependencyContainer = DependencyContainer.shared) {

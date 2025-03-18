@@ -90,25 +90,23 @@ class ShareViewModel: ObservableObject {
             return
         }
 
-        VideoExporter()
-            .moveAssetToMemeoAlbum(url: videoUrl)
-            .receive(on: RunLoop.main)
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { localIdentifier in
-                    guard let localIdentifier = localIdentifier else {
-                        return
-                    }
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                if let localIdentifier = try await VideoExporter().moveAssetToMemeoAlbum(url: videoUrl) {
                     let urlString = "instagram://library?LocalIdentifier=" + localIdentifier
-                    guard let url = URL(string: urlString),
-                        UIApplication.shared.canOpenURL(url)
-                    else {
+                    guard let url = URL(string: urlString) else {
                         return
                     }
-                    UIApplication.shared.open(url)
+                    
+                    if await UIApplication.shared.canOpenURL(url) {
+                        await UIApplication.shared.open(url)
+                    }
                 }
-            )
-            .store(in: &bag)
+            } catch {
+                print("Failed to save to Instagram: \(error.localizedDescription)")
+            }
+        }
     }
 
     func saveToPhotoLibrary() {
@@ -122,16 +120,17 @@ class ShareViewModel: ObservableObject {
             return
         }
 
-        VideoExporter()
-            .moveAssetToMemeoAlbum(url: videoUrl)
-            .receive(on: RunLoop.main)
-            .sink(
-                receiveCompletion: { [weak self] _ in
-                    self?.notification = "Video saved!"
-                },
-                receiveValue: { _ in }
-            )
-            .store(in: &bag)
+        Task { [weak self] in
+            guard let self = self else { return }
+            do {
+                _ = try await VideoExporter().moveAssetToMemeoAlbum(url: videoUrl)
+                await MainActor.run {
+                    self.notification = "Video saved!"
+                }
+            } catch {
+                print("Failed to save to photo library: \(error.localizedDescription)")
+            }
+        }
     }
 
     func closeShareDialog() {

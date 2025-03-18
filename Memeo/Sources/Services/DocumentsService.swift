@@ -56,10 +56,12 @@ class DocumentsService {
     }
 
     func create(fromImage image: UIImage) async throws -> Document {
-        guard let url = VideoExporter().export(image: image) else {
+        do {
+            let url = try await VideoExporter().export(image: image)
+            return try await create(fromMedia: url, copyToDocumentsDir: true)
+        } catch {
             throw DocumentServiceError.unexpectedError
         }
-        return try await create(fromMedia: url, copyToDocumentsDir: true)
     }
 
     func create(fromGIPHY media: GPHMedia) async throws -> Document {

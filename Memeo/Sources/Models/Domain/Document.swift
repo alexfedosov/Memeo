@@ -11,10 +11,10 @@ import Foundation
 import SwiftUI
 import UIKit
 
-struct Document: Codable {
+struct Document: Identifiable, Codable, Hashable {
     static let defaultFPS = 10
 
-    var uuid: UUID = UUID()
+    var id = UUID()
     var duration: CFTimeInterval
     var numberOfKeyframes: Int
     var trackers: [Tracker]
@@ -25,15 +25,11 @@ struct Document: Codable {
     var fps: Int = 10
 }
 
-extension Document: Hashable {
-    // Swift can automatically synthesize hash(into:) and == for structs
-    // when all properties are Hashable
-}
-
 extension Document {
     static func loadPreviewDocument() -> Document {
         let url = Bundle.main.url(forResource: "previewAsset", withExtension: "mp4")!
         return Document(
+            id: UUID(),
             duration: 12.8,
             numberOfKeyframes: Int(12.8) * defaultFPS,
             trackers: [

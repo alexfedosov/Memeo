@@ -19,32 +19,83 @@ enum VideoExporterError: Error {
 class VideoExporter {
     let albumName = "Memeo"
 
-    func exportGif(url: URL, trim: Bool = true) -> URL? {
+    func exportGif(url: URL, trim: Bool = true) async throws -> URL {
         let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "meme.gif")
         let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
         var command = trim ? "-ss 0.1 -t 3" : ""
         command.append(
             " -i \(url.path)  -filter_complex \"[0:v] fps=12,scale=w=480:h=-1,split [a][b];[a] palettegen [p];[b][p] paletteuse\" -loop -1 \(outfileURL.path)"
         )
-        let _ = FFmpegKit.execute(command)
-        return FileManager().fileExists(atPath: outfileURL.path) ? outfileURL : nil
+        
+        let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
+            FFmpegKit.executeAsync(command) { session in
+                if let session = session {
+                    continuation.resume(returning: session)
+                } else {
+                    continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
+                }
+            }
+        }
+        
+        let returnCode = session.getReturnCode()
+        guard let code = returnCode, code.isValueSuccess() else {
+            throw VideoExporterError.unexpectedError("Failed to export GIF: \(String(describing: session.getOutput()))")
+        }
+        
+        guard FileManager.default.fileExists(atPath: outfileURL.path) else {
+            throw VideoExporterError.unexpectedError("GIF file was not created")
+        }
+        
+        return outfileURL
     }
 
-    func export(image: UIImage) -> URL? {
+    func export(image: UIImage) async throws -> URL {
         let data = image.pngData() ?? image.jpegData(compressionQuality: 1)
         let format = image.pngData() != nil ? ".png" : ".jpeg"
 
-        guard let data = data else { return nil }
+        guard let data = data else { 
+            throw VideoExporterError.unexpectedError("Failed to convert image to data")
+        }
+        
         let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, format))
-        guard let _ = try? data.write(to: url) else { return nil }
+        
+        do {
+            try data.write(to: url)
+        } catch {
+            throw VideoExporterError.unexpectedError("Failed to write image data: \(error.localizedDescription)")
+        }
 
         let width = image.size.width
         let height = image.size.height
         let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, ".mp4")
         let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
         let command = " -framerate 30 -i \(url.path) -t 1 -pix_fmt yuv420p -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
-        let _ = FFmpegKit.execute(command)
-        return FileManager().fileExists(atPath: outfileURL.path) ? outfileURL : nil
+        
+        // Clean up the temporary image file
+        defer {
+            try? FileManager.default.removeItem(at: url)
+        }
+        
+        let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
+            FFmpegKit.executeAsync(command) { session in
+                if let session = session {
+                    continuation.resume(returning: session)
+                } else {
+                    continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
+                }
+            }
+        }
+        
+        let returnCode = session.getReturnCode()
+        guard let code = returnCode, code.isValueSuccess() else {
+            throw VideoExporterError.unexpectedError("Failed to convert image to video: \(String(describing: session.getOutput()))")
+        }
+        
+        guard FileManager.default.fileExists(atPath: outfileURL.path) else {
+            throw VideoExporterError.unexpectedError("Video file was not created")
+        }
+        
+        return outfileURL
     }
 
     func export(document: Document) async throws -> URL {
@@ -180,93 +231,105 @@ class VideoExporter {
         return animation
     }
 
-    func createMemeoAlbum() -> Future<PHAssetCollection, Error> {
-        Future { [albumName] promise in
-            var placeholder: PHObjectPlaceholder?
-            PHPhotoLibrary.shared().performChanges(
-                {
-                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(
-                        withTitle: albumName)
-                    placeholder = createAlbumRequest.placeholderForCreatedAssetCollection
-                },
-                completionHandler: { created, error in
-                    if let error = error {
-                        promise(.failure(error as Error))
-                        return
-                    }
-                    if created,
-                       let collectionFetchResult = placeholder.map({
-                           PHAssetCollection.fetchAssetCollections(
-                            withLocalIdentifiers: [$0.localIdentifier], options: nil)
-                       }),
-                       let album = collectionFetchResult.firstObject
-                    {
-                        promise(.success(album))
-                    } else {
-                        promise(.failure(VideoExporterError.albumCreatingError as Error))
-                    }
-                })
-        }
-    }
-
-    func fetchMemeoAlbum() -> Future<PHAssetCollection?, Never> {
-        Future { [albumName] promise in
-            let fetchOptions = PHFetchOptions()
-            fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
-            let collections = PHAssetCollection.fetchAssetCollections(
-                with: .album, subtype: .any, options: fetchOptions)
-            promise(.success(collections.firstObject))
-        }
-    }
-
-    func findOrCreateMemeoAlbum() -> AnyPublisher<PHAssetCollection, Error> {
-        fetchMemeoAlbum()
-            .flatMap { [createMemeoAlbum] (album) -> Future<PHAssetCollection, Error> in
-                if let album = album {
-                    return Future<PHAssetCollection, Error> {
-                        $0(.success(album))
-                    }
-                } else {
-                    return createMemeoAlbum()
+    func createMemeoAlbum() async throws -> PHAssetCollection {
+        let albumName = self.albumName
+        var placeholder: PHObjectPlaceholder?
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            PHPhotoLibrary.shared().performChanges({
+                let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(
+                    withTitle: albumName)
+                placeholder = createAlbumRequest.placeholderForCreatedAssetCollection
+            }, completionHandler: { created, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
+                    return
                 }
-            }.eraseToAnyPublisher()
+                if created {
+                    continuation.resume()
+                } else {
+                    continuation.resume(throwing: VideoExporterError.albumCreatingError)
+                }
+            })
+        }
+        
+        guard let placeholderIdentifier = placeholder?.localIdentifier else {
+            throw VideoExporterError.albumCreatingError
+        }
+        
+        let collectionFetchResult = PHAssetCollection.fetchAssetCollections(
+            withLocalIdentifiers: [placeholderIdentifier], 
+            options: nil
+        )
+        
+        guard let album = collectionFetchResult.firstObject else {
+            throw VideoExporterError.albumCreatingError
+        }
+        
+        return album
     }
 
-    func moveAssetToMemeoAlbum(url: URL) -> AnyPublisher<String?, Error> {
-        let requestPermissions = Future<Bool, Error> { promise in
+    func fetchMemeoAlbum() async -> PHAssetCollection? {
+        let albumName = self.albumName
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.predicate = NSPredicate(format: "title = %@", albumName)
+        
+        let collections = PHAssetCollection.fetchAssetCollections(
+            with: .album, subtype: .any, options: fetchOptions)
+        
+        return collections.firstObject
+    }
+
+    func findOrCreateMemeoAlbum() async throws -> PHAssetCollection {
+        if let existingAlbum = await fetchMemeoAlbum() {
+            return existingAlbum
+        } else {
+            return try await createMemeoAlbum()
+        }
+    }
+
+    func moveAssetToMemeoAlbum(url: URL) async throws -> String? {
+        // Request permissions first
+        let authorizationStatus = await withCheckedContinuation { continuation in
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-                if status == .authorized {
-                    promise(.success(true))
+                continuation.resume(returning: status)
+            }
+        }
+        
+        guard authorizationStatus == .authorized else {
+            throw VideoExporterError.unexpectedError("Permissions not granted")
+        }
+        
+        // Find or create the album
+        let album = try await findOrCreateMemeoAlbum()
+        
+        // Add asset to album
+        var assetIdentifier: String?
+        
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            PHPhotoLibrary.shared().performChanges {
+                let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
+                let changeRequest = PHAssetCollectionChangeRequest(for: album)
+                
+                guard let placeholder = assetRequest?.placeholderForCreatedAsset else {
+                    return
+                }
+                
+                changeRequest?.addAssets([placeholder] as NSArray)
+            } completionHandler: { success, error in
+                if let error = error {
+                    continuation.resume(throwing: error)
                 } else {
-                    promise(.failure(VideoExporterError.unexpectedError("Permissions not granted") as Error))
+                    continuation.resume()
                 }
             }
-        }.eraseToAnyPublisher()
-
-        let moveToAlbum = findOrCreateMemeoAlbum().flatMap { album in
-            Future<String?, Error> { promise in
-                PHPhotoLibrary.shared().performChanges {
-                    let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
-                    let changeRequest = PHAssetCollectionChangeRequest(for: album)
-                    changeRequest?.addAssets(
-                        assetRequest?.placeholderForCreatedAsset.map {
-                            [$0] as NSArray
-                        } ?? [])
-                } completionHandler: { success, error in
-                    if let error = error {
-                        promise(.failure(error as Error))
-                    } else {
-                        let fetchOptions = PHFetchOptions()
-                        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                        let fetchResult = PHAsset.fetchAssets(with: .video, options: fetchOptions)
-                        promise(.success(fetchResult.firstObject?.localIdentifier))
-                    }
-                }
-            }
-        }.eraseToAnyPublisher()
-
-        return requestPermissions.flatMap { _ in
-            moveToAlbum
-        }.eraseToAnyPublisher()
+        }
+        
+        // Fetch the newly created asset
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        let fetchResult = PHAsset.fetchAssets(with: .video, options: fetchOptions)
+        
+        return fetchResult.firstObject?.localIdentifier
     }
 }
