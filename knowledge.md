@@ -103,7 +103,27 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
    - Added MemeoButton component for standardized buttons
    - Implemented VideoProcessing utility for shared video functions
 
+6. ✅ Replace manually-created Hashable implementations with automatic synthesis
+   - Removed redundant `hash(into:)` implementations from Tracker.swift
+   - Created proper Hashable extension for CGPoint in CoreGraphicsExtensions.swift
+   - Consolidated CGPoint and CGSize extensions in CoreGraphicsExtensions.swift
+   - Renamed CGPointExtensions.swift to CoreGraphicsExtensions.swift
+
+7. ✅ Use `@frozen` for enums that won't change
+   - Added `@frozen` annotation to TrackerStyle enum
+   - Added `@frozen` annotation to TrackerSize enum
+   - Added documentation explaining ABI stability reasons
+
 ## Implementation Notes
+
+### Modern Swift Best Practices
+
+- Use Swift's automatic Hashable synthesis where possible instead of manual implementations
+- Apply `@frozen` to enums that are part of your app's ABI and won't change
+- Centralize related types (like CGPoint, CGSize) in appropriately named extension files
+- Use proper file naming conventions based on content (CoreGraphicsExtensions vs CGPointExtensions)
+- Document public APIs with proper documentation comments
+- Follow Swift API Design Guidelines for clean, consistent code
 
 ### VideoEditorViewModel Refactoring
 
