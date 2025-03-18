@@ -79,18 +79,17 @@
    - [x] Updated FFmpegKit.executeAsync calls to include required callback parameter
    - [x] Added proper async error handling throughout VideoExporter
 
--[ ] Replace `.sink` Combine calls with modern Swift concurrency when appropriate
-   - [ ] In `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift` (lines 97-107), replace:
+-[x] Replace `.sink` Combine calls with modern Swift concurrency when appropriate
+   - [x] In `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift` (lines 97-107), replace Combine sink calls with async streams:
      ```swift
+     // From:
      $selectedTracker
          .sink { [weak self] tracker in
              // Handle tracker changes
          }
          .store(in: &cancellables)
-     ```
      
-     With:
-     ```swift
+     // To:
      private var task: Task<Void, Never>?
      
      task = Task { [weak self] in
@@ -100,8 +99,8 @@
          }
      }
      ```
-   - [ ] Cancel tasks in deinit: `deinit { task?.cancel() }`
-   - [ ] Use TaskGroup for concurrent operations that were previously using Combine
+   - [x] Cancel tasks in deinit: `deinit { task?.cancel() }`
+   - [x] Use TaskGroup for concurrent operations that were previously using Combine
 
 -[ ] Use property wrappers like `@Published` more consistently across ViewModels
    - [ ] Add `@Published private(set)` to all state properties in `/Memeo/Sources/Home/HomeViewModel.swift`

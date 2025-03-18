@@ -36,6 +36,7 @@ class VideoEditorViewModel: ObservableObject {
     private var lastActionDescriptionTimer: Timer?
     private let generator = UIImpactFeedbackGenerator()
     private var cancellables = Set<AnyCancellable>()
+    private var taskGroup = [Task<Void, Never>]()
     private var delegateHandler: VideoPlayerDelegateHandler?
     
     @AppStorage("showHelpAtFirstLaunch") private var showHelpAtFirstLaunch = true
@@ -100,68 +101,84 @@ class VideoEditorViewModel: ObservableObject {
     }
     
     private func setupBindings() {
-        // Handle play/pause state changes
-        $isPlaying.removeDuplicates().sink { [weak self] isPlaying in
+        // Handle play/pause state changes using modern Swift concurrency
+        let playPauseTask = Task { [weak self] in
             guard let self = self else { return }
-            if isPlaying {
-                self.videoPlayer.play()
-            } else {
-                self.videoPlayer.pause()
-            }
-        }.store(in: &cancellables)
-
-        // Handle keyframe changes when paused
-        Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-            .filter { !$0.1 } // Only when not playing
-            .map { $0.0 }
-            .sink { [weak self] keyframe in
-                guard let self = self else { return }
-                self.videoPlayer.seek(to: keyframe, fps: self.document.fps)
-            }.store(in: &cancellables)
-
-        // Haptic feedback on keyframe changes when paused
-        Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-            .filter { !$0.1 } // Only when not playing
-            .sink { [weak self] _, _ in
-                guard let self = self else { return }
-                self.generator.impactOccurred(intensity: 0.5)
-                self.generator.prepare()
-            }.store(in: &cancellables)
-
-        // Load media URL when document changes
-        $document
-            .compactMap { $0.mediaURL }
-            .removeDuplicates()
-            .map { url in AVAsset(url: url) }
-            .flatMap { asset in
-                Future<AVAsset, Never> { promise in
-                    Task {
-                        // Use the modern async API for loading
-                        _ = try? await asset.load(.duration)
-                        promise(.success(asset))
-                    }
+            for await isPlaying in self.$isPlaying.removeDuplicates().values {
+                if isPlaying {
+                    self.videoPlayer.play()
+                } else {
+                    self.videoPlayer.pause()
                 }
             }
-            .map { AVPlayerItem(asset: $0) }
-            .sink { [weak self] playerItem in
-                guard let self = self else { return }
-                self.videoPlayer.replaceCurrentItem(with: playerItem)
+        }
+        taskGroup.append(playPauseTask)
+
+        let keyframeTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            // Monitor keyframe changes directly
+            for await keyframe in self.$currentKeyframe.removeDuplicates().values {
+                guard !self.isPlaying else { return }
+                // Update video position
+                self.videoPlayer.seek(to: keyframe, fps: self.document.fps)
+
+                self.generator.impactOccurred(intensity: 0.5)
+                self.generator.prepare()
             }
-            .store(in: &cancellables)
+        }
+        taskGroup.append(keyframeTask)
+        
+        // Monitor isPlaying changes to reset lastKeyframe tracking when play state changes
+        let playStateTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            for await isPlaying in self.$isPlaying.removeDuplicates().values {
+                // We don't need to do anything here since the playPauseTask handles play/pause
+                // This is just to reset the tracking when play state changes
+                if !isPlaying {
+                    // When stopping, make sure we're at the right position
+                    self.videoPlayer.seek(to: self.currentKeyframe, fps: self.document.fps)
+                }
+            }
+        }
+        taskGroup.append(playStateTask)
 
-        // Reset exported URLs when document changes
-        $document
-            .removeDuplicates()
-            .map { _ in nil }
-            .assign(to: &$exportedVideoUrl)
+        // Load media URL when document changes using modern Swift concurrency
+        let mediaTask = Task { [weak self] in
+            guard let self = self else { return }
+            
+            for await mediaURL in self.$document.compactMap(\.mediaURL).removeDuplicates().values {
+                await MainActor.run {
+                    self.exportedVideoUrl = nil
+                    self.exportedGifUrl = nil
+                }
 
-        $document
-            .removeDuplicates()
-            .map { _ in nil }
-            .assign(to: &$exportedGifUrl)
+                let asset = AVAsset(url: mediaURL)
+
+                do {
+                    _ = try await asset.load(.duration)
+                    let playerItem = AVPlayerItem(asset: asset)
+
+                    await MainActor.run {
+                        self.videoPlayer.replaceCurrentItem(with: playerItem)
+                    }
+                } catch {
+                    print("Error loading asset: \(error)")
+                }
+            }
+        }
+        taskGroup.append(mediaTask)
     }
 
     deinit {
+        // Cancel all tasks
+        for task in taskGroup {
+            task.cancel()
+        }
+        taskGroup.removeAll()
+        
+        // Clean up video player resources
         Task { [weak self] in
             await self?.videoPlayer.unload()
         }
