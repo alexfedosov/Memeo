@@ -39,7 +39,6 @@ struct VideoEditor: View {
                 mainEditorContent(geometry)
                 TrackerTextEditorContainer(viewModel: viewModel)
                 
-                // Using the conditional modifier approach for demonstration
                 if isExporting {
                     ZStack {
                         VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
@@ -141,8 +140,6 @@ struct VideoEditor: View {
             .opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
     }
     
-    // Alternative implementation using the conditional modifier
-    // This shows how the same functionality could be implemented differently
     private var isExporting: Bool {
         viewModel.isShowingInterstitialAd || viewModel.isExportingVideo
     }
