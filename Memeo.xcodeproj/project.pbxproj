@@ -247,13 +247,6 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
-		FA1E36E02D89AF7800928D62 /* Home */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Home;
-			sourceTree = "<group>";
-		};
 		FA1E36E42D89AF7800928D62 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -309,13 +302,6 @@
 			path = Share;
 			sourceTree = "<group>";
 		};
-		FA1E36F32D89AF7800928D62 /* Timeline */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Timeline;
-			sourceTree = "<group>";
-		};
 		FA1E36F72D89AF7800928D62 /* TrackerEditor */ = {
 			isa = PBXGroup;
 			children = (
@@ -351,7 +337,6 @@
 			children = (
 				FA1E36EF2D89AF7800928D62 /* Help */,
 				FA1E36F22D89AF7800928D62 /* Share */,
-				FA1E36F32D89AF7800928D62 /* Timeline */,
 				FA1E36F72D89AF7800928D62 /* TrackerEditor */,
 				FA1E36FB2D89AF7800928D62 /* TrackerTextEditor */,
 				FA1E36FF2D89AF7800928D62 /* VideoView */,
@@ -368,7 +353,6 @@
 			children = (
 				FA1E36D52D89AF7800928D62 /* CommonComponents */,
 				FA1E36DF2D89AF7800928D62 /* Features */,
-				FA1E36E02D89AF7800928D62 /* Home */,
 				FA1E36E52D89AF7800928D62 /* Models */,
 				FA1E36E92D89AF7800928D62 /* Services */,
 				FA1E36ED2D89AF7800928D62 /* Utils */,
