@@ -162,9 +162,9 @@ class VideoEditorViewModel: ObservableObject {
     }
 
     deinit {
-        // Can't use Task with self in deinit in Swift 6
-        // Since this is a MainActor class, we're already on the main actor
-        videoPlayer.unload()
+        Task { [weak self] in
+            await self?.videoPlayer.unload()
+        }
     }
 
     // MARK: - Public Methods
