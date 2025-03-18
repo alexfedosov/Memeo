@@ -40,12 +40,16 @@ struct VideoEditor: View {
                 TrackerTextEditorContainer(viewModel: viewModel)
                 
                 // Using the conditional modifier approach for demonstration
-                Color.clear
-                    .conditionalModifier(isExporting) { view in
-                        view.overlay {
-                            ViewBuilders.loadingOverlay(text: "Exporting your video")
-                        }
+                if isExporting {
+                    ZStack {
+                        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+                            .ignoresSafeArea()
+                        HStack {
+                            Text("Exporting your video").font(.title3)
+                            ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
+                        }.padding()
                     }
+                }
                 
                 shareContent()
                     .presentHelpView(isPresented: Binding(
@@ -126,7 +130,14 @@ struct VideoEditor: View {
     
     @ViewBuilder
     private func exportingOverlay() -> some View {
-        ViewBuilders.loadingOverlay(text: "Exporting your video")
+        ZStack {
+            VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
+                .ignoresSafeArea()
+            HStack {
+                Text("Exporting your video").font(.title3)
+                ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
+            }.padding()
+        }
             .opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
     }
     

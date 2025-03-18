@@ -29,32 +29,29 @@ struct GiphySelectorView: View {
     
     @ViewBuilder
     private func searchField() -> some View {
-        ViewBuilders.conditional(hasSubscription, 
-            trueContent: {
-                TextField(String(localized: "Search"), text: $searchQuery)
-                    .font(.subheadline.bold())
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-            },
-            falseContent: {
-                Button {
-                    displayPaywall = true
-                } label: {
+        if hasSubscription {
+            TextField(String(localized: "Search"), text: $searchQuery)
+                .font(.subheadline.bold())
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+        } else {
+            Button {
+                displayPaywall = true
+            } label: {
+                HStack {
+                    Text(String(localized: "Search"))
+                    Spacer()
                     HStack {
-                        Text(String(localized: "Search"))
-                        Spacer()
-                        HStack {
-                            Text(String(localized: "with memeo pro"))
-                            Image(systemName: "lock")
-                        }.font(.system(size: 12, weight: .black))
-                    }
-                    .font(.subheadline.bold())
-                    .opacity(0.3)
-                    .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
-                }.tint(.white)
-            }
-        )
+                        Text(String(localized: "with memeo pro"))
+                        Image(systemName: "lock")
+                    }.font(.system(size: 12, weight: .black))
+                }
+                .font(.subheadline.bold())
+                .opacity(0.3)
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.1)))
+            }.tint(.white)
+        }
     }
     
     @ViewBuilder
