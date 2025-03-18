@@ -51,7 +51,7 @@ struct VideoEditor: View {
                                     .background(Color.white.opacity(0.1))
                                     .cornerRadius(7)
                             })
-                        GradientBorderButton(
+                        MemeoButton.standard(
                             text: String(localized: "Share!"),
                             action: {
                                 Task {
@@ -169,19 +169,11 @@ struct VideoEditor: View {
                         ),
                         highlightedKeyframes: viewModel.highlightedKeyframes)
                     HStack {
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.black, Color.clear]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: 40)
+                        GradientFactory.horizontalFadeOutGradient()
+                            .frame(width: 40)
                         Spacer()
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.clear, Color.black]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                        .frame(width: 40)
+                        GradientFactory.horizontalFadeInGradient()
+                            .frame(width: 40)
                     }
                 }
                 .frame(height: 80)
@@ -222,36 +214,8 @@ struct VideoEditor: View {
     }
 }
 
-struct GradientBorderButton: View {
-    let text: String
-    let action: () -> Void
-
-    let gradientColors = [
-        Color(red: 50 / 255, green: 197 / 255, blue: 1),
-        Color(red: 182 / 255, green: 32 / 255, blue: 224 / 255),
-        Color(red: 247 / 255, green: 181 / 255, blue: 0),
-    ]
-
-    var body: some View {
-        Button(
-            action: action,
-            label: {
-                Text(text)
-                    .foregroundColor(.white)
-                    .font(Font.system(size: 14, weight: .bold))
-                    .padding(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
-                    .cornerRadius(7)
-            }
-        ).background(
-            RoundedRectangle(cornerRadius: 7)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: gradientColors.reversed()),
-                        startPoint: .bottomLeading,
-                        endPoint: .topTrailing))
-        )
-    }
-}
+// GradientBorderButton has been replaced with MemeoButton
+// Import the new button component at the top of the file
 
 
 struct ContentView_Previews: PreviewProvider {

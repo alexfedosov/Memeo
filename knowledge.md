@@ -47,6 +47,8 @@ The project follows a feature-based organization with domain-driven design princ
 - `/Memeo/Sources/Services/` - Services for data handling
 - `/Memeo/Sources/Utils/` - Utility extensions and helpers
 - `/Memeo/Sources/CommonComponents/` - Reusable UI components
+  - `/Buttons/` - Button components and styles
+  - `GradientFactory.swift` - Centralized gradient definitions
 
 ## Key Components
 
@@ -94,7 +96,12 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
    - Updated ViewModelFactory to use the DependencyContainer
    - Removed default parameter values from ViewModel initializers
 
-5. [ ] Consolidate duplicated view components and utilities
+5. ✅ Consolidate duplicated view components and utilities
+   - Created CommonComponents/Buttons directory for button styles
+   - Implemented GradientFactory for consistent gradient definitions
+   - Created GradientButtonStyle implementing ButtonStyle protocol
+   - Added MemeoButton component for standardized buttons
+   - Implemented VideoProcessing utility for shared video functions
 
 ## Implementation Notes
 

@@ -40,10 +40,10 @@
    - [x] Register services in MemeoApp.swift: `DependencyContainer.shared.register(DocumentsService())`
    - [x] Update ViewModelFactory to use DependencyContainer: `func makeHomeViewModel() -> HomeViewModel { return HomeViewModel(documentsService: dependencyContainer.resolve()) }`
 
--[ ] Consolidate duplicated view components and utilities into reusable modules
-   - [ ] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles
-   - [ ] Extract gradient definitions into a `GradientFactory.swift` with static functions like `static func primaryGradient() -> LinearGradient`
-   - [ ] Create `/Memeo/Sources/Utils/VideoProcessing.swift` with shared video processing functions
+-[x] Consolidate duplicated view components and utilities into reusable modules
+   - [x] Create `/Memeo/Sources/CommonComponents/Buttons/` directory for button styles
+   - [x] Extract gradient definitions into a `GradientFactory.swift` with static functions like `static func primaryGradient() -> LinearGradient`
+   - [x] Create `/Memeo/Sources/Utils/VideoProcessing.swift` with shared video processing functions
 
 ## Modern Swift Syntax and Best Practices
 -[ ] Replace manually-created Hashable implementations with automatic synthesis
