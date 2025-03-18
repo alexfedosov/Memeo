@@ -15,8 +15,6 @@
 		FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393242BB407B400D09949 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C122BB4081400FFECF5 /* libswresample.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393222BB407B400D09949 /* libswresample.xcframework */; };
 		FA0B8C132BB4081400FFECF5 /* libswresample.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393222BB407B400D09949 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */; };
-		FA0B8C152BB4081600FFECF5 /* libavutil.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393272BB407B400D09949 /* libavformat.xcframework */; };
 		FA0B8C172BB4081700FFECF5 /* libavformat.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393272BB407B400D09949 /* libavformat.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C182BB4081800FFECF5 /* libavfilter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393262BB407B400D09949 /* libavfilter.xcframework */; };
@@ -27,6 +25,8 @@
 		FA0B8C1D2BB4081B00FFECF5 /* libavcodec.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393252BB407B400D09949 /* libavcodec.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA0B8C202BB4081E00FFECF5 /* ffmpegkit.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; };
 		FA0B8C212BB4081E00FFECF5 /* ffmpegkit.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FAD393232BB407B400D09949 /* ffmpegkit.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FA1E365E2D89A30D00928D62 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA1E365C2D89A30000928D62 /* libavutil.xcframework */; };
+		FA1E365F2D89A30D00928D62 /* libavutil.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FA1E365C2D89A30000928D62 /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FA387D8626E81563003D44A3 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA387D8526E81563003D44A3 /* ShareView.swift */; };
 		FA7279C02B4B3280000FEDF7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */; };
 		FA7279C22B4B3573000FEDF7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7279C12B4B3573000FEDF7 /* UIApplication.swift */; };
@@ -83,11 +83,11 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				FA1E365F2D89A30D00928D62 /* libavutil.xcframework in Embed Frameworks */,
 				FA0B8C132BB4081400FFECF5 /* libswresample.xcframework in Embed Frameworks */,
 				FA0B8C172BB4081700FFECF5 /* libavformat.xcframework in Embed Frameworks */,
 				FA0B8C212BB4081E00FFECF5 /* ffmpegkit.xcframework in Embed Frameworks */,
 				FA0B8C1D2BB4081B00FFECF5 /* libavcodec.xcframework in Embed Frameworks */,
-				FA0B8C152BB4081600FFECF5 /* libavutil.xcframework in Embed Frameworks */,
 				FA0B8C192BB4081800FFECF5 /* libavfilter.xcframework in Embed Frameworks */,
 				FA0B8C1B2BB4081A00FFECF5 /* libavdevice.xcframework in Embed Frameworks */,
 				FA0B8C102BB4081300FFECF5 /* libswscale.xcframework in Embed Frameworks */,
@@ -101,7 +101,7 @@
 		2DBA13BBE818438F848A19F4 /* ShareViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShareViewModel.swift; sourceTree = "<group>"; };
 		4C09B8073C2DE3AEB65828E2 /* Pods_Memeo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Memeo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA00CED62BE1642F0090CE0C /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
-		FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = libavutil.xcframework; path = "../../../Downloads/ffmpeg-kit-full-4.5.1-ios-xcframework/libavutil.xcframework"; sourceTree = "<group>"; };
+		FA1E365C2D89A30000928D62 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavutil.xcframework; sourceTree = "<group>"; };
 		FA387D8526E81563003D44A3 /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		FA7279BF2B4B3280000FEDF7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FA7279C12B4B3573000FEDF7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
@@ -172,11 +172,11 @@
 				FA9044F42B4C58720064E296 /* FirebaseAnalyticsSwift in Frameworks */,
 				FAB7481626E77CA10076B9BE /* SnapKit in Frameworks */,
 				FA9044F62B4C58720064E296 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				FA1E365E2D89A30D00928D62 /* libavutil.xcframework in Frameworks */,
 				FA9044F82B4C58720064E296 /* FirebaseAppCheck in Frameworks */,
 				FA0B8C1A2BB4081A00FFECF5 /* libavdevice.xcframework in Frameworks */,
 				FA00CEE32BE164DF0090CE0C /* RevenueCat in Frameworks */,
 				FA00CED72BE1642F0090CE0C /* StoreKit.framework in Frameworks */,
-				FA0B8C142BB4081600FFECF5 /* libavutil.xcframework in Frameworks */,
 				FA0B8C162BB4081700FFECF5 /* libavformat.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -367,7 +367,7 @@
 		FAD393312BB407BA00D09949 /* ffmpegkit */ = {
 			isa = PBXGroup;
 			children = (
-				FA0B8C0D2BB407EB00FFECF5 /* libavutil.xcframework */,
+				FA1E365C2D89A30000928D62 /* libavutil.xcframework */,
 				FAD393232BB407B400D09949 /* ffmpegkit.xcframework */,
 				FAD393252BB407B400D09949 /* libavcodec.xcframework */,
 				FAD393282BB407B400D09949 /* libavdevice.xcframework */,
