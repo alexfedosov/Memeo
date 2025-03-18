@@ -74,6 +74,8 @@ struct TrackerEditorView_Previews: PreviewProvider {
             playerItem: nil
         )
         .background(Color.black)
+        // Use environmentObject directly for the preview
+        .environmentObject(model)
     }
 }
 

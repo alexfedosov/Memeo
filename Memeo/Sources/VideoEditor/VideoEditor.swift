@@ -13,10 +13,26 @@ import RevenueCat
 import RevenueCatUI
 
 struct VideoEditor: View {
-    @ObservedObject var viewModel: VideoEditorViewModel
+    // For the new environment-based approach
+    @EnvironmentObject private var environmentViewModel: VideoEditorViewModel
+    
+    // For backward compatibility with direct initialization
+    private var directViewModel: VideoEditorViewModel?
+    
     @State private var displayPaywall = false
     let onClose: () -> Void
-
+    
+    // Computed property that prioritizes the direct viewModel if provided,
+    // otherwise falls back to the environment object
+    private var viewModel: VideoEditorViewModel {
+        directViewModel ?? environmentViewModel
+    }
+    
+    init(viewModel: VideoEditorViewModel? = nil, onClose: @escaping () -> Void) {
+        self.directViewModel = viewModel
+        self.onClose = onClose
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -222,14 +238,17 @@ struct ContentView_Previews: PreviewProvider {
     static var model = VideoEditorViewModel.preview
     static var previews: some View {
         Group {
-            VideoEditor(viewModel: model, onClose: {})
+            VideoEditor(onClose: {})
+                .environmentObject(model)
                 .background(Color.black)
                 .colorScheme(.dark)
-            VideoEditor(viewModel: model, onClose: {})
+            VideoEditor(onClose: {})
+                .environmentObject(model)
                 .previewDevice("iPhone 12 mini")
                 .background(Color.black)
                 .colorScheme(.dark)
-            VideoEditor(viewModel: model, onClose: {})
+            VideoEditor(onClose: {})
+                .environmentObject(model)
                 .previewDevice("iPhone 12 Pro Max")
                 .background(Color.black)
                 .colorScheme(.dark)

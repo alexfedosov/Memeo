@@ -102,61 +102,72 @@
    - [x] Cancel tasks in deinit: `deinit { task?.cancel() }`
    - [x] Use TaskGroup for concurrent operations that were previously using Combine
 
--[ ] Use property wrappers like `@Published` more consistently across ViewModels
-   - [ ] Add `@Published private(set)` to all state properties in `/Memeo/Sources/Home/HomeViewModel.swift`
-   - [ ] Add appropriate `@Published` wrappers to VideoEditorViewModel.swift state properties with proper access control
-   - [ ] Use `@State` for view-local state, `@ObservedObject` for injected ViewModels, and `@EnvironmentObject` for shared ViewModels
+-[x] Use property wrappers like `@Published` more consistently across ViewModels
+   - [x] Add `@Published private(set)` to all state properties in `/Memeo/Sources/Home/HomeViewModel.swift`
+   - [x] Add appropriate `@Published` wrappers to VideoEditorViewModel.swift state properties with proper access control
+   - [x] Use `@State` for view-local state, `@ObservedObject` for injected ViewModels, and `@EnvironmentObject` for shared ViewModels
 
 ## SwiftUI Improvements
--[ ] Replace custom GradientBorderButton with SwiftUI's native ButtonStyle protocol
-   - [ ] Create a proper ButtonStyle in `/Memeo/Sources/CommonComponents/DialogGradientButton.swift`:
+-[x] Replace custom GradientBorderButton with SwiftUI's native ButtonStyle protocol
+   - [x] Create a proper ButtonStyle in `/Memeo/Sources/CommonComponents/Buttons/GradientButtonStyle.swift`:
      ```swift
      struct GradientButtonStyle: ButtonStyle {
-         var gradientColors: [Color] = [.blue, .purple]
+         var gradientColors: [Color]
          var textColor: Color = .white
-         var cornerRadius: CGFloat = 15
+         var fontWeight: Font.Weight = .bold
+         var fontSize: CGFloat = 14
+         var horizontalPadding: CGFloat = 24
+         var verticalPadding: CGFloat = 8
+         var cornerRadius: CGFloat = 7
+         var fullWidth: Bool = false
          
          func makeBody(configuration: Configuration) -> some View {
              configuration.label
-                 .padding()
                  .foregroundColor(textColor)
+                 .font(.system(size: fontSize, weight: fontWeight))
+                 .padding(EdgeInsets(
+                     top: verticalPadding,
+                     leading: horizontalPadding,
+                     bottom: verticalPadding,
+                     trailing: horizontalPadding
+                 ))
+                 .frame(maxWidth: fullWidth ? .infinity : nil)
                  .background(
-                     LinearGradient(
-                         gradient: Gradient(colors: gradientColors),
-                         startPoint: .leading,
-                         endPoint: .trailing
-                     )
+                     RoundedRectangle(cornerRadius: cornerRadius)
+                         .fill(
+                             LinearGradient(
+                                 gradient: Gradient(colors: gradientColors),
+                                 startPoint: .bottomLeading,
+                                 endPoint: .topTrailing
+                             )
+                         )
                  )
-                 .cornerRadius(cornerRadius)
                  .scaleEffect(configuration.isPressed ? 0.95 : 1)
-                 .animation(.spring(), value: configuration.isPressed)
+                 .opacity(configuration.isPressed ? 0.9 : 1)
+                 .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
          }
      }
      ```
-   - [ ] Update usage: `Button("Save Changes") { saveChanges() }.buttonStyle(GradientButtonStyle())`
-   - [ ] Replace all custom button implementations with the styled version
+   - [x] Update usage with static extensions: `Button("Save Changes") { saveChanges() }.buttonStyle(.gradient)`
+   - [x] Created reusable MemeoButton component to standardize button usage throughout the app
 
--[ ] Avoid direct UIKit interop in favor of SwiftUI components where possible
-   - [ ] Replace UILabel with SwiftUI Text in `/Memeo/Sources/VideoEditor/TrackerEditor/TrackerLayerRepresentable.swift`
-   - [ ] Replace UITextField with SwiftUI TextField + FocusState in TrackerTextEditor
-   - [ ] Replace UIBlurEffect with SwiftUI .blur() modifier in VideoEditor.swift: `.blur(radius: 10)`
+-[x] Avoid direct UIKit interop in favor of SwiftUI components where possible
+   - [x] Replace UILabel with SwiftUI Text in `/Memeo/Sources/VideoEditor/TrackerEditor/TrackerLayerRepresentable.swift`
+   - [x] Replace UITextField with SwiftUI TextField + FocusState in TrackerTextEditor
+   - [x] Replace UIBlurEffect with SwiftUI .blur() modifier in VideoEditor.swift: `.blur(radius: 10)`
 
--[ ] Use SwiftUI's environment objects instead of passing ViewModels through init
-   - [ ] Define environment key in a central location:
+-[x] Use SwiftUI's environment objects instead of passing ViewModels through init
+   - [x] Define extension methods for easier environment injection:
      ```swift
-     struct VideoEditorViewModelKey: EnvironmentKey {
-         static let defaultValue: VideoEditorViewModel = VideoEditorViewModel()
-     }
-     
-     extension EnvironmentValues {
-         var videoEditorViewModel: VideoEditorViewModel {
-             get { self[VideoEditorViewModelKey.self] }
-             set { self[VideoEditorViewModelKey.self] = newValue }
+     extension View {
+         func withVideoEditorViewModel(_ viewModel: VideoEditorViewModel) -> some View {
+             environmentObject(viewModel)
          }
      }
      ```
-   - [ ] Inject in parent view: `.environmentObject(videoEditorViewModel)`
-   - [ ] Access in child views with: `@EnvironmentObject var viewModel: VideoEditorViewModel`
+   - [x] Inject in parent view: `.environmentObject(viewModel)`
+   - [x] Access in child views with: `@EnvironmentObject private var viewModel: VideoEditorViewModel`
+   - [x] Handle backward compatibility with both initialization patterns
 
 -[ ] Split large views (like VideoEditor.swift) into smaller, composable components
    - [ ] Extract VideoEditor.swift toolbar section into dedicated `VideoEditorToolbar.swift` view

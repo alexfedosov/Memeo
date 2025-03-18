@@ -135,4 +135,55 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
 - Organized code with MARK comments for better readability
 - Implemented async/await for cleanDocumentsDirectory operation
 
-... [more items]
+## SwiftUI Modernization
+
+### UIKit to SwiftUI Migration
+- Replaced UIKit components with native SwiftUI equivalents:
+  - Created `FocusableTextField` using SwiftUI's TextField with FocusState instead of UITextField
+  - Implemented `BlurView` and `SimpleBlurView` using SwiftUI's Material and blur modifiers
+  - Created `TrackerView` using SwiftUI's Text and overlay modifiers instead of CALayer
+
+### SwiftUI Best Practices
+- Used conditional view modifiers with extension method:
+  ```swift
+  extension View {
+      @ViewBuilder
+      func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
+          if condition {
+              transform(self)
+          } else {
+              self
+          }
+      }
+  }
+  
+  // Usage
+  Text("Hello")
+      .if(someCondition) { view in
+          view.foregroundColor(.red)
+      }
+  ```
+- Implemented proper ButtonStyle protocol in GradientButtonStyle
+- Created static extension methods for common button styles: `.buttonStyle(.gradient)`
+- Used environment values for sharing dependencies between views 
+- Added proper environment object pattern for ViewModels:
+  ```swift
+  // Add view extension for convenience
+  extension View {
+      func withVideoEditorViewModel(_ viewModel: VideoEditorViewModel) -> some View {
+          environmentObject(viewModel)
+      }
+  }
+  
+  // Usage in parent views
+  VideoEditor(onClose: closeAction)
+      .environmentObject(viewModel)
+      
+  // Access in child views
+  struct VideoEditor: View {
+      @EnvironmentObject private var viewModel: VideoEditorViewModel
+      
+      // View body
+  }
+  ```
+- Implemented focus management with @FocusState property wrapper

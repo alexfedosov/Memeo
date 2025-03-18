@@ -246,9 +246,10 @@ struct Home: View {
     @ViewBuilder
     func editorView() -> some View {
         if let model = viewModel.videoEditorViewModel {
-            VideoEditor(viewModel: model) {
+            VideoEditor(onClose: {
                 viewModel.setVideoEditorViewModel(nil)
-            }
+            })
+            .environmentObject(model) // Use environment injection
             .navigationBarHidden(true)
         } else {
             Text("Hello")
