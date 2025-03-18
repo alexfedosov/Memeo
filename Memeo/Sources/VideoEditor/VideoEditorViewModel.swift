@@ -13,35 +13,34 @@ import SwiftUI
 
 @MainActor
 class VideoEditorViewModel: ObservableObject {
-    let documentService = DocumentsService()
+    // MARK: - Services
+    private let documentService: DocumentsService
+    private let videoExporter: VideoExporter
+    
+    // MARK: - Published State
+    @Published private(set) var document: Document
+    @Published private(set) var currentKeyframe: Int = 0
+    @Published private(set) var isPlaying: Bool = false
+    @Published private(set) var isEditingText: Bool = false
+    @Published private(set) var selectedTrackerIndex: Int?
+    @Published private(set) var isExportingVideo = false
+    @Published private(set) var isShowingInterstitialAd = false
+    @Published private(set) var isShowingShareDialog = false
+    @Published private(set) var lastActionDescription: String?
+    @Published private(set) var exportedVideoUrl: URL?
+    @Published private(set) var exportedGifUrl: URL?
+    @Published private(set) var showHelp: Bool = false
+    @Published private(set) var videoPlayer: VideoPlayer
 
-    @Published var document: Document
+    // MARK: - Private Properties
+    private var lastActionDescriptionTimer: Timer?
+    private let generator = UIImpactFeedbackGenerator()
+    private var cancellables = Set<AnyCancellable>()
+    private var delegateHandler: VideoPlayerDelegateHandler?
+    
+    @AppStorage("showHelpAtFirstLaunch") private var showHelpAtFirstLaunch = true
 
-    @Published var currentKeyframe: Int = 0
-    @Published var isPlaying: Bool = false
-    @Published var isEditingText: Bool = false
-    @Published var selectedTrackerIndex: Int?
-
-    @Published var isExportingVideo = false
-    @Published var isShowingInterstitialAd = false
-    @Published var isShowingShareDialog = false
-
-    @Published var lastActionDescription: String?
-    var lastActionDescriptionTimer: Timer?
-
-    var videoPlayer: VideoPlayer
-    var videoExporter = VideoExporter()
-    let generator = UIImpactFeedbackGenerator()
-
-    @Published var exportedVideoUrl: URL?
-    @Published var exportedGifUrl: URL?
-
-    @Published var showHelp: Bool = false
-
-    @AppStorage("showHelpAtFirstLaunch") var showHelpAtFirstLaunch = true
-
-    var cancellables = Set<AnyCancellable>()
-
+    // MARK: - Computed Properties
     var selectedTracker: Tracker? {
         if let index = selectedTrackerIndex, index < document.trackers.count {
             return document.trackers[index]
@@ -66,6 +65,7 @@ class VideoEditorViewModel: ObservableObject {
 
         return keyframes
     }
+    
     var canFadeInCurrentKeyframe: Bool {
         guard let selectedTracker = selectedTracker,
             let prevKey = selectedTracker.fade.keyframes.keys.sorted().last(where: { $0 <= currentKeyframe })
@@ -76,90 +76,98 @@ class VideoEditorViewModel: ObservableObject {
         return !(selectedTracker.fade.keyframes[prevKey] ?? false)
     }
 
-    init(document: Document) {
+    // MARK: - Initialization
+    init(document: Document, documentService: DocumentsService = DocumentsService(), videoExporter: VideoExporter = VideoExporter()) {
         self.document = document
+        self.documentService = documentService
+        self.videoExporter = videoExporter
 
+        self.videoPlayer = VideoPlayer()
+        
         if document.trackers.count > 0 {
             selectedTrackerIndex = 0
         }
-
-        videoPlayer = VideoPlayer()
-        videoPlayer.delegate = self
-
-        $isPlaying.removeDuplicates().sink { [videoPlayer] isPlaying in
+        
+        // We need to set up a proper delegate that can handle the actor isolation
+        // The following line sets up a custom delegate implementation
+        // that will safely bridge the nonisolated protocol methods to our MainActor methods
+        setupVideoPlayerDelegate()
+        
+        setupBindings()
+        
+        showHelp = showHelpAtFirstLaunch
+        showHelpAtFirstLaunch = false
+    }
+    
+    private func setupBindings() {
+        // Handle play/pause state changes
+        $isPlaying.removeDuplicates().sink { [weak self] isPlaying in
+            guard let self = self else { return }
             if isPlaying {
-                videoPlayer.play()
+                self.videoPlayer.play()
             } else {
-                videoPlayer.pause()
+                self.videoPlayer.pause()
             }
         }.store(in: &cancellables)
 
+        // Handle keyframe changes when paused
         Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-            .filter {
-                !$0.1
-            }
-            .map {
-                $0.0
-            }
-            .sink { [videoPlayer] keyframe in
-                videoPlayer.seek(to: keyframe, fps: document.fps)
+            .filter { !$0.1 } // Only when not playing
+            .map { $0.0 }
+            .sink { [weak self] keyframe in
+                guard let self = self else { return }
+                self.videoPlayer.seek(to: keyframe, fps: self.document.fps)
             }.store(in: &cancellables)
 
+        // Haptic feedback on keyframe changes when paused
         Publishers.CombineLatest($currentKeyframe.removeDuplicates(), $isPlaying)
-            .filter {
-                !$0.1
-            }
-            .sink { [generator] _, _ in
-                generator.impactOccurred(intensity: 0.5)
-                generator.prepare()
+            .filter { !$0.1 } // Only when not playing
+            .sink { [weak self] _, _ in
+                guard let self = self else { return }
+                self.generator.impactOccurred(intensity: 0.5)
+                self.generator.prepare()
             }.store(in: &cancellables)
 
+        // Load media URL when document changes
         $document
-            .compactMap {
-                $0.mediaURL
-            }
+            .compactMap { $0.mediaURL }
             .removeDuplicates()
-            .map { url in
-                AVAsset(url: url)
-            }
+            .map { url in AVAsset(url: url) }
             .flatMap { asset in
                 Future<AVAsset, Never> { promise in
-                    asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+                    Task {
+                        // Use the modern async API for loading
+                        _ = try? await asset.load(.duration)
                         promise(.success(asset))
                     }
                 }
             }
-            .map {
-                AVPlayerItem(asset: $0)
-            }
-            .sink { [videoPlayer] playerItem in
-                videoPlayer.replaceCurrentItem(with: playerItem)
+            .map { AVPlayerItem(asset: $0) }
+            .sink { [weak self] playerItem in
+                guard let self = self else { return }
+                self.videoPlayer.replaceCurrentItem(with: playerItem)
             }
             .store(in: &cancellables)
 
+        // Reset exported URLs when document changes
         $document
             .removeDuplicates()
-            .map { _ in
-                nil
-            }
-            .print("exportedVideoUrl set to nil")
+            .map { _ in nil }
             .assign(to: &$exportedVideoUrl)
 
         $document
             .removeDuplicates()
-            .map { _ in
-                nil
-            }
+            .map { _ in nil }
             .assign(to: &$exportedGifUrl)
-
-        showHelp = showHelpAtFirstLaunch
-        showHelpAtFirstLaunch = false
     }
 
     deinit {
+        // Can't use Task with self in deinit in Swift 6
+        // Since this is a MainActor class, we're already on the main actor
         videoPlayer.unload()
     }
 
+    // MARK: - Public Methods
     func selectTracker(tracker: Tracker) {
         selectedTrackerIndex = document.trackers.firstIndex(of: tracker)
     }
@@ -171,167 +179,92 @@ class VideoEditorViewModel: ObservableObject {
         if selectedTrackerIndex != index {
             selectedTrackerIndex = index
         }
-        document.trackers[index].position.keyframes[currentKeyframe] = point
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].position.keyframes[currentKeyframe] = point
+        document = updatedDocument
+    }
+    
+    func updateTrackerText(text: String, style: TrackerStyle, size: TrackerSize) {
+        guard let index = selectedTrackerIndex else { return }
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].text = text
+        updatedDocument.trackers[index].style = style
+        updatedDocument.trackers[index].size = size
+        document = updatedDocument
+        
+        setIsEditingText(false)
+    }
+    
+    func setIsEditingText(_ isEditing: Bool) {
+        isEditingText = isEditing
+    }
+    
+    func setIsPlaying(_ playing: Bool) {
+        if playing && currentKeyframe == document.numberOfKeyframes - 1 {
+            currentKeyframe = 0
+        }
+        isPlaying = playing
+    }
+    
+    func goToNextKeyframe() {
+        setIsPlaying(false)
+        currentKeyframe = min(document.numberOfKeyframes - 1, currentKeyframe + 1)
+    }
+    
+    func goToPreviousKeyframe() {
+        setIsPlaying(false)
+        currentKeyframe = max(0, currentKeyframe - 1)
+    }
+    
+    func goForward(frames: Int) {
+        setIsPlaying(false)
+        currentKeyframe = min(document.numberOfKeyframes - 1, currentKeyframe + frames)
+    }
+    
+    func goBack(frames: Int) {
+        setIsPlaying(false)
+        currentKeyframe = max(0, currentKeyframe - frames)
+    }
+    
+    func setShowHelp(_ show: Bool) {
+        showHelp = show
     }
 
     func share() async throws {
-        isPlaying = false
+        setIsPlaying(false)
+        
         withAnimation {
-            self.isExportingVideo = true
+            isExportingVideo = true
         }
+        
         defer {
             withAnimation {
-                self.isExportingVideo = false
+                isExportingVideo = false
             }
         }
-        (exportedVideoUrl, exportedGifUrl) = try await exportVideoSignal()
+        
+        let (videoUrl, gifUrl) = try await exportVideoSignal()
+        exportedVideoUrl = videoUrl
+        exportedGifUrl = gifUrl
+        
         withAnimation {
-            self.isShowingShareDialog = true
+            isShowingShareDialog = true
         }
     }
-
-    func exportVideoSignal() async throws -> (URL, URL?) {
-        if let videoUrl = exportedVideoUrl {
-            return (videoUrl, exportedGifUrl)
-        }
-
-        let url = try await videoExporter.export(document: document)
-        let gifUrl = document.duration < 10 ? videoExporter.exportGif(url: url, trim: false) : nil
-        return (url, gifUrl)
+    
+    func closeShareDialog() {
+        isShowingShareDialog = false
     }
 
     func cleanDocumentsDirectory() {
-        DispatchQueue.global().async {
-            DocumentsService().cleanDocumentsDirectory()
+        Task {
+            await documentService.cleanDocumentsDirectoryAsync()
         }
     }
-}
-
-extension Future where Failure == Error {
-    convenience init(operation: @escaping () async throws -> Output) {
-        self.init { promise in
-            Task {
-                do {
-                    let output = try await operation()
-                    promise(.success(output))
-                } catch {
-                    promise(.failure(error))
-                }
-            }
-        }
-    }
-}
-
-extension VideoEditorViewModel {
-    static var preview: VideoEditorViewModel {
-        VideoEditorViewModel(document: Document.loadPreviewDocument())
-    }
-}
-
-extension VideoEditorViewModel: MediaPlayerDelegate {
-    func mediaPlayerDidPlayToTime(time: CMTime, duration: CMTime) {
-        guard time.isNumeric && time.isValid else {
-            return
-        }
-        let notRoundedFrameIndex = Double(time.value) / (Double(time.timescale) / Double(document.fps))
-        if notRoundedFrameIndex.isFinite {
-            currentKeyframe = min(
-                Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero)), document.numberOfKeyframes - 1)
-        }
-    }
-
-    func mediaPlayerDidPlayToEnd() {
-        isPlaying = false
-    }
-}
-
-protocol Help {
-    func toastText() -> String
-}
-
-extension VideoEditorViewModel {
-    private func addTracker() {
-        let animation = Animation<CGPoint>(
-            id: UUID(),
-            keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
-            key: "position")
-
-        var opacity = Animation<Bool>(
-            id: UUID(),
-            keyframes: [:],
-            key: "opacity")
-
-        let rotation = Animation<Double>(
-            id: UUID(),
-            keyframes: [:],
-            key: "rotation"
-        )
-
-        if currentKeyframe > 0 {
-            opacity.keyframes[0] = false
-            opacity.keyframes[currentKeyframe] = true
-        }
-        let tracker = Tracker(id: UUID(), text: "", style: .transparent, size: .small, position: animation, fade: opacity, rotation: rotation)
-        document.trackers.append(tracker)
-        selectedTrackerIndex = document.trackers.count - 1
-    }
-
-    private func removeSelectedTracker() {
-        if let index = selectedTrackerIndex,
-            document.trackers.count > index
-        {
-            selectedTrackerIndex = nil
-            document.trackers.remove(at: index)
-        }
-    }
-
-    private func deleteCurrentKeyframe() {
-        if let index = selectedTrackerIndex,
-            document.trackers.count > index
-        {
-            document.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
-            document.trackers[index].fade.keyframes.removeValue(forKey: currentKeyframe)
-            goBack(frames: 1)
-        }
-    }
-
-    private func duplicateCurrentKeyframe() {
-        if let index = selectedTrackerIndex,
-            document.trackers.count > index,
-            currentKeyframe < document.numberOfKeyframes,
-            let value = document.trackers[index].position.keyframes[currentKeyframe]
-        {
-            document.trackers[index].position.keyframes[currentKeyframe + 1] = value
-            currentKeyframe += 1
-        }
-    }
-
-    private func goBack(frames: Int) {
-        isPlaying = false
-        currentKeyframe = max(0, currentKeyframe - frames)
-    }
-
-    private func goForward(frames: Int) {
-        isPlaying = false
-        currentKeyframe = min(document.numberOfKeyframes - 1, currentKeyframe + frames)
-    }
-
-    private func fadeInCurrentKeyframe() {
-        guard let index = selectedTrackerIndex else {
-            return
-        }
-        document.trackers[index].fade.keyframes[currentKeyframe] = true
-    }
-
-    private func fadeOutCurrentKeyframe() {
-        guard let index = selectedTrackerIndex else {
-            return
-        }
-        document.trackers[index].fade.keyframes[currentKeyframe] = false
-    }
-}
-
-extension VideoEditorViewModel {
+    
+    // MARK: - Action Handler
     enum Action {
         case addTracker
         case deleteCurrentKeyframe
@@ -361,32 +294,217 @@ extension VideoEditorViewModel {
         case .removeSelectedTracker:
             removeSelectedTracker()
         case .play:
-            if currentKeyframe == document.numberOfKeyframes - 1 {
-                currentKeyframe = 0
-            }
-            isPlaying = true
+            setIsPlaying(true)
         case .pause:
-            isPlaying = false
+            setIsPlaying(false)
         case .editTracker:
-            if let _ = selectedTrackerIndex {
-                isEditingText = true
+            if selectedTrackerIndex != nil {
+                setIsEditingText(true)
             }
-        case .fadeInTracker: fadeInCurrentKeyframe()
-        case .fadeOutTracker: fadeOutCurrentKeyframe()
+        case .fadeInTracker: 
+            fadeInCurrentKeyframe()
+        case .fadeOutTracker: 
+            fadeOutCurrentKeyframe()
         }
 
         showLastActionDescription(text: action.toastText())
     }
 
-    func showLastActionDescription(text: String) {
+    // MARK: - Private Methods
+    private func exportVideoSignal() async throws -> (URL, URL?) {
+        if let videoUrl = exportedVideoUrl {
+            return (videoUrl, exportedGifUrl)
+        }
+
+        let url = try await videoExporter.export(document: document)
+        let gifUrl = document.duration < 10 ? videoExporter.exportGif(url: url, trim: false) : nil
+        return (url, gifUrl)
+    }
+    
+    private func addTracker() {
+        let animation = Animation<CGPoint>(
+            id: UUID(),
+            keyframes: [currentKeyframe: CGPoint(x: 0.5, y: 0.5)],
+            key: "position")
+
+        var opacity = Animation<Bool>(
+            id: UUID(),
+            keyframes: [:],
+            key: "opacity")
+
+        let rotation = Animation<Double>(
+            id: UUID(),
+            keyframes: [:],
+            key: "rotation"
+        )
+
+        if currentKeyframe > 0 {
+            opacity.keyframes[0] = false
+            opacity.keyframes[currentKeyframe] = true
+        }
+        
+        let tracker = Tracker(
+            id: UUID(), 
+            text: "", 
+            style: .transparent, 
+            size: .small, 
+            position: animation, 
+            fade: opacity, 
+            rotation: rotation
+        )
+        
+        var updatedDocument = document
+        updatedDocument.trackers.append(tracker)
+        document = updatedDocument
+        
+        selectedTrackerIndex = document.trackers.count - 1
+    }
+
+    private func removeSelectedTracker() {
+        guard let index = selectedTrackerIndex, document.trackers.count > index else { return }
+        
+        selectedTrackerIndex = nil
+        
+        var updatedDocument = document
+        updatedDocument.trackers.remove(at: index)
+        document = updatedDocument
+    }
+
+    private func deleteCurrentKeyframe() {
+        guard let index = selectedTrackerIndex, document.trackers.count > index else { return }
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].position.keyframes.removeValue(forKey: currentKeyframe)
+        updatedDocument.trackers[index].fade.keyframes.removeValue(forKey: currentKeyframe)
+        document = updatedDocument
+        
+        goBack(frames: 1)
+    }
+
+    private func duplicateCurrentKeyframe() {
+        guard let index = selectedTrackerIndex,
+              document.trackers.count > index,
+              currentKeyframe < document.numberOfKeyframes,
+              let value = document.trackers[index].position.keyframes[currentKeyframe] else { return }
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].position.keyframes[currentKeyframe + 1] = value
+        document = updatedDocument
+        
+        currentKeyframe += 1
+    }
+
+    private func fadeInCurrentKeyframe() {
+        guard let index = selectedTrackerIndex else { return }
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].fade.keyframes[currentKeyframe] = true
+        document = updatedDocument
+    }
+
+    private func fadeOutCurrentKeyframe() {
+        guard let index = selectedTrackerIndex else { return }
+        
+        var updatedDocument = document
+        updatedDocument.trackers[index].fade.keyframes[currentKeyframe] = false
+        document = updatedDocument
+    }
+
+    private func showLastActionDescription(text: String) {
         lastActionDescription = text
         lastActionDescriptionTimer?.invalidate()
-        lastActionDescriptionTimer = Timer.scheduledTimer(
+        
+        // Use a non-capturing approach to avoid Main actor violation in Swift 6
+        let timer = Timer.scheduledTimer(
             withTimeInterval: 2, repeats: false,
             block: { [weak self] _ in
-                self?.lastActionDescription = nil
+                // Explicitly dispatch to MainActor to modify the property
+                Task { @MainActor in
+                    guard let self = self else { return }
+                    self.lastActionDescription = nil
+                }
             })
+        
+        lastActionDescriptionTimer = timer
     }
+}
+
+// MARK: - Preview Helper
+extension VideoEditorViewModel {
+    static var preview: VideoEditorViewModel {
+        VideoEditorViewModel(document: Document.loadPreviewDocument())
+    }
+}
+
+// MARK: - Media Player Delegate Handling
+extension VideoEditorViewModel {
+    private func setupVideoPlayerDelegate() {
+        // Create a separate class that conforms to MediaPlayerDelegate
+        // This is needed because protocols don't respect actor isolation in Swift 6
+        let delegateHandler = VideoPlayerDelegateHandler(viewModel: self)
+        
+        // Create a property to store the delegate to prevent it from being deallocated
+        // This is a common pattern for delegates in Swift
+        self.delegateHandler = delegateHandler
+        
+        // Set the delegate on the player
+        videoPlayer.delegate = delegateHandler
+    }
+    
+    // This method is called by our delegate handler on the main actor
+    @MainActor
+    fileprivate func handlePlayerDidPlayToTime(time: CMTime, duration: CMTime) {
+        guard time.isNumeric && time.isValid else { return }
+        
+        let notRoundedFrameIndex = Double(time.value) / (Double(time.timescale) / Double(self.document.fps))
+        if notRoundedFrameIndex.isFinite {
+            self.currentKeyframe = min(
+                Int(notRoundedFrameIndex.rounded(.toNearestOrAwayFromZero)), 
+                self.document.numberOfKeyframes - 1
+            )
+        }
+    }
+    
+    // This method is called by our delegate handler on the main actor
+    @MainActor
+    fileprivate func handlePlayerDidPlayToEnd() {
+        self.isPlaying = false
+    }
+}
+
+// Separate class to handle delegate methods without actor isolation issues
+// This acts as a bridge between the nonisolated protocol and our MainActor methods
+final class VideoPlayerDelegateHandler: NSObject, MediaPlayerDelegate {
+    // We need to use a noncapturing property to store the weak reference 
+    // to avoid MainActor isolation issues
+    private weak var viewModel: VideoEditorViewModel?
+    
+    // Since the init is called from a MainActor context, we need to make it MainActor to access the viewModel
+    @MainActor
+    init(viewModel: VideoEditorViewModel) {
+        self.viewModel = viewModel
+        super.init()
+    }
+    
+    // These methods are called from non-isolated contexts
+    func mediaPlayerDidPlayToTime(time: CMTime, duration: CMTime) {
+        // Explicitly dispatch to MainActor
+        Task { @MainActor in
+            viewModel?.handlePlayerDidPlayToTime(time: time, duration: duration)
+        }
+    }
+    
+    func mediaPlayerDidPlayToEnd() {
+        // Explicitly dispatch to MainActor
+        Task { @MainActor in
+            viewModel?.handlePlayerDidPlayToEnd()
+        }
+    }
+}
+
+// MARK: - Help Protocol
+protocol Help {
+    func toastText() -> String
 }
 
 extension VideoEditorViewModel.Action: Help {
@@ -414,6 +532,22 @@ extension VideoEditorViewModel.Action: Help {
             return String(localized: "Show text")
         case .fadeOutTracker:
             return String(localized: "Hide text")
+        }
+    }
+}
+
+// MARK: - Publisher Extensions
+extension Future where Failure == Error {
+    convenience init(operation: @escaping () async throws -> Output) {
+        self.init { promise in
+            Task {
+                do {
+                    let output = try await operation()
+                    promise(.success(output))
+                } catch {
+                    promise(.failure(error))
+                }
+            }
         }
     }
 }

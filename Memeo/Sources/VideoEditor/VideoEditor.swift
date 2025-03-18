@@ -13,8 +13,8 @@ import RevenueCat
 import RevenueCatUI
 
 struct VideoEditor: View {
-    @StateObject var viewModel: VideoEditorViewModel
-    @State var displayPaywall = false
+    @ObservedObject var viewModel: VideoEditorViewModel
+    @State private var displayPaywall = false
     let onClose: () -> Void
 
     var body: some View {
@@ -38,9 +38,9 @@ struct VideoEditor: View {
                         Spacer()
                         Button(
                             action: {
-                                viewModel.isPlaying = false
+                                viewModel.setIsPlaying(false)
                                 withAnimation {
-                                    viewModel.showHelp = true
+                                    viewModel.setShowHelp(true)
                                 }
                             },
                             label: {
@@ -86,7 +86,7 @@ struct VideoEditor: View {
                     })
                     .onTrackerDoubleTapped({ tracker in
                         viewModel.selectTracker(tracker: tracker)
-                        viewModel.isEditingText = true
+                        viewModel.setIsEditingText(true)
                     })
                     .onTrackerPositionChanged({ point, tracker in
                         viewModel.changePositionKeyframeValue(tracker: tracker, point: point)
@@ -99,7 +99,8 @@ struct VideoEditor: View {
                     VStack {
                         timeline()
                         VideoEditorToolbar(
-                            isPlaying: viewModel.isPlaying, canFadeIn: viewModel.canFadeInCurrentKeyframe,
+                            isPlaying: viewModel.isPlaying, 
+                            canFadeIn: viewModel.canFadeInCurrentKeyframe,
                             onSubmitAction: viewModel.submit
                         )
                         .frame(width: geometry.size.width)
@@ -118,13 +119,19 @@ struct VideoEditor: View {
                 ZStack {
                     ShareView(
                         viewModel: ShareViewModel(
-                            isShown: $viewModel.isShowingShareDialog,
+                            isShown: Binding(
+                                get: { viewModel.isShowingShareDialog },
+                                set: { _ in viewModel.closeShareDialog() }
+                            ),
                             videoUrl: viewModel.exportedVideoUrl,
                             gifURL: viewModel.exportedGifUrl,
                             frameSize: viewModel.document.frameSize,
                             muted: viewModel.isShowingInterstitialAd))
                 }
-                .presentHelpView(isPresented: $viewModel.showHelp)
+                .presentHelpView(isPresented: Binding(
+                    get: { viewModel.showHelp },
+                    set: { viewModel.setShowHelp($0) }
+                ))
             }
             .sheet(isPresented: $displayPaywall) {
                 PaywallView(displayCloseButton: true)
@@ -138,9 +145,28 @@ struct VideoEditor: View {
             HStack {
                 ZStack {
                     Timeline(
-                        currentKeyframe: $viewModel.currentKeyframe,
-                        isPlaying: $viewModel.isPlaying,
-                        numberOfKeyframes: $viewModel.document.numberOfKeyframes,
+                        currentKeyframe: Binding(
+                            get: { viewModel.currentKeyframe },
+                            set: { newValue in
+                                if viewModel.isPlaying {
+                                    viewModel.setIsPlaying(false)
+                                }
+                                // This is a workaround since we can't directly set currentKeyframe
+                                if newValue > viewModel.currentKeyframe {
+                                    viewModel.submit(action: .goForward(frames: newValue - viewModel.currentKeyframe))
+                                } else if newValue < viewModel.currentKeyframe {
+                                    viewModel.submit(action: .goBack(frames: viewModel.currentKeyframe - newValue))
+                                }
+                            }
+                        ),
+                        isPlaying: Binding(
+                            get: { viewModel.isPlaying },
+                            set: { viewModel.setIsPlaying($0) }
+                        ),
+                        numberOfKeyframes: Binding(
+                            get: { viewModel.document.numberOfKeyframes },
+                            set: { _ in } // Read-only binding
+                        ),
                         highlightedKeyframes: viewModel.highlightedKeyframes)
                     HStack {
                         LinearGradient(
@@ -182,12 +208,13 @@ struct VideoEditor: View {
                     style: viewModel.document.trackers[index].style,
                     size: viewModel.document.trackers[index].size
                 ) { result in
-                    viewModel.document.trackers[index].text = result.text
-                    viewModel.document.trackers[index].style = result.style
-                    viewModel.document.trackers[index].size = result.size
-                    viewModel.isEditingText = false
+                    viewModel.updateTrackerText(
+                        text: result.text,
+                        style: result.style,
+                        size: result.size
+                    )
                 } onDeleteTracker: {
-                    viewModel.isEditingText = false
+                    viewModel.setIsEditingText(false)
                     viewModel.submit(action: .removeSelectedTracker)
                 }.transition(.opacity)
             }

@@ -5,7 +5,7 @@
    - [x] Refactor `/Memeo/Sources/Home/Home.swift` to move presentation logic into HomeViewModel - add @Published properties with private(set) for state
    - [x] Apply this pattern in HomeViewModel.swift: `@Published private(set) var documents: [Document] = []`
    - [x] Replace direct state in Home.swift with: `@ObservedObject var viewModel: HomeViewModel`
-   - [ ] Move business logic from VideoEditor.swift into VideoEditorViewModel.swift using the same pattern
+   - [x] Move business logic from VideoEditor.swift into VideoEditorViewModel.swift using the same pattern
 
 -[x] Move ViewModel initialization from views to a separate factory/coordinator pattern
    - [x] Create a ViewModelFactory protocol: `protocol ViewModelFactory { func makeHomeViewModel() -> HomeViewModel }`

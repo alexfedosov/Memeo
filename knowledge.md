@@ -54,19 +54,46 @@ Represents an overlay on the video with position, style, and animations.
 ### Animation
 Generic animation system for various properties like position, opacity, etc.
 
+## State Management Pattern
+
+When modifying model state in ViewModels, follow this pattern to ensure proper state management:
+
+```swift
+// Create a copy of the state
+var updatedDocument = document
+// Modify the copy
+updatedDocument.trackers[index].text = newText
+// Replace the entire state with the updated copy
+document = updatedDocument
+```
+
+This ensures that SwiftUI properly observes the changes and updates the UI accordingly.
+
 ## To-Do Items Status
 
 1. ✅ Implement proper MVVM architecture
    - ✅ Refactor HomeViewModel with proper @Published private(set) properties
    - ✅ Update Home.swift to use @ObservedObject instead of @StateObject
-   - [ ] Apply MVVM to VideoEditor components
+   - ✅ Apply MVVM to VideoEditor components
 
-2. [ ] Move ViewModel initialization to a factory/coordinator pattern
+2. ✅ Move ViewModel initialization to a factory/coordinator pattern
 
 3. [ ] Reorganize file structure to better separate features
 
 4. [ ] Create a centralized dependency injection system
 
 5. [ ] Consolidate duplicated view components and utilities
+
+## Implementation Notes
+
+### VideoEditorViewModel Refactoring
+
+- Added `private(set)` to all published properties
+- Introduced proper state modification methods (setIsPlaying, setIsEditingText, etc.)
+- Created custom bindings in the view for read-only or computed properties
+- Improved error handling with more explicit guard clauses
+- Added proper service dependency injection
+- Organized code with MARK comments for better readability
+- Implemented async/await for cleanDocumentsDirectory operation
 
 ... [more items]

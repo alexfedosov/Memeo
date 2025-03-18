@@ -91,4 +91,16 @@ class DocumentsService {
             }
         }
     }
+    
+    func cleanDocumentsDirectoryAsync() async {
+        await Task.detached(priority: .background) {
+            for url in FileManager.default.urls(for: .documentDirectory, in: .userDomainMask) {
+                if let directoryContents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil) {
+                    for url in directoryContents {
+                        try? FileManager.default.removeItem(at: url)
+                    }
+                }
+            }
+        }.value
+    }
 }
