@@ -40,14 +40,7 @@ struct VideoEditor: View {
                 TrackerTextEditorContainer(viewModel: viewModel)
                 
                 if isExporting {
-                    ZStack {
-                        VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-                            .ignoresSafeArea()
-                        HStack {
-                            Text("Exporting your video").font(.title3)
-                            ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-                        }.padding()
-                    }
+                    ViewBuilders.loadingOverlay(text: "Exporting your video")
                 }
                 
                 shareContent()
@@ -129,14 +122,7 @@ struct VideoEditor: View {
     
     @ViewBuilder
     private func exportingOverlay() -> some View {
-        ZStack {
-            VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-                .ignoresSafeArea()
-            HStack {
-                Text("Exporting your video").font(.title3)
-                ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-            }.padding()
-        }
+        ViewBuilders.loadingOverlay(text: "Exporting your video")
             .opacity((viewModel.isShowingInterstitialAd || viewModel.isExportingVideo) ? 1 : 0)
     }
     

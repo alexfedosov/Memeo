@@ -115,14 +115,7 @@ struct Home: View {
     
     @ViewBuilder
     private func importingVideoOverlay() -> some View {
-        ZStack {
-            VisualEffectView(effect: UIBlurEffect(style: .systemThickMaterialDark))
-                .ignoresSafeArea()
-            HStack {
-                Text("Importing your video").font(.title3)
-                ProgressView().progressViewStyle(CircularProgressViewStyle()).padding(.leading)
-            }.padding()
-        }
+        ViewBuilders.loadingOverlay(text: "Importing your video")
     }
     
     @ViewBuilder
@@ -206,24 +199,13 @@ struct Home: View {
 
 
     func emptyView() -> some View {
-        VStack(spacing: 16) {
-            Spacer()
-            
-            Image(systemName: "video.badge.plus")
-                .font(.system(size: 48))
-                .foregroundColor(.white.opacity(0.7))
-            
-            Text("Make your own templates!\nAdd video from your photo library to create a new template")
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white.opacity(0.7))
-                .padding(.horizontal)
-            
+        ViewBuilders.emptyState(
+            systemName: "video.badge.plus",
+            message: "Make your own templates!\nAdd video from your photo library to create a new template"
+        ) {
             MemeoButton.standard(text: "Add Video", action: {
                 showVideoPicker = true
             })
-            
-            Spacer()
         }
     }
 

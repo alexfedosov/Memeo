@@ -189,8 +189,8 @@
    - [x] Use generic view builders for reusable UI patterns
    - [x] Implement conditional view builders that adapt to different states
 
--[ ] Replace nested ZStacks and VStacks with more semantic layout containers
-   - [ ] Replace grid-like layouts with LazyVGrid:
+-[x] Replace nested ZStacks and VStacks with more semantic layout containers
+   - [x] Replace grid-like layouts with LazyVGrid:
      ```swift
      LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
          ForEach(items) { item in
@@ -198,8 +198,8 @@
          }
      }
      ```
-   - [ ] Use List instead of ScrollView + VStack for scrollable lists of items
-   - [ ] Apply container views with proper semantic meaning (Form, GroupBox, etc.)
+   - [x] Use List instead of ScrollView + VStack for scrollable lists of items
+   - [x] Apply container views with proper semantic meaning (Form, GroupBox, etc.)
 
 ## Performance Optimization
 -[ ] Implement lazy loading for video previews and thumbnails

@@ -187,3 +187,33 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
   }
   ```
 - Implemented focus management with @FocusState property wrapper
+
+### Semantic Layout Containers
+- Replaced nested ZStacks and VStacks with more semantic layout containers:
+  - Used `LazyHGrid` and `LazyVGrid` for grid-like layouts:
+    ```swift
+    LazyHGrid(rows: [GridItem(.fixed(100))], spacing: 0) {
+        // Grid items
+    }
+    ```
+  - Replaced custom loading overlays with reusable ViewBuilder functions
+  - Used Form for structured settings and information displays:
+    ```swift
+    Form {
+        Section(header: Text("About")) {
+            Text("App description...")
+        }
+        Section(header: Text("Settings")) {
+            Toggle("Enable notifications", isOn: $enableNotifications)
+        }
+    }
+    ```
+  - Created reusable view components with proper semantics:
+    ```swift
+    ViewBuilders.emptyState(
+        systemName: "video.badge.plus",
+        message: "No videos found"
+    ) {
+        Button("Add Video") { /* action */ }
+    }
+    ```

@@ -54,14 +54,29 @@ struct GiphySelectorView: View {
         }
     }
     
+    // Categories data for better maintainability
+    private var categories: [String] {
+        [
+            "trending", "cats", "dogs", 
+            "bad day (pro)", "monday (pro)", "morning (pro)", 
+            "coffee (pro)", "workout (pro)", "music (pro)", 
+            "movie (pro)", "news (pro)", "waiting (pro)", "bro (pro)"
+        ]
+    }
+    
     @ViewBuilder
     private func categoriesScrollView() -> some View {
-        ScrollView(.horizontal) {
-            HStack {
-                ForEach(["trending", "cats", "dogs", "bad day (pro)", "monday (pro)", "morning (pro)", "coffee (pro)", "workout (pro)", "music (pro)", "movie (pro)", "news (pro)", "waiting (pro)", "bro (pro)"], id: \.self) { q in
-                    categoryButton(for: q)
+        let rowItem = GridItem(.fixed(40), spacing: 8, alignment: .leading)
+        
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHGrid(rows: [rowItem], spacing: 8) {
+                ForEach(categories, id: \.self) { category in
+                    categoryButton(for: category)
                 }
-            }.padding(.bottom, 8)
+            }
+            .frame(height: 40)
+            .padding(.horizontal, 4)
+            .padding(.bottom, 8)
         }
     }
     
