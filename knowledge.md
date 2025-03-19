@@ -124,6 +124,18 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
 - Use proper file naming conventions based on content (CoreGraphicsExtensions vs CGPointExtensions)
 - Document public APIs with proper documentation comments
 - Follow Swift API Design Guidelines for clean, consistent code
+- Use `@MainActor` for all ViewModels and UI-related classes to ensure proper thread safety
+
+### MainActor Usage
+
+- All ViewModels (HomeViewModel, VideoEditorViewModel, ShareViewModel) are marked with `@MainActor`
+- UI-related classes like `TrackersEditorUIView` and `VideoPickerCoordinator` are marked with `@MainActor`
+- When using `@MainActor` on a class:
+  - Remove redundant `@MainActor` annotations on methods within the class
+  - Remove unnecessary `MainActor.run` blocks when already in a MainActor context
+  - Replace `DispatchQueue.main.async` calls with direct method calls when in MainActor context
+- The MainActor helps prevent thread-safety issues by ensuring UI updates happen on the main thread
+- SwiftUI Views automatically run on the MainActor, so direct UI updates from SwiftUI views don't need additional MainActor annotations
 
 ### VideoEditorViewModel Refactoring
 

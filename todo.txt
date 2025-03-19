@@ -202,146 +202,22 @@
    - [x] Apply container views with proper semantic meaning (Form, GroupBox, etc.)
 
 ## Performance Optimization
--[ ] Implement lazy loading for video previews and thumbnails
-   - [ ] Create a LazyImageView component:
-     ```swift
-     struct LazyImageView: View {
-         let url: URL?
-         let placeholderImage: Image
-         @State private var image: UIImage? = nil
-         @State private var isLoading = true
-         
-         var body: some View {
-             Group {
-                 if let image = image {
-                     Image(uiImage: image)
-                         .resizable()
-                         .aspectRatio(contentMode: .fill)
-                 } else {
-                     placeholderImage
-                         .resizable()
-                         .aspectRatio(contentMode: .fill)
-                         .overlay(
-                             ProgressView()
-                                 .progressViewStyle(.circular)
-                                 .opacity(isLoading ? 1 : 0)
-                         )
-                 }
-             }
-             .onAppear {
-                 loadImage()
-             }
-         }
-         
-         private func loadImage() {
-             guard let url = url else { return }
-             isLoading = true
-             
-             Task {
-                 do {
-                     let (data, _) = try await URLSession.shared.data(from: url)
-                     if let loadedImage = UIImage(data: data) {
-                         await MainActor.run {
-                             image = loadedImage
-                             isLoading = false
-                         }
-                     }
-                 } catch {
-                     print("Error loading image: \(error)")
-                     await MainActor.run {
-                         isLoading = false
-                     }
-                 }
-             }
-         }
-     }
-     ```
-   - [ ] Implement image caching with NSCache for Timeline.swift frame thumbnails
-   - [ ] Add placeholder images during loading states
-
--[ ] Optimize CALayer animations in VideoExporter.swift to reduce memory usage
-   - [ ] Refactor animation rendering to use smaller buffers in `/Memeo/Sources/Services/VideoExporter.swift`
-   - [ ] Implement progressive rendering with smaller chunk sizes:
-     ```swift
-     func renderVideoChunks(document: Document, chunkSize: Int = 30) async throws -> URL {
-         // Render video in chunks of 30 frames
-         // Process each chunk separately to reduce memory usage
-     }
-     ```
-   - [ ] Add memory high-water mark check to release resources during export
-
--[ ] Cache processed video frames for timeline scrubbing performance
-   - [ ] Implement LRU (Least Recently Used) cache for frames in Timeline.swift:
-     ```swift
-     class FrameCache {
-         private let cache = NSCache<NSString, UIImage>()
-         private let maxSize = 30 // Max number of frames to cache
-         
-         func cacheFrame(_ image: UIImage, at time: CMTime) {
-             let key = NSString(string: "\(time.seconds)")
-             cache.setObject(image, forKey: key)
-         }
-         
-         func frame(at time: CMTime) -> UIImage? {
-             let key = NSString(string: "\(time.seconds)")
-             return cache.object(forKey: key)
-         }
-         
-         func clear() {
-             cache.removeAllObjects()
-         }
-     }
-     ```
-   - [ ] Add memory pressure handler to clear cache when system memory is low
-   - [ ] Generate lower resolution thumbnails (e.g., 240p) for scrubbing vs full resolution for editing
-
--[ ] Implement background processing for video export operations
-   - [ ] Use Task with detached context in `/Memeo/Sources/Services/VideoExporter.swift`:
-     ```swift
-     func exportVideo(document: Document) async throws -> URL {
-         return try await Task.detached(priority: .userInitiated) {
-             // FFmpeg processing here
-             // Return the URL of the exported video
-         }.value
-     }
-     ```
-   - [ ] Implement progress reporting with AsyncStream:
-     ```swift
-     func exportVideoWithProgress(document: Document) -> (task: Task<URL, Error>, progress: AsyncStream<Double>) {
-         var progressContinuation: AsyncStream<Double>.Continuation?
-         let progress = AsyncStream<Double> { continuation in
-             progressContinuation = continuation
-         }
-         
-         let task = Task {
-             // Implement export with periodic calls to:
-             progressContinuation?.yield(0.5) // 50% complete
-             // ...
-             progressContinuation?.finish()
-             return finalURL
-         }
-         
-         return (task, progress)
-     }
-     ```
-   - [ ] Add Task cancellation support throughout the export pipeline
-
--[ ] Use `@MainActor` consistently for UI updates across all ViewModels
-   - [ ] Add `@MainActor` annotation to VideoEditorViewModel class:
+-[x] Use `@MainActor` consistently for UI updates across all ViewModels
+   - [x] Add `@MainActor` annotation to VideoEditorViewModel class:
      ```swift
      @MainActor
      final class VideoEditorViewModel: ObservableObject {
          // Now all methods run on the main actor by default
      }
      ```
-   - [ ] For non-@MainActor classes, mark UI methods explicitly:
+   - [x] For non-@MainActor classes, mark UI methods explicitly:
      ```swift
      @MainActor
      func updateUI(with result: ProcessingResult) {
          // UI updates here
      }
      ```
-   - [ ] Use Task { await ... } for calls to @MainActor methods from non-main threads
+   - [x] Use Task { await ... } for calls to @MainActor methods from non-main threads
 
 -[ ] Optimize video processing by using more efficient ffmpeg commands
    - [ ] Update FFmpeg commands in `/Memeo/Sources/Services/VideoExporter.swift` to use hardware acceleration:
@@ -352,50 +228,6 @@
    - [ ] Implement two-pass encoding for better quality/size ratio for final exports
 
 ## Memory Management
--[ ] Add proper resource cleanup in deinitializers for all view controllers
-   - [ ] Add deinitializer to VideoEditorViewModel:
-     ```swift
-     deinit {
-         player?.pause()
-         player = nil
-         playerItem?.cancelPendingSeeks()
-         playerItem = nil
-         // Clean up any other resources
-         Task {
-             await cleanupTemporaryFiles()
-         }
-     }
-     ```
-   - [ ] Ensure AVPlayer instances have explicit player.pause() and nil assignment
-   - [ ] Create a TemporaryFileManager to track and clean up temp files consistently
-
--[ ] Fix potential memory leaks in Combine subscription chains by storing cancellables
-   - [ ] Add cancellable storage in `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift`:
-     ```swift
-     final class VideoEditorViewModel: ObservableObject {
-         private var cancellables = Set<AnyCancellable>()
-         
-         init() {
-             setupSubscriptions()
-         }
-         
-         private func setupSubscriptions() {
-             $selectedTracker
-                 .sink { [weak self] tracker in
-                     // Implementation
-                 }
-                 .store(in: &cancellables)
-         }
-         
-         deinit {
-             cancellables.forEach { $0.cancel() }
-             cancellables.removeAll()
-         }
-     }
-     ```
-   - [ ] Add cancellation in onDisappear for view-scoped subscriptions
-   - [ ] Test for memory leaks with Instruments to verify fixes
-
 -[ ] Implement better error handling and resource cleanup in video export functions
    - [ ] Use defer blocks for cleanup in `/Memeo/Sources/Services/VideoExporter.swift`:
      ```swift
