@@ -12,93 +12,218 @@ import Photos
 import ffmpegkit
 import VideoToolbox
 
-enum VideoExporterError: Error {
+enum VideoExporterError: Error, LocalizedError {
     case unexpectedError(String)
     case albumCreatingError
     case encodingError(String)
     case hardwareAccelerationError
+    case fileSystemError(Error)
+    case assetCreationError
+    case permissionDenied
+    case fileNotFound(URL)
+    case tempDirectoryAccessFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .unexpectedError(let message):
+            return "An unexpected error occurred: \(message)"
+        case .albumCreatingError:
+            return "Failed to create photo album"
+        case .encodingError(let message):
+            return "Video encoding failed: \(message)"
+        case .hardwareAccelerationError:
+            return "Hardware acceleration is not available for this device"
+        case .fileSystemError(let error):
+            return "File system error: \(error.localizedDescription)"
+        case .assetCreationError:
+            return "Failed to create video asset"
+        case .permissionDenied:
+            return "Permission to access Photos library was denied"
+        case .fileNotFound(let url):
+            return "File not found at: \(url.path)"
+        case .tempDirectoryAccessFailed:
+            return "Failed to access temporary directory"
+        }
+    }
+}
+
+/// A resource handle class that implements the AutoCloseable pattern to ensure proper cleanup
+class ResourceHandle<T> {
+    private let resource: T
+    private let cleanup: (T) -> Void
+    
+    init(resource: T, cleanup: @escaping (T) -> Void) {
+        self.resource = resource
+        self.cleanup = cleanup
+    }
+    
+    func get() -> T {
+        return resource
+    }
+    
+    deinit {
+        cleanup(resource)
+    }
 }
 
 class VideoExporter {
     let albumName = "Memeo"
+    
+    // A utility function to create a temporary URL with given extension
+    private func createTemporaryURL(withExtension fileExtension: String) throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let filename = ProcessInfo.processInfo.globallyUniqueString
+        let url = tempDir.appendingPathComponent(filename).appendingPathExtension(fileExtension)
+        
+        return url
+    }
 
     func exportGif(url: URL, trim: Bool = true) async throws -> URL {
-        let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "meme.gif")
-        let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
+        // Validate input first
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw VideoExporterError.fileNotFound(url)
+        }
+        
+        // Create a temporary output URL
+        let outfileURL: URL
+        do {
+            outfileURL = try createTemporaryURL(withExtension: "gif")
+        } catch {
+            throw VideoExporterError.tempDirectoryAccessFailed
+        }
+        
+        // Create a resource handle to ensure cleanup if anything fails
+        let resourceHandle = ResourceHandle(resource: outfileURL) { url in
+            // Only try to delete the file if something went wrong and it exists
+            if Thread.current.isCancelled, FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        
+        // Create FFmpeg command
         var command = trim ? "-ss 0.1 -t 3" : ""
         command.append(
             " -hwaccel videotoolbox -i \(url.path) -filter_complex \"[0:v] fps=12,scale=w=480:h=-1,split [a][b];[a] palettegen [p];[b][p] paletteuse\" -loop -1 \(outfileURL.path)"
         )
         
-        let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
-            FFmpegKit.executeAsync(command) { session in
-                if let session = session {
-                    continuation.resume(returning: session)
-                } else {
-                    continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
+        do {
+            let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
+                FFmpegKit.executeAsync(command) { session in
+                    if let session = session {
+                        continuation.resume(returning: session)
+                    } else {
+                        continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
+                    }
                 }
             }
+            
+            // Check the FFmpeg execution result
+            let returnCode = session.getReturnCode()
+            guard let code = returnCode, code.isValueSuccess() else {
+                let errorOutput = session.getOutput() ?? "No error details available"
+                throw VideoExporterError.encodingError("Failed to export GIF: \(errorOutput)")
+            }
+            
+            // Verify the output file was created
+            guard FileManager.default.fileExists(atPath: outfileURL.path) else {
+                throw VideoExporterError.fileNotFound(outfileURL)
+            }
+            
+            // Return the URL of the successfully created GIF
+            return resourceHandle.get()
+        } catch {
+            // If we get here, something went wrong, so let's clean up
+            if FileManager.default.fileExists(atPath: outfileURL.path) {
+                try? FileManager.default.removeItem(at: outfileURL)
+            }
+            
+            // Propagate the original error or wrap it if needed
+            if let videoError = error as? VideoExporterError {
+                throw videoError
+            } else {
+                throw VideoExporterError.unexpectedError("Failed to export GIF: \(error.localizedDescription)")
+            }
         }
-        
-        let returnCode = session.getReturnCode()
-        guard let code = returnCode, code.isValueSuccess() else {
-            throw VideoExporterError.unexpectedError("Failed to export GIF: \(String(describing: session.getOutput()))")
-        }
-        
-        guard FileManager.default.fileExists(atPath: outfileURL.path) else {
-            throw VideoExporterError.unexpectedError("GIF file was not created")
-        }
-        
-        return outfileURL
     }
 
     func export(image: UIImage) async throws -> URL {
-        let data = image.pngData() ?? image.jpegData(compressionQuality: 1)
-        let format = image.pngData() != nil ? ".png" : ".jpeg"
-
-        guard let data = data else { 
+        // Get image data, preferring PNG format if available
+        guard let data = image.pngData() ?? image.jpegData(compressionQuality: 1) else { 
             throw VideoExporterError.unexpectedError("Failed to convert image to data")
         }
         
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, format))
+        let format = image.pngData() != nil ? "png" : "jpeg"
+        
+        // Create temporary URLs for both the image and the output video
+        let imageURL: URL
+        let outfileURL: URL
         
         do {
-            try data.write(to: url)
+            imageURL = try createTemporaryURL(withExtension: format)
+            outfileURL = try createTemporaryURL(withExtension: "mp4")
         } catch {
-            throw VideoExporterError.unexpectedError("Failed to write image data: \(error.localizedDescription)")
-        }
-
-        let width = image.size.width
-        let height = image.size.height
-        let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, ".mp4")
-        let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
-        let command = " -hwaccel videotoolbox -framerate 30 -i \(url.path) -t 1 -c:v h264_videotoolbox -pix_fmt yuv420p -preset fast -b:v 2M -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
-        
-        // Clean up the temporary image file
-        defer {
-            try? FileManager.default.removeItem(at: url)
+            throw VideoExporterError.tempDirectoryAccessFailed
         }
         
-        let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
-            FFmpegKit.executeAsync(command) { session in
-                if let session = session {
-                    continuation.resume(returning: session)
-                } else {
-                    continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
-                }
+        // Create a resource handle to clean up temp files when done
+        let tempFileResources = ResourceHandle(resource: (imageURL, outfileURL)) { urls in
+            // Clean up both temporary files
+            try? FileManager.default.removeItem(at: urls.0)
+            if Thread.current.isCancelled {
+                try? FileManager.default.removeItem(at: urls.1)
             }
         }
         
-        let returnCode = session.getReturnCode()
-        guard let code = returnCode, code.isValueSuccess() else {
-            throw VideoExporterError.unexpectedError("Failed to convert image to video: \(String(describing: session.getOutput()))")
+        do {
+            // Write the image data to disk
+            try data.write(to: imageURL, options: .atomic)
+            
+            let width = image.size.width
+            let height = image.size.height
+            
+            // Create FFmpeg command
+            let command = " -hwaccel videotoolbox -framerate 30 -i \(imageURL.path) -t 1 -c:v h264_videotoolbox -pix_fmt yuv420p -preset fast -b:v 2M -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
+            
+            let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
+                FFmpegKit.executeAsync(command) { session in
+                    if let session = session {
+                        continuation.resume(returning: session)
+                    } else {
+                        continuation.resume(throwing: VideoExporterError.unexpectedError("Failed to start FFmpeg session"))
+                    }
+                }
+            }
+            
+            // Check the FFmpeg execution result
+            let returnCode = session.getReturnCode()
+            guard let code = returnCode, code.isValueSuccess() else {
+                let errorOutput = session.getOutput() ?? "No error details available"
+                throw VideoExporterError.encodingError("Failed to convert image to video: \(errorOutput)")
+            }
+            
+            // Verify the output file was created
+            guard FileManager.default.fileExists(atPath: outfileURL.path) else {
+                throw VideoExporterError.fileNotFound(outfileURL)
+            }
+            
+            // Return the URL of the successfully created video
+            return tempFileResources.get().1
+        } catch {
+            // If we get here, something went wrong, so let's clean up the output file
+            // (image file will be cleaned up by the ResourceHandle)
+            if FileManager.default.fileExists(atPath: outfileURL.path) {
+                try? FileManager.default.removeItem(at: outfileURL)
+            }
+            
+            // Propagate the original error or wrap it if needed
+            if let videoError = error as? VideoExporterError {
+                throw videoError
+            } else if let fileError = error as? CocoaError, fileError.isFileError {
+                throw VideoExporterError.fileSystemError(error)
+            } else {
+                throw VideoExporterError.unexpectedError("Failed to export image to video: \(error.localizedDescription)")
+            }
         }
-        
-        guard FileManager.default.fileExists(atPath: outfileURL.path) else {
-            throw VideoExporterError.unexpectedError("Video file was not created")
-        }
-        
-        return outfileURL
     }
 
     func export(document: Document) async throws -> URL {
@@ -209,25 +334,36 @@ class VideoExporter {
     }
     
     private func exportWithSession(composition: AVComposition, videoComposition: AVVideoComposition, presetName: String = AVAssetExportPresetHighestQuality) async throws -> URL {
+        // Create export session
         guard let export = AVAssetExportSession(asset: composition, presetName: presetName) else {
             throw VideoExporterError.unexpectedError("Cannot create export session")
         }
 
-        let videoName = "memeo-meme"
-        var exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent(videoName)
-            .appendingPathExtension("mp4")
-
-        if FileManager().fileExists(atPath: exportURL.path) {
-            do {
-                try FileManager().removeItem(at: exportURL)
-            } catch {
-                exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
-                    .appendingPathComponent(UUID().uuidString)
-                    .appendingPathExtension("mp4")
+        // Create a temporary output URL
+        let exportURL: URL
+        do {
+            exportURL = try createTemporaryURL(withExtension: "mp4")
+        } catch {
+            throw VideoExporterError.tempDirectoryAccessFailed
+        }
+        
+        // Create a resource handle to clean up the output file if anything fails
+        let resourceHandle = ResourceHandle(resource: exportURL) { url in
+            if Thread.current.isCancelled, FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
             }
         }
 
+        // If file already exists (shouldn't happen with unique names, but just in case), remove it
+        if FileManager.default.fileExists(atPath: exportURL.path) {
+            do {
+                try FileManager.default.removeItem(at: exportURL)
+            } catch {
+                throw VideoExporterError.fileSystemError(error)
+            }
+        }
+
+        // Configure export session
         export.videoComposition = videoComposition
         export.outputFileType = .mp4
         export.outputURL = exportURL
@@ -237,176 +373,241 @@ class VideoExporter {
             export.canPerformMultiplePassesOverSourceMediaData = true
         }
         
+        // Start export
         await export.export()
         
         // Check for export success
-        if export.status == .completed {
-            return exportURL
-        } else if let error = export.error {
-            throw VideoExporterError.encodingError(error.localizedDescription)
-        } else {
+        switch export.status {
+        case .completed:
+            return resourceHandle.get()
+            
+        case .failed:
+            if let error = export.error {
+                throw VideoExporterError.encodingError(error.localizedDescription)
+            } else {
+                throw VideoExporterError.unexpectedError("Export failed with no error details")
+            }
+            
+        case .cancelled:
+            throw VideoExporterError.unexpectedError("Export was cancelled")
+            
+        default:
             throw VideoExporterError.unexpectedError("Export failed with status: \(export.status.rawValue)")
         }
     }
     
     private func exportWithWriter(composition: AVComposition, videoComposition: AVVideoComposition) async throws -> URL {
-        let exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent(UUID().uuidString)
-            .appendingPathExtension("mp4")
-            
+        // Create a temporary output URL
+        let exportURL: URL
+        do {
+            exportURL = try createTemporaryURL(withExtension: "mp4")
+        } catch {
+            throw VideoExporterError.tempDirectoryAccessFailed
+        }
+        
+        // Create a resource handle to clean up the output file if anything fails
+        let resourceHandle = ResourceHandle(resource: exportURL) { url in
+            if Thread.current.isCancelled, FileManager.default.fileExists(atPath: url.path) {
+                try? FileManager.default.removeItem(at: url)
+            }
+        }
+        
+        // Make sure the output file doesn't already exist
         if FileManager.default.fileExists(atPath: exportURL.path) {
-            try FileManager.default.removeItem(at: exportURL)
+            do {
+                try FileManager.default.removeItem(at: exportURL)
+            } catch {
+                throw VideoExporterError.fileSystemError(error)
+            }
         }
         
-        // Create asset writer
-        guard let writer = try? AVAssetWriter(outputURL: exportURL, fileType: .mp4) else {
-            throw VideoExporterError.unexpectedError("Cannot create asset writer")
+        // Keep track of resources that need to be cleaned up
+        var reader: AVAssetReader?
+        var writer: AVAssetWriter?
+        var videoProcessingTask: Task<Void, Never>?
+        var audioProcessingTask: Task<Void, Never>?
+        
+        // Make sure to clean up tasks on exit
+        defer {
+            videoProcessingTask?.cancel()
+            audioProcessingTask?.cancel()
         }
         
-        // Configure video settings with hardware acceleration
-        let videoSettings: [String: Any] = [
-            AVVideoCodecKey: AVVideoCodecType.h264,
-            AVVideoWidthKey: videoComposition.renderSize.width,
-            AVVideoHeightKey: videoComposition.renderSize.height,
-            AVVideoCompressionPropertiesKey: [
-                "ProfileLevel": "H264High",
-                "RealTime": true,
-                "Quality": 0.7,
-                "ExpectedFrameRate": 30
-            ]
-        ]
-        
-        // Add video input
-        let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
-        
-        videoInput.expectsMediaDataInRealTime = false
-        videoInput.transform = CGAffineTransform(scaleX: 1, y: 1) // Adjust if needed
-        
-        // Add audio input if available
-        let audioTracks = try await composition.loadTracks(withMediaType: .audio)
-        var audioInput: AVAssetWriterInput? = nil
-        
-        if !audioTracks.isEmpty {
-            let audioSettings: [String: Any] = [
-                AVFormatIDKey: kAudioFormatMPEG4AAC,
-                AVSampleRateKey: 44100,
-                AVNumberOfChannelsKey: 2,
-                AVEncoderBitRateKey: 128000
+        do {
+            // Create asset writer
+            writer = try AVAssetWriter(outputURL: exportURL, fileType: .mp4)
+            
+            // Configure video settings with hardware acceleration
+            let videoSettings: [String: Any] = [
+                AVVideoCodecKey: AVVideoCodecType.h264,
+                AVVideoWidthKey: videoComposition.renderSize.width,
+                AVVideoHeightKey: videoComposition.renderSize.height,
+                AVVideoCompressionPropertiesKey: [
+                    "ProfileLevel": "H264High",
+                    "RealTime": true,
+                    "Quality": 0.7,
+                    "ExpectedFrameRate": 30
+                ]
             ]
             
-            audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
-            audioInput?.expectsMediaDataInRealTime = false
+            // Add video input
+            let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
             
-            if let audioInput = audioInput, writer.canAdd(audioInput) {
-                writer.add(audioInput)
-            }
-        }
-        
-        // Add video input to writer
-        if writer.canAdd(videoInput) {
-            writer.add(videoInput)
-        } else {
-            throw VideoExporterError.unexpectedError("Cannot add video input to writer")
-        }
-        
-        // Create video compositor
-        let pixelBufferAttributes: [String: Any] = [
-            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
-            kCVPixelBufferWidthKey as String: videoComposition.renderSize.width,
-            kCVPixelBufferHeightKey as String: videoComposition.renderSize.height
-        ]
-        
-        let videoCompositionOutput = AVAssetReaderVideoCompositionOutput(
-            videoTracks: try await composition.loadTracks(withMediaType: .video),
-            videoSettings: pixelBufferAttributes)
-        videoCompositionOutput.videoComposition = videoComposition
-        
-        // Create reader
-        guard let reader = try? AVAssetReader(asset: composition) else {
-            throw VideoExporterError.unexpectedError("Cannot create asset reader")
-        }
-        
-        if reader.canAdd(videoCompositionOutput) {
-            reader.add(videoCompositionOutput)
-        } else {
-            throw VideoExporterError.unexpectedError("Cannot add video output to reader")
-        }
-        
-        // Add audio output if available
-        var audioOutput: AVAssetReaderTrackOutput? = nil
-        if !audioTracks.isEmpty, let audioTrack = audioTracks.first {
-            audioOutput = AVAssetReaderTrackOutput(
-                track: audioTrack,
-                outputSettings: [AVFormatIDKey: kAudioFormatLinearPCM])
+            videoInput.expectsMediaDataInRealTime = false
+            videoInput.transform = CGAffineTransform(scaleX: 1, y: 1) // Adjust if needed
             
-            if let audioOutput = audioOutput, reader.canAdd(audioOutput) {
-                reader.add(audioOutput)
-            }
-        }
-        
-        // Start writing
-        guard reader.startReading(), writer.startWriting() else {
-            throw VideoExporterError.unexpectedError("Failed to start reading/writing")
-        }
-        
-        writer.startSession(atSourceTime: .zero)
-        
-        // Process video
-        let videoProcessingTask = Task {
-            while true {
-                if !videoInput.isReadyForMoreMediaData {
-                    try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
-                    continue
-                }
-                
-                guard let sampleBuffer = videoCompositionOutput.copyNextSampleBuffer() else {
-                    videoInput.markAsFinished()
-                    break
-                }
-                
-                if !videoInput.append(sampleBuffer) {
-                    break
-                }
-            }
-        }
-        
-        // Process audio if available
-        let audioProcessingTask = Task {
-            guard let audioInput = audioInput, let audioOutput = audioOutput else { return }
+            // Add audio input if available
+            let audioTracks = try await composition.loadTracks(withMediaType: .audio)
+            var audioInput: AVAssetWriterInput? = nil
             
-            while true {
-                if !audioInput.isReadyForMoreMediaData {
-                    try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
-                    continue
-                }
+            if !audioTracks.isEmpty {
+                let audioSettings: [String: Any] = [
+                    AVFormatIDKey: kAudioFormatMPEG4AAC,
+                    AVSampleRateKey: 44100,
+                    AVNumberOfChannelsKey: 2,
+                    AVEncoderBitRateKey: 128000
+                ]
                 
-                guard let sampleBuffer = audioOutput.copyNextSampleBuffer() else {
-                    audioInput.markAsFinished()
-                    break
-                }
+                audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+                audioInput?.expectsMediaDataInRealTime = false
                 
-                if !audioInput.append(sampleBuffer) {
-                    break
+                if let audioInput = audioInput, writer!.canAdd(audioInput) {
+                    writer!.add(audioInput)
                 }
             }
-        }
-        
-        // Wait for processing to complete
-        await videoProcessingTask.value
-        if audioInput != nil {
-            await audioProcessingTask.value
-        }
-        
-        // Finish writing
-        return try await withCheckedThrowingContinuation { continuation in
-            writer.finishWriting {
-                if writer.status == .completed {
-                    continuation.resume(returning: exportURL)
-                } else if let error = writer.error {
-                    continuation.resume(throwing: VideoExporterError.encodingError(error.localizedDescription))
-                } else {
-                    continuation.resume(throwing: VideoExporterError.unexpectedError("Unknown error during export"))
+            
+            // Add video input to writer
+            if writer!.canAdd(videoInput) {
+                writer!.add(videoInput)
+            } else {
+                throw VideoExporterError.encodingError("Cannot add video input to writer")
+            }
+            
+            // Create video compositor
+            let pixelBufferAttributes: [String: Any] = [
+                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+                kCVPixelBufferWidthKey as String: videoComposition.renderSize.width,
+                kCVPixelBufferHeightKey as String: videoComposition.renderSize.height
+            ]
+            
+            let videoCompositionOutput = AVAssetReaderVideoCompositionOutput(
+                videoTracks: try await composition.loadTracks(withMediaType: .video),
+                videoSettings: pixelBufferAttributes)
+            videoCompositionOutput.videoComposition = videoComposition
+            
+            // Create reader
+            reader = try AVAssetReader(asset: composition)
+            
+            if reader!.canAdd(videoCompositionOutput) {
+                reader!.add(videoCompositionOutput)
+            } else {
+                throw VideoExporterError.encodingError("Cannot add video output to reader")
+            }
+            
+            // Add audio output if available
+            var audioOutput: AVAssetReaderTrackOutput? = nil
+            if !audioTracks.isEmpty, let audioTrack = audioTracks.first {
+                audioOutput = AVAssetReaderTrackOutput(
+                    track: audioTrack,
+                    outputSettings: [AVFormatIDKey: kAudioFormatLinearPCM])
+                
+                if let audioOutput = audioOutput, reader!.canAdd(audioOutput) {
+                    reader!.add(audioOutput)
                 }
+            }
+            
+            // Start reading and writing
+            guard reader!.startReading(), writer!.startWriting() else {
+                throw VideoExporterError.encodingError("Failed to start reading/writing")
+            }
+            
+            writer!.startSession(atSourceTime: .zero)
+            
+            // Process video
+            videoProcessingTask = Task {
+                while true {
+                    if Task.isCancelled {
+                        videoInput.markAsFinished()
+                        break
+                    }
+                    
+                    if !videoInput.isReadyForMoreMediaData {
+                        try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
+                        continue
+                    }
+                    
+                    guard let sampleBuffer = videoCompositionOutput.copyNextSampleBuffer() else {
+                        videoInput.markAsFinished()
+                        break
+                    }
+                    
+                    if !videoInput.append(sampleBuffer) {
+                        break
+                    }
+                }
+            }
+            
+            // Process audio if available
+            if let audioInput = audioInput, let audioOutput = audioOutput {
+                audioProcessingTask = Task {
+                    while true {
+                        if Task.isCancelled {
+                            audioInput.markAsFinished()
+                            break
+                        }
+                        
+                        if !audioInput.isReadyForMoreMediaData {
+                            try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
+                            continue
+                        }
+                        
+                        guard let sampleBuffer = audioOutput.copyNextSampleBuffer() else {
+                            audioInput.markAsFinished()
+                            break
+                        }
+                        
+                        if !audioInput.append(sampleBuffer) {
+                            break
+                        }
+                    }
+                }
+            }
+            
+            // Wait for processing to complete
+            await videoProcessingTask!.value
+            if let audioProcessingTask = audioProcessingTask {
+                await audioProcessingTask.value
+            }
+            
+            // Finish writing
+            return try await withCheckedThrowingContinuation { continuation in
+                writer!.finishWriting {
+                    if writer!.status == .completed {
+                        continuation.resume(returning: resourceHandle.get())
+                    } else if let error = writer!.error {
+                        continuation.resume(throwing: VideoExporterError.encodingError(error.localizedDescription))
+                    } else {
+                        continuation.resume(throwing: VideoExporterError.unexpectedError("Unknown error during export"))
+                    }
+                }
+            }
+        } catch {
+            // Cancel any running tasks
+            videoProcessingTask?.cancel()
+            audioProcessingTask?.cancel()
+            
+            // Clean up the output file if it exists
+            if FileManager.default.fileExists(atPath: exportURL.path) {
+                try? FileManager.default.removeItem(at: exportURL)
+            }
+            
+            // Propagate the error with appropriate wrapping
+            if let videoError = error as? VideoExporterError {
+                throw videoError
+            } else if let avError = error as? AVError {
+                throw VideoExporterError.encodingError("AVFoundation error: \(avError.localizedDescription)")
+            } else {
+                throw VideoExporterError.unexpectedError("Export failed: \(error.localizedDescription)")
             }
         }
     }
@@ -481,6 +682,11 @@ class VideoExporter {
     }
 
     func moveAssetToMemeoAlbum(url: URL) async throws -> String? {
+        // Validate input URL
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw VideoExporterError.fileNotFound(url)
+        }
+        
         // Request permissions first
         let authorizationStatus = await withCheckedContinuation { continuation in
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -488,40 +694,85 @@ class VideoExporter {
             }
         }
         
+        // Check if permissions were granted
         guard authorizationStatus == .authorized else {
-            throw VideoExporterError.unexpectedError("Permissions not granted")
+            throw VideoExporterError.permissionDenied
         }
         
         // Find or create the album
-        let album = try await findOrCreateMemeoAlbum()
-        
-        // Add asset to album
-        var assetIdentifier: String?
-        
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            PHPhotoLibrary.shared().performChanges {
-                let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
-                let changeRequest = PHAssetCollectionChangeRequest(for: album)
-                
-                guard let placeholder = assetRequest?.placeholderForCreatedAsset else {
-                    return
-                }
-                
-                changeRequest?.addAssets([placeholder] as NSArray)
-            } completionHandler: { success, error in
-                if let error = error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
+        let album: PHAssetCollection
+        do {
+            album = try await findOrCreateMemeoAlbum()
+        } catch {
+            if let videoError = error as? VideoExporterError {
+                throw videoError
+            } else {
+                throw VideoExporterError.albumCreatingError
             }
         }
         
-        // Fetch the newly created asset
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        let fetchResult = PHAsset.fetchAssets(with: .video, options: fetchOptions)
-        
-        return fetchResult.firstObject?.localIdentifier
+        // Add asset to album with better error handling
+        do {
+            // Create a variable to capture any asset request error
+            var assetRequestError: Error?
+            var placeholderIdentifier: String?
+            
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                PHPhotoLibrary.shared().performChanges {
+                    // Create asset request
+                    let assetRequest = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
+                    if assetRequest == nil {
+                        assetRequestError = VideoExporterError.assetCreationError
+                        return
+                    }
+                    
+                    // Get placeholder and remember its identifier
+                    guard let placeholder = assetRequest?.placeholderForCreatedAsset else {
+                        assetRequestError = VideoExporterError.assetCreationError
+                        return
+                    }
+                    
+                    placeholderIdentifier = placeholder.localIdentifier
+                    
+                    // Add to album
+                    let changeRequest = PHAssetCollectionChangeRequest(for: album)
+                    changeRequest?.addAssets([placeholder] as NSArray)
+                } completionHandler: { success, error in
+                    if let assetRequestError = assetRequestError {
+                        continuation.resume(throwing: assetRequestError)
+                    } else if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if !success {
+                        continuation.resume(throwing: VideoExporterError.assetCreationError)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
+            
+            // If we have a placeholder ID, try to use it to find the asset directly
+            if let placeholderIdentifier = placeholderIdentifier {
+                let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [placeholderIdentifier], options: nil)
+                if let asset = fetchResult.firstObject {
+                    return asset.localIdentifier
+                }
+            }
+            
+            // Fallback: fetch the most recently created video asset (less reliable)
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            let fetchResult = PHAsset.fetchAssets(with: .video, options: fetchOptions)
+            
+            return fetchResult.firstObject?.localIdentifier
+        } catch {
+            // Properly categorize and wrap the error
+            if let videoError = error as? VideoExporterError {
+                throw videoError
+            } else if let phError = error as? PHPhotosError {
+                throw VideoExporterError.encodingError("Photos library error: \(phError.localizedDescription)")
+            } else {
+                throw VideoExporterError.unexpectedError("Failed to add video to album: \(error.localizedDescription)")
+            }
+        }
     }
 }

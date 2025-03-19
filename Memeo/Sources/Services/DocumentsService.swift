@@ -11,9 +11,27 @@ import Foundation
 import GiphyUISDK
 import UIKit
 
-enum DocumentServiceError: Error {
+enum DocumentServiceError: Error, LocalizedError {
     case unexpectedError
     case error(String)
+    case fileSystemError(Error)
+    case fileNotFound(URL)
+    case invalidData
+    
+    var errorDescription: String? {
+        switch self {
+        case .unexpectedError:
+            return "An unexpected error occurred"
+        case .error(let message):
+            return message
+        case .fileSystemError(let error):
+            return "File system error: \(error.localizedDescription)"
+        case .fileNotFound(let url):
+            return "File not found at: \(url.path)"
+        case .invalidData:
+            return "The file contains invalid data"
+        }
+    }
 }
 
 class DocumentsService {
@@ -84,25 +102,75 @@ class DocumentsService {
         return try await create(fromMedia: importURL, copyToDocumentsDir: false)
     }
 
+    /// Cleans up temporary files in the documents directory
+    /// Only deletes files with temp_ prefix or in the Temporary subdirectory
+    /// Also deletes files older than 24 hours with specific temp extensions
     func cleanDocumentsDirectory() {
-        for url in FileManager.default.urls(for: .documentDirectory, in: .userDomainMask) {
-            if let directoryContents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil) {
-                for url in directoryContents {
-                    try? FileManager.default.removeItem(at: url)
+        let fileManager = FileManager.default
+        let documentURLs = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let tempExtensions = ["mp4", "gif", "jpeg", "png", "mov"]
+        let twentyFourHoursAgo = Date().addingTimeInterval(-86400) // 24 hours ago
+        
+        for documentURL in documentURLs {
+            // Create a dedicated temp directory if it doesn't exist yet
+            let tempDirURL = documentURL.appendingPathComponent("Temporary", isDirectory: true)
+            if !fileManager.fileExists(atPath: tempDirURL.path) {
+                try? fileManager.createDirectory(at: tempDirURL, withIntermediateDirectories: true)
+            }
+            
+            do {
+                // Get all files in the documents directory
+                let fileURLs = try fileManager.contentsOfDirectory(
+                    at: documentURL,
+                    includingPropertiesForKeys: [.creationDateKey, .isDirectoryKey],
+                    options: .skipsHiddenFiles
+                )
+                
+                for fileURL in fileURLs {
+                    // Check if it's a directory
+                    let resourceValues = try fileURL.resourceValues(forKeys: [.isDirectoryKey])
+                    let isDirectory = resourceValues.isDirectory ?? false
+                    
+                    if isDirectory {
+                        // If it's the Temporary directory, clean everything inside it
+                        if fileURL.lastPathComponent == "Temporary" {
+                            let tempFiles = try fileManager.contentsOfDirectory(at: fileURL, includingPropertiesForKeys: nil)
+                            for tempFile in tempFiles {
+                                try? fileManager.removeItem(at: tempFile)
+                            }
+                        }
+                    } else {
+                        // For regular files, check if they are temporary files
+                        let fileName = fileURL.lastPathComponent
+                        let fileExtension = fileURL.pathExtension.lowercased()
+                        
+                        // Check if it's a temp file based on prefix
+                        if fileName.hasPrefix("temp_") || fileName.hasPrefix("giphy-") {
+                            try? fileManager.removeItem(at: fileURL)
+                            continue
+                        }
+                        
+                        // Check if it's a UUID-looking filename (likely temporary)
+                        if fileName.count >= 36 && fileName.contains("-") && tempExtensions.contains(fileExtension) {
+                            // Check if it's more than 24 hours old
+                            if let creationDate = try fileURL.resourceValues(forKeys: [.creationDateKey]).creationDate,
+                               creationDate < twentyFourHoursAgo {
+                                try? fileManager.removeItem(at: fileURL)
+                            }
+                        }
+                    }
                 }
+            } catch {
+                print("Error cleaning documents directory: \(error)")
             }
         }
     }
     
+    /// Asynchronous version of cleanDocumentsDirectory
+    /// Runs in a background task to avoid blocking the main thread
     func cleanDocumentsDirectoryAsync() async {
         await Task.detached(priority: .background) {
-            for url in FileManager.default.urls(for: .documentDirectory, in: .userDomainMask) {
-                if let directoryContents = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil) {
-                    for url in directoryContents {
-                        try? FileManager.default.removeItem(at: url)
-                    }
-                }
-            }
+            self.cleanDocumentsDirectory()
         }.value
     }
 }
