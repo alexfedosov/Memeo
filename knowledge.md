@@ -132,6 +132,37 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
 - Follow Swift API Design Guidelines for clean, consistent code
 - Use `@MainActor` for all ViewModels and UI-related classes to ensure proper thread safety
 
+### Error Handling and Resource Management
+
+- Use `LocalizedError` protocol for meaningful error messages and better debugging
+- Create domain-specific error types with descriptive cases
+- Use defer blocks for proper resource cleanup
+- Implement resource handles with closures for the AutoCloseable pattern:
+  ```swift
+  class ResourceHandle<T> {
+      private let resource: T
+      private let cleanup: (T) -> Void
+      
+      init(resource: T, cleanup: @escaping (T) -> Void) {
+          self.resource = resource
+          self.cleanup = cleanup
+      }
+      
+      func get() -> T {
+          return resource
+      }
+      
+      deinit {
+          cleanup(resource)
+      }
+  }
+  ```
+- Safely manage temporary files with proper creation and cleanup protocols
+- Create dedicated `Temporary` directories for organized file management 
+- Check `Task.isCancelled` in loops and long-running operations to support cancellation
+- Use content-based file identification for temporary file management (file prefixes, extensions)
+- Implement age-based expiration for temporary resources (24-hour window)
+
 ### MainActor Usage
 
 - All ViewModels (HomeViewModel, VideoEditorViewModel, ShareViewModel) are marked with `@MainActor`
