@@ -228,8 +228,8 @@
    - [x] Implement multi-strategy encoding with fallback options for better reliability
 
 ## Memory Management
--[ ] Implement better error handling and resource cleanup in video export functions
-   - [ ] Use defer blocks for cleanup in `/Memeo/Sources/Services/VideoExporter.swift`:
+-[x] Implement better error handling and resource cleanup in video export functions
+   - [x] Use defer blocks for cleanup in `/Memeo/Sources/Services/VideoExporter.swift`:
      ```swift
      func processVideo() async throws -> URL {
          let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -240,8 +240,8 @@
          // Video processing logic
      }
      ```
-   - [ ] Implement try-catch-finally pattern with defer for resource cleanup
-   - [ ] Create a ResourceHandle class that implements AutoCloseable pattern for resources
+   - [x] Implement try-catch-finally pattern with defer for resource cleanup
+   - [x] Create a ResourceHandle class that implements AutoCloseable pattern for resources
 
 -[ ] Use weak self in closures consistently to prevent retain cycles
    - [ ] Fix closures in `/Memeo/Sources/VideoEditor/VideoEditorViewModel.swift` (lines 89-95):
@@ -260,12 +260,14 @@
    - [ ] Audit all closures with static analyzer to find potential retain cycles
    - [ ] Add explicit [weak self] in all appropriate async contexts and callbacks
 
--[ ] Fix cleanDocumentsDirectory method to only delete temporary files, not all files
-   - [ ] Update `/Memeo/Sources/Services/DocumentsService.swift` cleanDocumentsDirectory() (line 86-93):
+-[x] Fix cleanDocumentsDirectory method to only delete temporary files, not all files
+   - [x] Update `/Memeo/Sources/Services/DocumentsService.swift` cleanDocumentsDirectory() with improved logic:
      ```swift
      func cleanDocumentsDirectory() {
          let fileManager = FileManager.default
          let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+         let tempExtensions = ["mp4", "gif", "jpeg", "png", "mov"]
+         let twentyFourHoursAgo = Date().addingTimeInterval(-86400) // 24 hours ago
          
          do {
              let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
@@ -273,7 +275,8 @@
              // Only delete files with temp prefix or in temp directory
              let tempFiles = fileURLs.filter { 
                  $0.lastPathComponent.hasPrefix("temp_") || 
-                 $0.pathComponents.contains("Temporary") 
+                 $0.pathComponents.contains("Temporary") ||
+                 (tempExtensions.contains($0.pathExtension.lowercased()) && isOlderThan24Hours($0))
              }
              
              for fileURL in tempFiles {
@@ -284,8 +287,8 @@
          }
      }
      ```
-   - [ ] Create a dedicated temp directory for all temporary files
-   - [ ] Implement file expiration based on creation date (older than 24 hours)
+   - [x] Create a dedicated temp directory for all temporary files
+   - [x] Implement file expiration based on creation date (older than 24 hours)
 
 ## Error Handling
 -[ ] Implement structured error handling with proper propagation
