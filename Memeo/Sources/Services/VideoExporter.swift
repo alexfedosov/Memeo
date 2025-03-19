@@ -10,10 +10,13 @@ import Combine
 import Foundation
 import Photos
 import ffmpegkit
+import VideoToolbox
 
 enum VideoExporterError: Error {
     case unexpectedError(String)
     case albumCreatingError
+    case encodingError(String)
+    case hardwareAccelerationError
 }
 
 class VideoExporter {
@@ -24,7 +27,7 @@ class VideoExporter {
         let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
         var command = trim ? "-ss 0.1 -t 3" : ""
         command.append(
-            " -i \(url.path)  -filter_complex \"[0:v] fps=12,scale=w=480:h=-1,split [a][b];[a] palettegen [p];[b][p] paletteuse\" -loop -1 \(outfileURL.path)"
+            " -hwaccel videotoolbox -i \(url.path) -filter_complex \"[0:v] fps=12,scale=w=480:h=-1,split [a][b];[a] palettegen [p];[b][p] paletteuse\" -loop -1 \(outfileURL.path)"
         )
         
         let session = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<FFmpegSession, Error>) in
@@ -69,7 +72,7 @@ class VideoExporter {
         let height = image.size.height
         let outfileName = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, ".mp4")
         let outfileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(outfileName)
-        let command = " -framerate 30 -i \(url.path) -t 1 -pix_fmt yuv420p -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
+        let command = " -hwaccel videotoolbox -framerate 30 -i \(url.path) -t 1 -c:v h264_videotoolbox -pix_fmt yuv420p -preset fast -b:v 2M -vf \"scale=\(width):\(height),loop=-1:1\" -movflags faststart \(outfileURL.path)"
         
         // Clean up the temporary image file
         defer {
@@ -189,8 +192,24 @@ class VideoExporter {
         layerInstruction.setTransform(finalTransform, at: .zero)
         instruction.layerInstructions = [layerInstruction]
 
-        guard let export = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)
-        else {
+        // First try with hardware acceleration using AVAssetExportSession with highest quality settings
+        let highQualityExportResult = try? await exportWithSession(composition: composition, videoComposition: videoComposition)
+        if let exportURL = highQualityExportResult {
+            return exportURL
+        }
+        
+        // If the initial export failed, try again with AVAssetExportSession using medium quality
+        let mediumQualityExportResult = try? await exportWithSession(composition: composition, videoComposition: videoComposition, presetName: AVAssetExportPresetMediumQuality)
+        if let exportURL = mediumQualityExportResult {
+            return exportURL
+        }
+        
+        // Finally, if all else fails, try with AVAssetWriter for more control
+        return try await exportWithWriter(composition: composition, videoComposition: videoComposition)        
+    }
+    
+    private func exportWithSession(composition: AVComposition, videoComposition: AVVideoComposition, presetName: String = AVAssetExportPresetHighestQuality) async throws -> URL {
+        guard let export = AVAssetExportSession(asset: composition, presetName: presetName) else {
             throw VideoExporterError.unexpectedError("Cannot create export session")
         }
 
@@ -202,21 +221,194 @@ class VideoExporter {
         if FileManager().fileExists(atPath: exportURL.path) {
             do {
                 try FileManager().removeItem(at: exportURL)
-                print("file removed")
             } catch {
                 exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
                     .appendingPathComponent(UUID().uuidString)
                     .appendingPathExtension("mp4")
-                print("saving under generated url")
             }
         }
 
         export.videoComposition = videoComposition
         export.outputFileType = .mp4
         export.outputURL = exportURL
-
+        
+        // Add hardware acceleration options if supported
+        if #available(iOS 15.0, *) {
+            export.canPerformMultiplePassesOverSourceMediaData = true
+        }
+        
         await export.export()
-        return exportURL
+        
+        // Check for export success
+        if export.status == .completed {
+            return exportURL
+        } else if let error = export.error {
+            throw VideoExporterError.encodingError(error.localizedDescription)
+        } else {
+            throw VideoExporterError.unexpectedError("Export failed with status: \(export.status.rawValue)")
+        }
+    }
+    
+    private func exportWithWriter(composition: AVComposition, videoComposition: AVVideoComposition) async throws -> URL {
+        let exportURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension("mp4")
+            
+        if FileManager.default.fileExists(atPath: exportURL.path) {
+            try FileManager.default.removeItem(at: exportURL)
+        }
+        
+        // Create asset writer
+        guard let writer = try? AVAssetWriter(outputURL: exportURL, fileType: .mp4) else {
+            throw VideoExporterError.unexpectedError("Cannot create asset writer")
+        }
+        
+        // Configure video settings with hardware acceleration
+        let videoSettings: [String: Any] = [
+            AVVideoCodecKey: AVVideoCodecType.h264,
+            AVVideoWidthKey: videoComposition.renderSize.width,
+            AVVideoHeightKey: videoComposition.renderSize.height,
+            AVVideoCompressionPropertiesKey: [
+                "ProfileLevel": "H264High",
+                "RealTime": true,
+                "Quality": 0.7,
+                "ExpectedFrameRate": 30
+            ]
+        ]
+        
+        // Add video input
+        let videoInput = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+        
+        videoInput.expectsMediaDataInRealTime = false
+        videoInput.transform = CGAffineTransform(scaleX: 1, y: 1) // Adjust if needed
+        
+        // Add audio input if available
+        let audioTracks = try await composition.loadTracks(withMediaType: .audio)
+        var audioInput: AVAssetWriterInput? = nil
+        
+        if !audioTracks.isEmpty {
+            let audioSettings: [String: Any] = [
+                AVFormatIDKey: kAudioFormatMPEG4AAC,
+                AVSampleRateKey: 44100,
+                AVNumberOfChannelsKey: 2,
+                AVEncoderBitRateKey: 128000
+            ]
+            
+            audioInput = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+            audioInput?.expectsMediaDataInRealTime = false
+            
+            if let audioInput = audioInput, writer.canAdd(audioInput) {
+                writer.add(audioInput)
+            }
+        }
+        
+        // Add video input to writer
+        if writer.canAdd(videoInput) {
+            writer.add(videoInput)
+        } else {
+            throw VideoExporterError.unexpectedError("Cannot add video input to writer")
+        }
+        
+        // Create video compositor
+        let pixelBufferAttributes: [String: Any] = [
+            kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA,
+            kCVPixelBufferWidthKey as String: videoComposition.renderSize.width,
+            kCVPixelBufferHeightKey as String: videoComposition.renderSize.height
+        ]
+        
+        let videoCompositionOutput = AVAssetReaderVideoCompositionOutput(
+            videoTracks: try await composition.loadTracks(withMediaType: .video),
+            videoSettings: pixelBufferAttributes)
+        videoCompositionOutput.videoComposition = videoComposition
+        
+        // Create reader
+        guard let reader = try? AVAssetReader(asset: composition) else {
+            throw VideoExporterError.unexpectedError("Cannot create asset reader")
+        }
+        
+        if reader.canAdd(videoCompositionOutput) {
+            reader.add(videoCompositionOutput)
+        } else {
+            throw VideoExporterError.unexpectedError("Cannot add video output to reader")
+        }
+        
+        // Add audio output if available
+        var audioOutput: AVAssetReaderTrackOutput? = nil
+        if !audioTracks.isEmpty, let audioTrack = audioTracks.first {
+            audioOutput = AVAssetReaderTrackOutput(
+                track: audioTrack,
+                outputSettings: [AVFormatIDKey: kAudioFormatLinearPCM])
+            
+            if let audioOutput = audioOutput, reader.canAdd(audioOutput) {
+                reader.add(audioOutput)
+            }
+        }
+        
+        // Start writing
+        guard reader.startReading(), writer.startWriting() else {
+            throw VideoExporterError.unexpectedError("Failed to start reading/writing")
+        }
+        
+        writer.startSession(atSourceTime: .zero)
+        
+        // Process video
+        let videoProcessingTask = Task {
+            while true {
+                if !videoInput.isReadyForMoreMediaData {
+                    try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
+                    continue
+                }
+                
+                guard let sampleBuffer = videoCompositionOutput.copyNextSampleBuffer() else {
+                    videoInput.markAsFinished()
+                    break
+                }
+                
+                if !videoInput.append(sampleBuffer) {
+                    break
+                }
+            }
+        }
+        
+        // Process audio if available
+        let audioProcessingTask = Task {
+            guard let audioInput = audioInput, let audioOutput = audioOutput else { return }
+            
+            while true {
+                if !audioInput.isReadyForMoreMediaData {
+                    try? await Task.sleep(nanoseconds: 10_000_000) // Wait 10ms before checking again
+                    continue
+                }
+                
+                guard let sampleBuffer = audioOutput.copyNextSampleBuffer() else {
+                    audioInput.markAsFinished()
+                    break
+                }
+                
+                if !audioInput.append(sampleBuffer) {
+                    break
+                }
+            }
+        }
+        
+        // Wait for processing to complete
+        await videoProcessingTask.value
+        if audioInput != nil {
+            await audioProcessingTask.value
+        }
+        
+        // Finish writing
+        return try await withCheckedThrowingContinuation { continuation in
+            writer.finishWriting {
+                if writer.status == .completed {
+                    continuation.resume(returning: exportURL)
+                } else if let error = writer.error {
+                    continuation.resume(throwing: VideoExporterError.encodingError(error.localizedDescription))
+                } else {
+                    continuation.resume(throwing: VideoExporterError.unexpectedError("Unknown error during export"))
+                }
+            }
+        }
     }
 
     func makeLayerScalingAnimation(scaleFactor: CGFloat, duration: CFTimeInterval) -> CAAnimation {

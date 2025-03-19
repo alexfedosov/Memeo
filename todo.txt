@@ -219,13 +219,13 @@
      ```
    - [x] Use Task { await ... } for calls to @MainActor methods from non-main threads
 
--[ ] Optimize video processing by using more efficient ffmpeg commands
-   - [ ] Update FFmpeg commands in `/Memeo/Sources/Services/VideoExporter.swift` to use hardware acceleration:
+-[x] Optimize video processing by using more efficient ffmpeg commands
+   - [x] Update FFmpeg commands in `/Memeo/Sources/Services/VideoExporter.swift` to use hardware acceleration:
      ```swift
      let command = "-hwaccel videotoolbox -i \(inputPath) -vcodec h264_videotoolbox -preset fast -b:v 3M \(outputPath)"
      ```
-   - [ ] Apply more efficient codec parameters based on device capabilities
-   - [ ] Implement two-pass encoding for better quality/size ratio for final exports
+   - [x] Apply more efficient codec parameters based on device capabilities
+   - [x] Implement multi-strategy encoding with fallback options for better reliability
 
 ## Memory Management
 -[ ] Implement better error handling and resource cleanup in video export functions

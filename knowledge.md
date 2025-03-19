@@ -114,6 +114,12 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
    - Added `@frozen` annotation to TrackerSize enum
    - Added documentation explaining ABI stability reasons
 
+8. ✅ Optimize video processing with hardware acceleration
+   - Added VideoToolbox hardware acceleration to FFmpeg commands
+   - Implemented multi-strategy encoding with fallback mechanisms
+   - Created a robust export pipeline with quality tier fallbacks
+   - Added more specific error types for video processing failures
+
 ## Implementation Notes
 
 ### Modern Swift Best Practices
@@ -154,6 +160,27 @@ This ensures that SwiftUI properly observes the changes and updates the UI accor
   - Created `FocusableTextField` using SwiftUI's TextField with FocusState instead of UITextField
   - Implemented `BlurView` and `SimpleBlurView` using SwiftUI's Material and blur modifiers
   - Created `TrackerView` using SwiftUI's Text and overlay modifiers instead of CALayer
+
+## Video Processing Optimization
+
+### Hardware Acceleration with VideoToolbox
+- Implemented VideoToolbox hardware acceleration for video encoding:
+  - Added `-hwaccel videotoolbox` flag to FFmpeg commands for hardware decoding
+  - Used `-c:v h264_videotoolbox` for hardware-accelerated encoding
+  - Applied optimized settings with `-preset fast -b:v 2M` for speed/quality balance
+
+### Multi-tiered Export Strategy
+- Implemented a fallback system for video export with three tiers:
+  1. High-quality export with hardware acceleration (first attempt)
+  2. Medium-quality export with hardware acceleration (fallback if high quality fails)
+  3. Custom AVAssetWriter/AVAssetReader pipeline (final fallback)
+- Added specific error types for better error handling:
+  - `VideoExporterError.encodingError` for encoding failures
+  - `VideoExporterError.hardwareAccelerationError` for hardware acceleration issues
+- Optimized settings in AVAssetWriter configuration:
+  - Used H.264 High Profile with hardware acceleration
+  - Set appropriate quality parameters for real-time performance
+  - Implemented proper video and audio settings for maximum compatibility
 
 ### SwiftUI Best Practices
 - Used conditional view modifiers with extension method:
