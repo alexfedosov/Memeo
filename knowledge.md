@@ -1,4 +1,4 @@
-# Memeo App Knowledge Base
+# Memeo App Knowledge Base For LLMs
 
 ## Architecture
 
