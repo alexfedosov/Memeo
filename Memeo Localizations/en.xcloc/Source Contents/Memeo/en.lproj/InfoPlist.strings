@@ -1,0 +1,10 @@
+/* Bundle name */
+"CFBundleName" = "Memeo";
+"Memeo Video Template" = "Memeo Video Template";
+"Memeo Video Template" = "Memeo Video Template";
+/* Privacy - Camera Usage Description */
+"NSCameraUsageDescription" = "Meme needs access to camera to let you film a video and create new meme with it";
+/* Privacy - Photo Library Additions Usage Description */
+"NSPhotoLibraryAddUsageDescription" = "Memeo will export video and save it to your photo library";
+/* Privacy - Photo Library Usage Description */
+"NSPhotoLibraryUsageDescription" = "Memeo will create a new album for exported videos";
